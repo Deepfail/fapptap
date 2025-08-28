@@ -1,0 +1,232 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem"],
+      "env": { "ALLOW": "C:/Files/Projects/autoedit" },
+      "autoApprove": ["list_directory", "read_file"],
+      "disabled": false
+    },
+
+    "process": {
+      "command": "npx",
+      "args": ["-y", "@botanicastudios/process-manager-mcp"],
+      "env": {
+        "PATH": "C:/Files/Projects/fapptap/.venv/Scripts;C:/ffmpeg/bin;${env:PATH}"
+      },
+      "autoApprove": [],
+      "disabled": false
+    },
+
+    "sqlite": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sqlite",
+        "cache/analysis.db"
+      ],
+      "autoApprove": ["query", "execute"],
+      "disabled": false
+    },
+
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_token}" },
+      "autoApprove": [
+        "get_me",
+        "get_repository",
+        "list_repositories",
+        "search_repositories",
+        "get_issue",
+        "list_issues",
+        "create_issue",
+        "get_pull_request",
+        "list_pull_requests",
+        "get_commit",
+        "list_commits"
+      ],
+      "disabled": false
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "disabled": false,
+      "autoApprove": ["sequentialthinking"]
+    },
+    "code-runner": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-code-runner"],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "github.com/upstash/context7-mcp": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@upstash/context7-mcp"],
+      "disabled": false,
+      "autoApprove": ["resolve-library-id"]
+    },
+    "@21st-dev/magic": {
+      "command": "npx",
+      "args": ["-y", "@21st-dev/magic@latest"],
+      "env": { "API_KEY": "${input:twentyfirst_api_key}" },
+      "autoApprove": [
+        "21st_magic_component_builder",
+        "logo_search",
+        "21st_magic_component_inspiration",
+        "21st_magic_component_refiner"
+      ],
+      "disabled": true
+    },
+
+    "kg-memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "autoApprove": ["upsert", "search", "neighbors"],
+      "disabled": false
+    },
+
+    "supermemory": {
+      "command": "npx",
+      "args": ["-y", "supermemory"],
+      "env": { "SUPERMEMORY_API_KEY": "${input:supermemory_api_key}" },
+      "autoApprove": ["search", "upsert"],
+      "disabled": false
+    },
+
+    "stash-graphql": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-http"],
+      "env": {
+        "BASE_URL": "${input:stash_base_url}",
+        "HEADER_Authorization": "ApiKey ${input:stash_api_key}"
+      },
+      "autoApprove": ["request"],
+      "disabled": true
+    },
+
+    "ffmpeg-mcp": {
+      "command": "npx",
+      "args": ["-y", "ffmpeg-mcp"],
+      "env": { "FFMPEG_PATH": "C:/ffmpeg/bin/ffmpeg.exe" },
+      "autoApprove": ["probe", "transcode", "concat"],
+      "disabled": true
+    },
+
+    "opencv-mcp": {
+      "command": "npx",
+      "args": ["-y", "opencv-mcp-server"],
+      "autoApprove": ["read_frame", "histogram", "edge_map"],
+      "disabled": true
+    },
+
+    "whisper-mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-whisper"],
+      "env": { "OPENAI_API_KEY": "${input:openai_key}" },
+      "autoApprove": ["transcribe"],
+      "disabled": true
+    },
+
+    "ocr-mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-ocr"],
+      "autoApprove": ["ocr_image", "ocr_frame"],
+      "disabled": true
+    },
+
+    "serper-mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-serper"],
+      "env": { "SERPER_API_KEY": "${input:serper_key}" },
+      "autoApprove": ["search", "news", "images"],
+      "disabled": true
+    },
+
+    "software-planning": {
+      "command": "npx",
+      "args": ["-y", "software-planning-tool"],
+      "env": {
+        "PLANNING_STORAGE": "${workspaceFolder}/cache/plans"
+      },
+      "autoApprove": [
+        "create_plan",
+        "add_task",
+        "update_task",
+        "list_tasks",
+        "export_plan"
+      ],
+      "disabled": false
+    },
+
+    "videodb-director": {
+      "command": "uvx",
+      "args": ["videodb-director-mcp"],
+      "env": {
+        "VIDEODB_ROOT": "C:/Files/Projects/autoedit/media_samples"
+      },
+      "autoApprove": [
+        "index_folder",
+        "search_videos",
+        "summarize_video",
+        "extract_highlights",
+        "get_metadata"
+      ],
+      "disabled": true
+    }
+  },
+
+  "inputs": {
+    "github_token": {
+      "type": "string",
+      "description": "GitHub Personal Access Token (repo + read:user)",
+      "password": true
+    },
+    "twentyfirst_api_key": {
+      "type": "string",
+      "description": "21st.dev Magic API key",
+      "password": true
+    },
+    "supermemory_api_key": {
+      "type": "string",
+      "description": "Supermemory API key",
+      "password": true
+    },
+    "stash_base_url": {
+      "type": "string",
+      "description": "Stash GraphQL endpoint (e.g., http://localhost:9999/graphql)"
+    },
+    "stash_api_key": {
+      "type": "string",
+      "description": "Stash API Key",
+      "password": true
+    },
+    "openai_key": {
+      "type": "string",
+      "description": "OpenAI API key for Whisper/ASR",
+      "password": true
+    },
+    "serper_key": {
+      "type": "string",
+      "description": "Serper.dev API key",
+      "password": true
+    },
+    "planning_storage": {
+      "type": "string",
+      "description": "Folder to store planning artifacts",
+      "default": "${workspaceFolder}/cache/plans"
+    },
+    "anthropic_key": {
+      "type": "string",
+      "description": "Anthropic key (optional, for VideoDB Director)",
+      "password": true
+    }
+  }
+}

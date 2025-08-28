@@ -1,0 +1,35 @@
+# Core scientific stack
+numpy
+scipy
+pandas
+
+# Audio analysis
+librosa
+soundfile
+
+# Video / scene detection
+scenedetect
+
+# Media handling
+ffmpeg-python
+opencv-python
+Pillow
+
+# JSON / config handling
+pyyaml
+jsonschema
+
+# Plotting / debugging
+matplotlib
+jupyter
+ipykernel
+notebook
+
+# ML / future highlight scoring (install in step 4)
+# torch
+# torchvision
+# torchaudio
+
+# Misc utilities
+tqdm
+scikit-learn
