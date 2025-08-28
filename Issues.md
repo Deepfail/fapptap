@@ -1,8 +1,7 @@
-Issues
+### Issue #1
 
-## Under 10 sec clips skipped
-
-# CHATGPT CONTEXT
+Under 10 sec clips skipped
+CHATGPT CONTEXT
 
 Your builder creates events with global song times (in/out = beat times).
 
@@ -146,3 +145,5 @@ durations = {src: db_durations.get(src, 0.0) for src in videos}
 Why this fixes the “<10s clips are skipped”
 
 Because now you never ask ffmpeg to trim at t=50s on a 7s clip. You always cut within that clip’s own timeline (0..7s), advancing a cursor and wrapping as needed. Short clips will still contribute—just in small repeating chunks—until the song ends.
+
+# Issue 2
