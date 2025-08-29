@@ -25,7 +25,7 @@ export const PreviewPlayer = ({ src }: { src?: string }) => {
     }
 
     // If playhead was set externally (e.g., drop), jump to that time
-    if (typeof playhead === 'number' && videoRef.current) {
+    if (typeof playhead === "number" && videoRef.current) {
       try {
         videoRef.current.currentTime = playhead;
       } catch (e) {

@@ -25,15 +25,23 @@ export const ClipItem = ({
       // ignore
     }
     // emit global drag start for custom ghost
-    window.dispatchEvent(new CustomEvent('fapptap-drag-start', { detail: { id: clip.id, name: clip.name, thumbnail: clip.thumbnail } }));
+    window.dispatchEvent(
+      new CustomEvent("fapptap-drag-start", {
+        detail: { id: clip.id, name: clip.name, thumbnail: clip.thumbnail },
+      })
+    );
   };
 
   const handleDrag = (e: React.DragEvent) => {
-    window.dispatchEvent(new CustomEvent('fapptap-drag-move', { detail: { x: e.clientX, y: e.clientY } }));
+    window.dispatchEvent(
+      new CustomEvent("fapptap-drag-move", {
+        detail: { x: e.clientX, y: e.clientY },
+      })
+    );
   };
 
   const handleDragEnd = () => {
-    window.dispatchEvent(new CustomEvent('fapptap-drag-end'));
+    window.dispatchEvent(new CustomEvent("fapptap-drag-end"));
   };
 
   return (

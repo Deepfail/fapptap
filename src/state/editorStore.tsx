@@ -50,8 +50,20 @@ export const EditorProvider = ({
   const [pixelsPerSecond, setPixelsPerSecond] = useState<number>(50);
   const [playhead, setPlayhead] = useState<number>(0);
   // history as snapshots (simple implementation). Each snapshot captures timeline, selection, and playhead
-  const [past, setPast] = useState<Array<{ timeline: TimelineItem[]; selectedTimelineItemId: string | null; playhead: number }>>([]);
-  const [future, setFuture] = useState<Array<{ timeline: TimelineItem[]; selectedTimelineItemId: string | null; playhead: number }>>([]);
+  const [past, setPast] = useState<
+    Array<{
+      timeline: TimelineItem[];
+      selectedTimelineItemId: string | null;
+      playhead: number;
+    }>
+  >([]);
+  const [future, setFuture] = useState<
+    Array<{
+      timeline: TimelineItem[];
+      selectedTimelineItemId: string | null;
+      playhead: number;
+    }>
+  >([]);
   const HISTORY_CAP = 100;
 
   const addClipToTimeline = (clipId: string, start: number) => {
@@ -93,7 +105,11 @@ export const EditorProvider = ({
       const last = p[p.length - 1];
       const remaining = p.slice(0, p.length - 1);
       // push current state to future
-      const current = { timeline: JSON.parse(JSON.stringify(timeline)), selectedTimelineItemId, playhead };
+      const current = {
+        timeline: JSON.parse(JSON.stringify(timeline)),
+        selectedTimelineItemId,
+        playhead,
+      };
       setFuture((f) => [current, ...f].slice(0, HISTORY_CAP));
       // restore
       setTimeline(last.timeline);
@@ -109,7 +125,11 @@ export const EditorProvider = ({
       const nextSnapshot = f[0];
       const remaining = f.slice(1);
       // push current to past
-      const current = { timeline: JSON.parse(JSON.stringify(timeline)), selectedTimelineItemId, playhead };
+      const current = {
+        timeline: JSON.parse(JSON.stringify(timeline)),
+        selectedTimelineItemId,
+        playhead,
+      };
       setPast((p) => [...p, current].slice(-HISTORY_CAP));
       // restore
       setTimeline(nextSnapshot.timeline);

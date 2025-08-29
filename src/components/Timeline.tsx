@@ -1,10 +1,17 @@
 // React import not required in recent JSX runtimes
 import { useEditor } from "../state/editorStore";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 export const Timeline = () => {
-  const { timeline, clips, selectedTimelineItemId, selectTimelineItem, addClipToTimeline, pixelsPerSecond } = useEditor();
+  const {
+    timeline,
+    clips,
+    selectedTimelineItemId,
+    selectTimelineItem,
+    addClipToTimeline,
+    pixelsPerSecond,
+  } = useEditor();
   const [dragX, setDragX] = useState<number | null>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -39,10 +46,18 @@ export const Timeline = () => {
   return (
     <div className="bg-slate-900 rounded-md p-2">
       <div className="text-xs text-muted-foreground mb-2">Timeline</div>
-      <div className="h-28 bg-slate-800 rounded-md p-2 overflow-auto" onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={() => setDragX(null)}>
+      <div
+        className="h-28 bg-slate-800 rounded-md p-2 overflow-auto"
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={() => setDragX(null)}
+      >
         <div className="relative h-full min-w-[1200px]">
           {dragX !== null && (
-            <div style={{ left: dragX }} className="absolute top-0 h-full w-px bg-white/60" />
+            <div
+              style={{ left: dragX }}
+              className="absolute top-0 h-full w-px bg-white/60"
+            />
           )}
           {timeline.map((item) => {
             const selected = selectedTimelineItemId === item.id;
@@ -53,8 +68,14 @@ export const Timeline = () => {
                 role="button"
                 tabIndex={0}
                 onClick={() => selectTimelineItem(item.id)}
-                onKeyDown={(e) => e.key === "Enter" && selectTimelineItem(item.id)}
-                className={`absolute top-2 px-2 py-1 rounded mr-2 cursor-pointer ${selected ? "bg-indigo-500 text-white" : "bg-blue-600 text-white"}`}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && selectTimelineItem(item.id)
+                }
+                className={`absolute top-2 px-2 py-1 rounded mr-2 cursor-pointer ${
+                  selected
+                    ? "bg-indigo-500 text-white"
+                    : "bg-blue-600 text-white"
+                }`}
                 style={{ left: `${item.start * pixelsPerSecond}px` }}
               >
                 {clip ? clip.name : item.clipId}
