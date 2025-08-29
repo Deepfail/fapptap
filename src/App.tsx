@@ -120,7 +120,7 @@ function App() {
           setProgress(msg.progress);
           setStatus((prev) => ({
             ...prev,
-            [msg.stage]: {
+            [msg.stage!]: {
               status: msg.progress === 1 ? "completed" : "running",
               progress: msg.progress || 0,
             },
@@ -135,7 +135,7 @@ function App() {
           toast.error(msg.error);
           setStatus((prev) => ({
             ...prev,
-            [msg.stage]: { status: "error", progress: 0 },
+            [msg.stage!]: { status: "error", progress: 0 },
           }));
         }
 
