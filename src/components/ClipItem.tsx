@@ -1,6 +1,7 @@
 // React import not required in recent JSX runtimes
 import { ClipInfo } from "../state/editorStore";
 import { Button } from "./ui/button";
+import { Thumbnail } from "./Thumbnail";
 
 export const ClipItem = ({
   clip,
@@ -51,18 +52,29 @@ export const ClipItem = ({
       onDragStart={handleDragStart}
       onDrag={handleDrag}
       onDragEnd={handleDragEnd}
-      className="flex items-center gap-3 p-2 hover:bg-slate-700/40 rounded"
+      className="flex items-center gap-3 p-2 hover:bg-slate-700/40 rounded transition-colors"
     >
-      <img
-        src={clip.thumbnail}
+      <Thumbnail
+        src={clip.thumbnail || ''}
         alt={clip.name}
         className="w-16 h-10 object-cover rounded"
+        clipId={clip.id}
+        videoPath={clip.path}
+        timestamp={clip.duration * 0.3} // Extract thumbnail at 30% into clip
       />
-      <div className="flex-1">
-        <div className="text-sm font-medium">{clip.name}</div>
-        <div className="text-xs text-muted-foreground">{clip.duration}s</div>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-medium truncate">{clip.name}</div>
+        <div className="text-xs text-muted-foreground">
+          {clip.duration.toFixed(1)}s
+          {/* Add file size if available */}
+          {(clip as any).fileSize && (
+            <span className="ml-2">
+              {((clip as any).fileSize / (1024 * 1024)).toFixed(1)}MB
+            </span>
+          )}
+        </div>
       </div>
-      <Button size="sm" onClick={() => onAdd(clip.id)}>
+      <Button size="sm" variant="outline" onClick={() => onAdd(clip.id)}>
         +
       </Button>
     </div>

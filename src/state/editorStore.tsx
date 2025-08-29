@@ -31,6 +31,12 @@ export interface EditorState {
   setPixelsPerSecond: (n: number) => void;
   playhead: number; // seconds
   setPlayhead: (s: number) => void;
+  // New trimming and ripple functionality
+  trimTimelineItem: (id: string, newIn: number, newOut: number) => void;
+  moveTimelineItem: (id: string, newStart: number) => void;
+  deleteTimelineItem: (id: string) => void;
+  rippleMode: boolean;
+  setRippleMode: (enabled: boolean) => void;
 }
 
 const EditorContext = createContext<EditorState | null>(null);
@@ -49,6 +55,7 @@ export const EditorProvider = ({
   >(null);
   const [pixelsPerSecond, setPixelsPerSecond] = useState<number>(50);
   const [playhead, setPlayhead] = useState<number>(0);
+  const [rippleMode, setRippleMode] = useState<boolean>(false);
   // history as snapshots (simple implementation). Each snapshot captures timeline, selection, and playhead
   const [past, setPast] = useState<
     Array<{
@@ -66,17 +73,7 @@ export const EditorProvider = ({
   >([]);
   const HISTORY_CAP = 100;
 
-  const addClipToTimeline = (clipId: string, start: number) => {
-    const clip = clips.find((c) => c.id === clipId);
-    if (!clip) return;
-    const item: TimelineItem = {
-      id: `${clipId}-${Date.now()}`,
-      clipId,
-      start,
-      in: 0,
-      out: clip.duration,
-    };
-    // push current snapshot to history before applying change
+  const saveSnapshot = () => {
     const snapshot = {
       timeline: JSON.parse(JSON.stringify(timeline)),
       selectedTimelineItemId,
@@ -88,6 +85,21 @@ export const EditorProvider = ({
     });
     // clear future on new action
     setFuture([]);
+  };
+
+  const addClipToTimeline = (clipId: string, start: number) => {
+    const clip = clips.find((c) => c.id === clipId);
+    if (!clip) return;
+    
+    saveSnapshot();
+    
+    const item: TimelineItem = {
+      id: `${clipId}-${Date.now()}`,
+      clipId,
+      start,
+      in: 0,
+      out: clip.duration,
+    };
 
     setTimeline((t) => {
       const next = [...t, item];
@@ -97,6 +109,80 @@ export const EditorProvider = ({
       setPlayhead(item.start);
       return next;
     });
+  };
+
+  const trimTimelineItem = (id: string, newIn: number, newOut: number) => {
+    saveSnapshot();
+    
+    setTimeline((t) => 
+      t.map(item => 
+        item.id === id 
+          ? { ...item, in: Math.max(0, newIn), out: Math.max(newIn + 0.1, newOut) }
+          : item
+      )
+    );
+  };
+
+  const moveTimelineItem = (id: string, newStart: number) => {
+    saveSnapshot();
+    
+    const item = timeline.find(t => t.id === id);
+    if (!item) return;
+    
+    const adjustedStart = Math.max(0, newStart);
+    
+    if (rippleMode) {
+      // In ripple mode, move all items that come after this one
+      const originalStart = item.start;
+      const delta = adjustedStart - originalStart;
+      
+      setTimeline((t) => 
+        t.map(timelineItem => {
+          if (timelineItem.id === id) {
+            return { ...timelineItem, start: adjustedStart };
+          } else if (timelineItem.start > originalStart) {
+            return { ...timelineItem, start: Math.max(0, timelineItem.start + delta) };
+          }
+          return timelineItem;
+        })
+      );
+    } else {
+      setTimeline((t) => 
+        t.map(timelineItem => 
+          timelineItem.id === id 
+            ? { ...timelineItem, start: adjustedStart }
+            : timelineItem
+        )
+      );
+    }
+  };
+
+  const deleteTimelineItem = (id: string) => {
+    saveSnapshot();
+    
+    const item = timeline.find(t => t.id === id);
+    if (!item) return;
+    
+    if (rippleMode) {
+      // In ripple mode, move all items after this one to fill the gap
+      const itemDuration = item.out - item.in;
+      
+      setTimeline((t) => 
+        t.filter(timelineItem => timelineItem.id !== id)
+         .map(timelineItem => 
+           timelineItem.start > item.start 
+             ? { ...timelineItem, start: Math.max(0, timelineItem.start - itemDuration) }
+             : timelineItem
+         )
+      );
+    } else {
+      setTimeline((t) => t.filter(timelineItem => timelineItem.id !== id));
+    }
+    
+    // Clear selection if deleted item was selected
+    if (selectedTimelineItemId === id) {
+      setSelectedTimelineItemId(null);
+    }
   };
 
   const undo = () => {
@@ -180,6 +266,11 @@ export const EditorProvider = ({
         setPixelsPerSecond,
         playhead,
         setPlayhead: setPlayheadWrapper,
+        trimTimelineItem,
+        moveTimelineItem,
+        deleteTimelineItem,
+        rippleMode,
+        setRippleMode,
       }}
     >
       {children}
