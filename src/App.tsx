@@ -30,6 +30,10 @@ import { EditorProvider } from "./state/editorStore";
 import { LogPanel, LogEntry } from "./components/LogPanel";
 import "./App.css";
 import { DragGhost } from "./components/DragGhost";
+import { EffectsInspector } from "./components/EffectsInspector";
+import { CutlistExporter } from "./components/CutlistExporter";
+import { SystemCheckPanel } from "./components/SystemCheckPanel";
+import { ProjectManager } from "./components/ProjectManager";
 
 interface StageConfig {
   icon: LucideIcon;
@@ -120,7 +124,7 @@ function App() {
           setProgress(msg.progress);
           setStatus((prev) => ({
             ...prev,
-            [msg.stage]: {
+            [msg.stage!]: {
               status: msg.progress === 1 ? "completed" : "running",
               progress: msg.progress || 0,
             },
@@ -135,7 +139,7 @@ function App() {
           toast.error(msg.error);
           setStatus((prev) => ({
             ...prev,
-            [msg.stage]: { status: "error", progress: 0 },
+            [msg.stage!]: { status: "error", progress: 0 },
           }));
         }
 
@@ -540,8 +544,12 @@ function App() {
             </div>
           </div>
 
-          {/* Right Column: Log Panel */}
+          {/* Right Column: Inspector + Tools */}
           <div className="space-y-6">
+            <ProjectManager />
+            <EffectsInspector />
+            <CutlistExporter />
+            <SystemCheckPanel />
             <LogPanel logs={logs} onClear={clearLogs} />
           </div>
         </div>
