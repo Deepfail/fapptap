@@ -63,6 +63,10 @@ target/
 # Large files and generated content
 media_samples/
 cache/
+# Allow tracking small plan files under cache/plans while keeping other cache content ignored
+!cache/
+!cache/plans/
+!cache/plans/*.json
 render/
 *.local
 
