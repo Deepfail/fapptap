@@ -6,18 +6,24 @@ def emit(stage, progress=None, **kw):
     print(json.dumps(msg), flush=True)
 
 def run_beats(song):
-    # call your existing beats function, emit progress
-    emit("beats", progress=0.0)
-    time.sleep(0.1)
-    # ... your librosa work here ...
-    # For now, simulate the process
+    emit("beats", progress=0.0, message="Loading audio and analyzing beats...")
     try:
-        # Call the existing compute_beats.py script
-        result = subprocess.run([sys.executable, "analysis/compute_beats.py", song], 
-                              capture_output=True, text=True, check=True)
-        emit("beats", progress=1.0, message="Beat detection completed")
-    except subprocess.CalledProcessError as e:
-        emit("beats", progress=0.0, error=f"Beat detection failed: {e.stderr}")
+        # Import and use the advanced beat detection
+        from beats_adv import compute_advanced_beats
+        beats_data = compute_advanced_beats(song, debug=True)
+        
+        # Save the results
+        from pathlib import Path
+        output_path = "cache/beats.json"
+        Path("cache").mkdir(exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(beats_data, f, indent=2)
+        
+        emit("beats", progress=1.0, message="Advanced beat detection completed", 
+             beats_count=len(beats_data.get("beats", [])),
+             tempo=beats_data.get("tempo_global", 0))
+    except Exception as e:
+        emit("beats", progress=0.0, error=f"Beat detection failed: {str(e)}")
 
 def run_shots(clips_dir):
     emit("shots", progress=0.0)

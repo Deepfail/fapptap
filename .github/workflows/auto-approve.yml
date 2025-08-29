@@ -1,0 +1,36 @@
+name: Auto-Approve Pull Requests
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  auto-approve:
+    name: Auto approve PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve pull request
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.AUTO_APPROVE_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request.number;
+            if (!pr) {
+              core.info('No pull_request found in payload');
+            } else {
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr,
+                event: 'APPROVE'
+              });
+              core.info(`Approved PR #${pr}`);
+            }
+
+# SECURITY NOTE:
+# - This workflow requires a Personal Access Token (PAT) stored in the repository secrets
+#   under the name `AUTO_APPROVE_TOKEN`. Create a PAT with `repo` scope for private repos
+#   (or `public_repo` for public repos), and add it to Settings → Secrets → Actions.
+# - Auto-approving ALL PRs is dangerous: attackers who can open PRs could cause automated
+#   merges if you also enable auto-merge. Consider restricting approvals to Dependabot or
+#   specific users by adding conditional checks to the script.

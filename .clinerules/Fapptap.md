@@ -2,7 +2,7 @@
 
 ## Scope & Paths
 
-- Workspace root: `C:/Files/Projects/Fapptap`
+- Workspace root: `C:/Files/Projects/fapptap`
 - **Allowed writes**: `cache/`, `render/`
 - **Read-only**: `media_samples/`, `.venv/`, `.vscode/`, `cline.json`
 

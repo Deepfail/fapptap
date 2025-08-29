@@ -1,0 +1,47 @@
+# Machine-readable modes file for programmatic agents and CI
+# AUTO mode should reference the human-facing AUTO instructions in the repo so
+# agents can load the same guidance humans read.
+MODES:
+  AUTO:
+    id: AUTO
+    priority: true
+    non_interactive: true
+    trigger_header: "mode: agent"
+    # List of repository files the agent should load (in order of precedence)
+    # These files are human-authored and contain the canonical AUTO-MODE guidance.
+    instructions_paths:
+      - ".github/copilot-instructions.md"
+      - ".github/chatmodes/AUTO.chatmode.md"
+      - "C:\\Files\\Projects\\fapptap\\.github\\prompts\\AUTO MODE.prompt.md"
+    allowed_tools:
+      - npm
+      - npx
+      - node
+      - vite
+      - tsc
+      - python
+      - ffmpeg
+    behavior:
+      non_interactive: true
+      assume_ci: true
+      no_watch_modes: true
+      auto_fix_attempts: 3
+      produce_final_summary: true
+      response_mode: final-only
+    safety:
+      allow_destructive_ops: false
+      require_secret_consent: true
+  INTERACTIVE:
+    id: INTERACTIVE
+    priority: false
+    non_interactive: false
+    behavior:
+      non_interactive: false
+      ask_clarifying_questions: true
+  SAFE:
+    id: SAFE
+    priority: false
+    non_interactive: false
+    behavior:
+      non_interactive: false
+      disallow_destructive_ops: true

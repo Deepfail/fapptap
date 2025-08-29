@@ -895,7 +895,8 @@ GUARDRAILS
 
 - No required changes to UI in this task
 
-Task F — Genre Presets & Tempo Range Prior
+## Task F — Genre Presets & Tempo Range Prior
+
 TASK: Genre Presets (Tempo Range + Beat Divisors) and Prior
 
 GOAL
@@ -1022,3 +1023,232 @@ ACCEPTANCE TESTS
 GUARDRAILS
 
 - Pure addition; no changes to other stages
+
+# UI DESIGN
+
+---
+
+## Task 1 — App Shell & Layout Refresh
+
+**GOAL**
+Establish a clean, modern shell: sticky top bar, two-column layout (sources/tools vs stages), consistent spacing/typography, and a subtle background so content pops.
+
+**CONTEXT**
+Tauri v2 + React/TS + Vite + Tailwind v4 + shadcn/ui. Import alias `@` → `src`. Store plugin already in use.
+
+**CONSTRAINTS**
+
+- Keep Tailwind utility approach; use shadcn components for structure.
+- No breaking changes to stage actions or worker wiring.
+- Responsive: ≥1280px gets two columns; below stacks vertically.
+
+**DELIVERABLES**
+
+- Top bar with app name + small tagline; right side shows current render status badge.
+- Page grid: left column “Project Sources” + controls; right column the four stage cards.
+- Subtle dark background (radial/gradient or noise); content cards retain contrast.
+- Typography scale (title, h2, body) applied consistently.
+
+**ACCEPTANCE TESTS**
+
+- Layout remains stable across 1280px → 1920px; no horizontal scroll.
+- Stage cards align and share a baseline; tab-order sensible (keyboard only).
+- Lighthouse a11y ≥ 90 in dev (color contrast, labels).
+
+**GUARDRAILS**
+
+- Don’t change business logic or worker calls.
+- Keep CSS inside Tailwind; no global resets beyond what’s needed.
+
+---
+
+## Task 2 — Stage Cards: Status, Progress, Actions
+
+**GOAL**
+Unify Beats/Shots/Cutlist/Render as “cards” with clear status, progress, and primary action.
+
+**CONTEXT**
+Events already stream JSONL; you track per-stage `status`/`progress`.
+
+**CONSTRAINTS**
+
+- Use shadcn `Card`, `Progress`, `Badge`, `Button`.
+- No inline magic numbers: expose small tokens/vars for spacing and colors.
+
+**DELIVERABLES**
+
+- Each card shows: icon, title, 1-line description, status badge (Idle/Running/Done/Error), progress bar + % label, “Run” button (disabled while running).
+- “Run All (Proxy)” button in Sources triggers beats→shots→cutlist→render and rolls statuses.
+
+**ACCEPTANCE TESTS**
+
+- Running a stage updates progress smoothly (≥10 updates per minute).
+- On error, badge turns “Error”, button becomes “Retry”, and a toast appears with the last line of stderr.
+- Keyboard: `Enter` on focused card triggers “Run”.
+
+**GUARDRAILS**
+
+- No dialogs for happy-path; errors use toast + log section.
+
+---
+
+## Task 3 — Source Pickers + Engine Selector (Persisted)
+
+**GOAL**
+Make “Music Track”, “Clips Directory”, and “Beat Engine (basic/advanced)” obvious, persistent, and validated.
+
+**CONTEXT**
+Store plugin exists; dialog plugin available.
+
+**CONSTRAINTS**
+
+- Persist to `.fapptap.dat` keys: `song`, `clips`, `beatEngine`.
+- Validate existence on “Run” and surface friendly messages.
+
+**DELIVERABLES**
+
+- Two inputs with “Browse” buttons: audio and directory.
+- Engine selector (basic/advanced).
+- Disabled “Run All” until both paths valid.
+
+**ACCEPTANCE TESTS**
+
+- Relaunch restores last values.
+- Invalid path shows inline warning and disables actions.
+- Switching engine passes `--engine` flag into worker.
+
+**GUARDRAILS**
+
+- No path normalization that breaks UNC/network paths.
+
+---
+
+## Task 4 — Waveform Panel with Overlays
+
+**GOAL**
+Visual feedback: waveform with beat markers (strength-tinted), optional downbeats (thicker), and a tempo curve overlay.
+
+**CONTEXT**
+WaveSurfer is acceptable; `beats.json` v1 has `beats`, `strength`, optional `downbeats`, optional `tempo_curve`.
+
+**CONSTRAINTS**
+
+- Keep overlays performant: one canvas overlay, not thousands of DOM nodes.
+- Don’t block UI while loading large audio.
+
+**DELIVERABLES**
+
+- Waveform with zoom and click-to-seek.
+- Amber vertical lines for beats; thicker rose lines for downbeats; thin blue polyline for tempo curve.
+- Tiny legend/caption; toggle overlays on/off.
+
+**ACCEPTANCE TESTS**
+
+- Rendering ≤ 16 ms per overlay pass on a 3-min song (no visible jank).
+- Toggling overlays is instant; no memory leaks on song reload.
+
+**GUARDRAILS**
+
+- Fail gracefully if `beats.json` is old (missing fields) — no crashes.
+
+---
+
+## Task 5 — Transport + Playhead Sync (Waveform ↔ Timeline)
+
+**GOAL**
+Add Play/Pause (button + J/K/L), nudge `[` `]`, and a playhead in the timeline synced to the waveform time.
+
+**CONTEXT**
+WaveSurfer controls playback; Pixi timeline exists.
+
+**CONSTRAINTS**
+
+- Single source of truth for current time (WaveSurfer).
+- Timeline redraw must be light; only the playhead moves on rAF.
+
+**DELIVERABLES**
+
+- Transport component with Play/Pause; hotkeys J (−0.5s), K (toggle), L (play), `[`/`]` (±50 ms).
+- Timeline draws a playhead line that follows current time; optional timecode readout.
+
+**ACCEPTANCE TESTS**
+
+- Start/stop shows <50 ms drift between audio and playhead over 60 s playback.
+- Keyboard works with focus on the page (not in inputs).
+
+**GUARDRAILS**
+
+- Don’t block future timeline editing; keep the playhead code modular.
+
+---
+
+## Task 6 — Log & Error Surface
+
+**GOAL**
+Human-readable logs with quick context: last 500 lines, sticky scroll, copy button, and toast summaries.
+
+**CONTEXT**
+You already capture `onLine` from worker.
+
+**CONSTRAINTS**
+
+- No mega virtualized list; a simple capped buffer is fine.
+- Avoid blocking main thread.
+
+**DELIVERABLES**
+
+- Log card: rolling buffer, mono font, “Copy” and “Clear” actions.
+- Errors raise toast with a “View Logs” action that scrolls to newest.
+
+**ACCEPTANCE TESTS**
+
+- 10k lines streamed over a long render never freeze the UI; buffer stays capped.
+- “Copy” copies only visible buffer, not the entire history.
+
+**GUARDRAILS**
+
+- Don’t persist logs to Store; that’s later.
+
+---
+
+## Task 7 — Visual Polish Pass (tokens + micro-interactions)
+
+**GOAL**
+Bring cohesion: spacing scale, rounded radii, focus rings, hover states, and consistent iconography.
+
+**CONTEXT**
+Tailwind v4, shadcn.
+
+**CONSTRAINTS**
+
+- No custom CSS frameworks; use Tailwind utilities + a few CSS vars.
+- Respect reduced-motion preferences.
+
+**DELIVERABLES**
+
+- Design tokens (spacing, radius, shadow, brand gradient) defined centrally.
+- Subtle hover/press states on buttons/cards; focus outlines accessible.
+- Replace any mismatched icons with lucide equivalents; consistent sizes.
+
+**ACCEPTANCE TESTS**
+
+- Keyboard focus visible on all interactive elements.
+- No layout shift on hover/press.
+
+**GUARDRAILS**
+
+- Don’t ship big asset files; keep the app lean.
+
+---
+
+### Recommended order to queue
+
+1. **Task 1** (Shell/Layout)
+2. **Task 2** (Stage Cards)
+3. **Task 3** (Pickers + Engine)
+4. **Task 4** (Waveform Overlays)
+5. **Task 5** (Transport + Playhead)
+6. **Task 6** (Logs)
+7. **Task 7** (Polish)
+
+If you want, say the word and I’ll add **two more** UI tasks in this style for **Timeline v1 editing (snap-to-beat, delete, ripple)** and a **System Check panel**—both ready to paste for your agent.
