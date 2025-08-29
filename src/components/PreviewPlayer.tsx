@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { useEditor } from "../state/editorStore";
+import { Button } from "./ui/button";
 
 export const PreviewPlayer = ({ src }: { src?: string }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -62,11 +63,11 @@ export const PreviewPlayer = ({ src }: { src?: string }) => {
           {clip ? clip.name : src ? "Preview" : "No clip"}
         </div>
         <div className="flex items-center gap-2">
-          <button className="btn btn-sm" onClick={() => setPlaying((p) => !p)}>
+          <Button size="sm" onClick={() => setPlaying((p) => !p)}>
             {playing ? "Pause" : "Play"}
-          </button>
-          <button
-            className="btn btn-sm"
+          </Button>
+          <Button
+            size="sm"
             onClick={() => {
               if (videoRef.current) {
                 videoRef.current.currentTime = 0;
@@ -74,7 +75,7 @@ export const PreviewPlayer = ({ src }: { src?: string }) => {
             }}
           >
             Restart
-          </button>
+          </Button>
         </div>
       </div>
     </div>

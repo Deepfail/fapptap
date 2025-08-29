@@ -1,5 +1,6 @@
 // React import not required in recent JSX runtimes
 import { ClipInfo } from "../state/editorStore";
+import { Button } from "./ui/button";
 
 export const ClipItem = ({
   clip,
@@ -61,9 +62,9 @@ export const ClipItem = ({
         <div className="text-sm font-medium">{clip.name}</div>
         <div className="text-xs text-muted-foreground">{clip.duration}s</div>
       </div>
-      <button className="btn btn-sm" onClick={() => onAdd(clip.id)}>
+      <Button size="sm" onClick={() => onAdd(clip.id)}>
         +
-      </button>
+      </Button>
     </div>
   );
 };
