@@ -1,17 +1,17 @@
-import { useEditor } from '../state/editorStore';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { isTauriAvailable } from '../lib/worker';
-import { useState } from 'react';
-import { Badge } from './ui/badge';
+import { useEditor } from "../state/editorStore";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { IS_DESKTOP } from "@/lib/platform";
+import { useState } from "react";
+import { Badge } from "./ui/badge";
 
 interface CutlistEvent {
   id: string;
   clipPath: string;
-  start: number;      // seconds on timeline
-  in: number;         // seconds into source clip  
-  out: number;        // seconds into source clip
-  duration: number;   // out - in
+  start: number; // seconds on timeline
+  in: number; // seconds into source clip
+  out: number; // seconds into source clip
+  duration: number; // out - in
   effects?: {
     transform?: {
       x: number;
@@ -45,7 +45,7 @@ export const CutlistExporter = () => {
     const events: CutlistEvent[] = timeline
       .sort((a, b) => a.start - b.start) // Sort by timeline position
       .map((item) => {
-        const clip = clips.find(c => c.id === item.clipId);
+        const clip = clips.find((c) => c.id === item.clipId);
         return {
           id: item.id,
           clipPath: clip?.path || item.clipId,
@@ -61,16 +61,17 @@ export const CutlistExporter = () => {
               scaleX: 1,
               scaleY: 1,
               rotation: 0,
-              opacity: 1
-            }
-          }
+              opacity: 1,
+            },
+          },
         };
       });
 
     // Calculate total duration
-    const totalDuration = events.length > 0 
-      ? Math.max(...events.map(e => e.start + e.duration))
-      : 0;
+    const totalDuration =
+      events.length > 0
+        ? Math.max(...events.map((e) => e.start + e.duration))
+        : 0;
 
     return {
       version: "1.0",
@@ -80,38 +81,38 @@ export const CutlistExporter = () => {
       metadata: {
         exportedAt: new Date().toISOString(),
         pixelsPerSecond,
-        totalClips: clips.length
-      }
+        totalClips: clips.length,
+      },
     };
   };
 
   const exportToFile = async () => {
     setIsExporting(true);
-    
+
     try {
       const cutlist = generateCutlist();
       const json = JSON.stringify(cutlist, null, 2);
-      
-      if (isTauriAvailable()) {
+
+      if (IS_DESKTOP) {
         // Desktop: Save to render/cutlist.json
-        const { writeTextFile } = await import('@tauri-apps/plugin-fs');
-        await writeTextFile('render/cutlist.json', json);
-        setLastExport('render/cutlist.json');
+        const { writeTextFile } = await import("@tauri-apps/plugin-fs");
+        await writeTextFile("render/cutlist.json", json);
+        setLastExport("render/cutlist.json");
       } else {
         // Browser: Download as file
-        const blob = new Blob([json], { type: 'application/json' });
+        const blob = new Blob([json], { type: "application/json" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
         a.download = `cutlist_${Date.now()}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        setLastExport('Downloaded to browser');
+        setLastExport("Downloaded to browser");
       }
     } catch (error) {
-      console.error('Failed to export cutlist:', error);
+      console.error("Failed to export cutlist:", error);
       alert(`Failed to export cutlist: ${error}`);
     } finally {
       setIsExporting(false);
@@ -123,19 +124,19 @@ export const CutlistExporter = () => {
       const cutlist = generateCutlist();
       const json = JSON.stringify(cutlist, null, 2);
       await navigator.clipboard.writeText(json);
-      setLastExport('Copied to clipboard');
+      setLastExport("Copied to clipboard");
     } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
+      console.error("Failed to copy to clipboard:", error);
       alert(`Failed to copy to clipboard: ${error}`);
     }
   };
 
   const previewCutlist = () => {
     const cutlist = generateCutlist();
-    console.log('Cutlist Preview:', cutlist);
-    
+    console.log("Cutlist Preview:", cutlist);
+
     // Open in new window for easy viewing
-    const newWindow = window.open('', '_blank');
+    const newWindow = window.open("", "_blank");
     if (newWindow) {
       newWindow.document.write(`
         <html>
@@ -170,7 +171,9 @@ ${JSON.stringify(cutlist, null, 2)}
             <div className="text-xs text-muted-foreground">Events</div>
           </div>
           <div>
-            <div className="text-lg font-semibold">{cutlist.duration.toFixed(1)}s</div>
+            <div className="text-lg font-semibold">
+              {cutlist.duration.toFixed(1)}s
+            </div>
             <div className="text-xs text-muted-foreground">Duration</div>
           </div>
           <div>
@@ -184,11 +187,15 @@ ${JSON.stringify(cutlist, null, 2)}
           <h3 className="text-sm font-semibold">Validation</h3>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Badge variant={cutlist.events.length > 0 ? "default" : "destructive"}>
+              <Badge
+                variant={cutlist.events.length > 0 ? "default" : "destructive"}
+              >
                 {cutlist.events.length > 0 ? "✓" : "✗"}
               </Badge>
               <span className="text-xs">
-                {cutlist.events.length > 0 ? "Timeline has events" : "Timeline is empty"}
+                {cutlist.events.length > 0
+                  ? "Timeline has events"
+                  : "Timeline is empty"}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -248,9 +255,16 @@ ${JSON.stringify(cutlist, null, 2)}
 
         {/* Schema Info */}
         <div className="text-xs text-muted-foreground space-y-1">
-          <div><strong>Schema:</strong> v{cutlist.version}</div>
-          <div><strong>Format:</strong> JSON with events array</div>
-          <div><strong>Output:</strong> {isTauriAvailable() ? 'render/cutlist.json' : 'Browser download'}</div>
+          <div>
+            <strong>Schema:</strong> v{cutlist.version}
+          </div>
+          <div>
+            <strong>Format:</strong> JSON with events array
+          </div>
+          <div>
+            <strong>Output:</strong>{" "}
+            {IS_DESKTOP ? "render/cutlist.json" : "Browser download"}
+          </div>
         </div>
       </CardContent>
     </Card>
