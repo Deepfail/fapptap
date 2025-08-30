@@ -225,6 +225,49 @@ function App() {
     }
   };
 
+  const handleSelectVideoFile = async () => {
+    try {
+      console.log("Selecting video file...");
+      const path = await worker.selectVideoFile();
+      if (path) {
+        // Add the video directly to the clips list
+        const filename = path.split(/[\/\\]/).pop() || "Unknown";
+        const videoId = `video-${Date.now()}`;
+        const newClip = {
+          id: videoId,
+          name: filename,
+          path: path,
+          duration: 10, // Default duration, can be updated later if metadata is available
+          thumbnail: "" // Can be generated later if needed
+        };
+        
+        // If we're in a real Tauri environment, we'd add the clip to the actual clips list
+        // For now, we'll use the window.__MOCK_CLIPS as a temporary solution
+        if ((window as any).__MOCK_CLIPS) {
+          (window as any).__MOCK_CLIPS = [
+            ...(window as any).__MOCK_CLIPS,
+            newClip
+          ];
+        }
+        
+        addLog({
+          id: typeof crypto !== "undefined" && (crypto as any).randomUUID
+            ? (crypto as any).randomUUID()
+            : Date.now().toString(),
+          timestamp: new Date(),
+          message: `Selected video file: ${filename}`,
+          type: "success",
+          stage: "setup",
+        });
+        
+        toast.success(`Added video: ${filename}`);
+      }
+    } catch (error) {
+      console.error("Error selecting video file:", error);
+      toast.error(`Failed to select video: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
   const runStage = async (stage: string) => {
     try {
       setCurrentStage(stage);
@@ -422,6 +465,9 @@ function App() {
                   </Button>
                   <Button size="sm" onClick={handleSelectClips}>
                     Select Clips
+                  </Button>
+                  <Button size="sm" onClick={handleSelectVideoFile}>
+                    Select Video
                   </Button>
                 </div>
                 <div className="h-96 overflow-auto">

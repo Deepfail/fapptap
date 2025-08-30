@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "identifier": "com.pornaid.fapptap",
   "build": {
-    "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "",
+    "devUrl": "file:///C:/Files/Projects/fapptap/dist/index.html",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
@@ -13,12 +13,17 @@
     "windows": [
       {
         "title": "fapptap-ui",
-        "width": 800,
-        "height": 600
+        "width": 1024,
+        "height": 768
       }
     ],
     "security": {
-      "csp": null
+      "csp": {
+        "default-src": ["'self'"],
+        "img-src": ["'self'", "asset:", "https://asset.localhost", "data:"],
+        "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        "style-src": ["'self'", "'unsafe-inline'"]
+      }
     }
   },
   "bundle": {
@@ -33,6 +38,16 @@
     ]
   },
   "plugins": {
-    "store": {}
+    "store": {},
+    "shell": {
+      "open": true
+    },
+    "dialog": null,
+    "fs": {
+      "scope": ["**"]
+    },
+    "opener": {
+      "requireLiteralLeadingDot": false
+    }
   }
 }
