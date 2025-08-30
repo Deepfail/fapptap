@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { useEditor } from '../state/editorStore';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Badge } from './ui/badge';
-import { isTauriAvailable } from '../lib/worker';
-import { Save, FolderOpen, Clock, AlertTriangle } from 'lucide-react';
+import { useState } from "react";
+import { useEditor } from "../state/editorStore";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Badge } from "./ui/badge";
+import { IS_DESKTOP } from "@/lib/platform";
+import { Save, FolderOpen, Clock, AlertTriangle } from "lucide-react";
 
 interface ProjectData {
   version: string;
@@ -29,30 +29,33 @@ interface ProjectData {
 }
 
 export const ProjectManager = () => {
-  const { 
-    timeline, 
-    clips, 
-    pixelsPerSecond, 
-    playhead, 
+  const {
+    timeline,
+    clips,
+    pixelsPerSecond,
+    playhead,
     selectedTimelineItemId,
-    rippleMode 
+    rippleMode,
   } = useEditor();
-  
-  const [projectName, setProjectName] = useState('Untitled Project');
+
+  const [projectName, setProjectName] = useState("Untitled Project");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
 
   const generateProjectData = (): ProjectData => {
-    const totalDuration = timeline.length > 0 
-      ? Math.max(...timeline.map(item => item.start + (item.out - item.in)))
-      : 0;
+    const totalDuration =
+      timeline.length > 0
+        ? Math.max(...timeline.map((item) => item.start + (item.out - item.in)))
+        : 0;
 
     return {
-      version: '1.0',
+      version: "1.0",
       name: projectName,
-      createdAt: lastSaved ? new Date(lastSaved).toISOString() : new Date().toISOString(),
+      createdAt: lastSaved
+        ? new Date(lastSaved).toISOString()
+        : new Date().toISOString(),
       lastModified: new Date().toISOString(),
       timeline: timeline,
       clips: clips,
@@ -60,57 +63,62 @@ export const ProjectManager = () => {
         pixelsPerSecond,
         playhead,
         selectedTimelineItemId: selectedTimelineItemId || null,
-        rippleMode
+        rippleMode,
       },
       metadata: {
         totalDuration,
         clipCount: clips.length,
-        eventCount: timeline.length
-      }
+        eventCount: timeline.length,
+      },
     };
   };
 
   const saveProject = async (saveAs = false) => {
     setIsSaving(true);
-    
+
     try {
       const projectData = generateProjectData();
       const json = JSON.stringify(projectData, null, 2);
-      
-      if (isTauriAvailable()) {
+
+      if (IS_DESKTOP) {
         // Desktop: Save to .fapptap.json file
-        const { writeTextFile, exists } = await import('@tauri-apps/plugin-fs');
-        const fileName = `${projectName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.fapptap.json`;
-        
-        if (saveAs || !await exists(fileName)) {
+        const { writeTextFile, exists } = await import("@tauri-apps/plugin-fs");
+        const fileName = `${projectName
+          .replace(/[^a-z0-9]/gi, "_")
+          .toLowerCase()}.fapptap.json`;
+
+        if (saveAs || !(await exists(fileName))) {
           // Could use dialog to pick location
           await writeTextFile(fileName, json);
         } else {
           await writeTextFile(fileName, json);
         }
-        
+
         setLastSaved(new Date().toISOString());
       } else {
         // Browser: Save to localStorage and offer download
         const storageKey = `fapptap_project_${projectName}`;
         localStorage.setItem(storageKey, json);
-        
+
         // Also offer download
-        const blob = new Blob([json], { type: 'application/json' });
+        const blob = new Blob([json], { type: "application/json" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
         a.download = `${projectName}.fapptap.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         setLastSaved(new Date().toISOString());
-        localStorage.setItem(`${storageKey}_lastSaved`, new Date().toISOString());
+        localStorage.setItem(
+          `${storageKey}_lastSaved`,
+          new Date().toISOString()
+        );
       }
     } catch (error) {
-      console.error('Failed to save project:', error);
+      console.error("Failed to save project:", error);
       alert(`Failed to save project: ${error}`);
     } finally {
       setIsSaving(false);
@@ -119,55 +127,57 @@ export const ProjectManager = () => {
 
   const loadProject = async () => {
     setIsLoading(true);
-    
+
     try {
-      if (isTauriAvailable()) {
+      if (IS_DESKTOP) {
         // Desktop: Use file dialog
-        const { open } = await import('@tauri-apps/plugin-dialog');
-        const { readTextFile } = await import('@tauri-apps/plugin-fs');
-        
+        const { open } = await import("@tauri-apps/plugin-dialog");
+        const { readTextFile } = await import("@tauri-apps/plugin-fs");
+
         const filePath = await open({
-          filters: [
-            { name: 'Fapptap Project', extensions: ['fapptap.json'] }
-          ]
+          filters: [{ name: "Fapptap Project", extensions: ["fapptap.json"] }],
         });
-        
+
         if (filePath) {
           const json = await readTextFile(filePath);
           const projectData: ProjectData = JSON.parse(json);
-          
+
           // Would need to update editor state here
           // For now, just show the data
-          console.log('Loaded project:', projectData);
+          console.log("Loaded project:", projectData);
           setProjectName(projectData.name);
           setLastSaved(projectData.lastModified);
-          
-          alert(`Project "${projectData.name}" loaded (${projectData.metadata.eventCount} events)`);
+
+          alert(
+            `Project "${projectData.name}" loaded (${projectData.metadata.eventCount} events)`
+          );
         }
       } else {
         // Browser: Load from localStorage or file input
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.fapptap.json,.json';
-        
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".fapptap.json,.json";
+
         input.onchange = async (e) => {
           const file = (e.target as HTMLInputElement).files?.[0];
           if (file) {
             const text = await file.text();
             const projectData: ProjectData = JSON.parse(text);
-            
-            console.log('Loaded project:', projectData);
+
+            console.log("Loaded project:", projectData);
             setProjectName(projectData.name);
             setLastSaved(projectData.lastModified);
-            
-            alert(`Project "${projectData.name}" loaded (${projectData.metadata.eventCount} events)`);
+
+            alert(
+              `Project "${projectData.name}" loaded (${projectData.metadata.eventCount} events)`
+            );
           }
         };
-        
+
         input.click();
       }
     } catch (error) {
-      console.error('Failed to load project:', error);
+      console.error("Failed to load project:", error);
       alert(`Failed to load project: ${error}`);
     } finally {
       setIsLoading(false);
@@ -184,8 +194,8 @@ export const ProjectManager = () => {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / (1000 * 60));
-    
-    if (diffMins < 1) return 'Just now';
+
+    if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
     return date.toLocaleDateString();
@@ -224,7 +234,7 @@ export const ProjectManager = () => {
             className="w-full"
           >
             <Save className="h-4 w-4 mr-2" />
-            {isSaving ? 'Saving...' : 'Save'}
+            {isSaving ? "Saving..." : "Save"}
           </Button>
           <Button
             variant="outline"
@@ -241,7 +251,7 @@ export const ProjectManager = () => {
             className="col-span-2 w-full"
           >
             <FolderOpen className="h-4 w-4 mr-2" />
-            {isLoading ? 'Loading...' : 'Load Project'}
+            {isLoading ? "Loading..." : "Load Project"}
           </Button>
         </div>
 
@@ -274,10 +284,12 @@ export const ProjectManager = () => {
           </div>
           <div>
             <div className="text-lg font-semibold">
-              {timeline.length > 0 
-                ? Math.max(...timeline.map(item => item.start + (item.out - item.in))).toFixed(1)
-                : '0.0'
-              }s
+              {timeline.length > 0
+                ? Math.max(
+                    ...timeline.map((item) => item.start + (item.out - item.in))
+                  ).toFixed(1)
+                : "0.0"}
+              s
             </div>
             <div className="text-xs text-muted-foreground">Duration</div>
           </div>
@@ -292,9 +304,17 @@ export const ProjectManager = () => {
 
         {/* File Format Info */}
         <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-slate-600">
-          <div><strong>Format:</strong> .fapptap.json</div>
-          <div><strong>Location:</strong> {isTauriAvailable() ? 'Project directory' : 'localStorage + Download'}</div>
-          <div><strong>Auto-save:</strong> {autoSaveEnabled ? 'Every 30s' : 'Disabled'}</div>
+          <div>
+            <strong>Format:</strong> .fapptap.json
+          </div>
+          <div>
+            <strong>Location:</strong>{" "}
+            {IS_DESKTOP ? "Project directory" : "localStorage + Download"}
+          </div>
+          <div>
+            <strong>Auto-save:</strong>{" "}
+            {autoSaveEnabled ? "Every 30s" : "Disabled"}
+          </div>
         </div>
       </CardContent>
     </Card>
