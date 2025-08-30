@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { isTauriAvailable } from '../lib/worker';
+import { useState, useEffect } from "react";
+import { IS_DESKTOP } from "@/lib/platform";
 
 interface ThumbnailProps {
   src: string;
@@ -13,10 +13,10 @@ interface ThumbnailProps {
 export const Thumbnail = ({
   src,
   alt,
-  className = '',
+  className = "",
   clipId,
   videoPath,
-  timestamp = 0
+  timestamp = 0,
 }: ThumbnailProps) => {
   const [thumbnailSrc, setThumbnailSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,11 +38,11 @@ export const Thumbnail = ({
       }
 
       // If Tauri is available and we have video path, try to generate thumbnail
-      if (isTauriAvailable() && videoPath && clipId) {
+      if (IS_DESKTOP && videoPath && clipId) {
         try {
           await generateThumbnail(videoPath, clipId, timestamp);
         } catch (e) {
-          console.warn('Failed to generate thumbnail:', e);
+          console.warn("Failed to generate thumbnail:", e);
           setError(true);
         }
       } else {
@@ -55,41 +55,49 @@ export const Thumbnail = ({
     loadThumbnail();
   }, [src, videoPath, clipId, timestamp, alt]);
 
-  const generateThumbnail = async (videoPath: string, clipId: string, timestamp: number) => {
-    if (!isTauriAvailable()) return;
+  const generateThumbnail = async (
+    videoPath: string,
+    clipId: string,
+    timestamp: number
+  ) => {
+    if (!IS_DESKTOP) return;
 
     try {
-      const { Command } = await import('@tauri-apps/plugin-shell');
-      const { exists } = await import('@tauri-apps/plugin-fs');
-      
+      const { Command } = await import("@tauri-apps/plugin-shell");
+      const { exists } = await import("@tauri-apps/plugin-fs");
+
       // Create cache directory if it doesn't exist
-      const cacheDir = 'cache/thumbnails';
+      const cacheDir = "cache/thumbnails";
       const thumbnailPath = `${cacheDir}/${clipId}_${timestamp}.jpg`;
-      
+
       if (await exists(thumbnailPath)) {
         setThumbnailSrc(thumbnailPath);
         return;
       }
 
       // Generate thumbnail using ffmpeg
-      const command = Command.create('ffmpeg', [
-        '-i', videoPath,
-        '-ss', timestamp.toString(),
-        '-vframes', '1',
-        '-q:v', '3',
-        '-y',
-        thumbnailPath
+      const command = Command.create("ffmpeg", [
+        "-i",
+        videoPath,
+        "-ss",
+        timestamp.toString(),
+        "-vframes",
+        "1",
+        "-q:v",
+        "3",
+        "-y",
+        thumbnailPath,
       ]);
 
       const output = await command.execute();
-      
+
       if (output.code === 0) {
         setThumbnailSrc(thumbnailPath);
       } else {
         throw new Error(`FFmpeg failed with code ${output.code}`);
       }
     } catch (error) {
-      console.error('Failed to generate thumbnail:', error);
+      console.error("Failed to generate thumbnail:", error);
       setError(true);
       setThumbnailSrc(createPlaceholderThumbnail(alt));
     }
@@ -112,7 +120,9 @@ export const Thumbnail = ({
 
   if (loading) {
     return (
-      <div className={`bg-slate-700 flex items-center justify-center ${className}`}>
+      <div
+        className={`bg-slate-700 flex items-center justify-center ${className}`}
+      >
         <div className="text-xs text-slate-400">Loading...</div>
       </div>
     );
@@ -120,7 +130,9 @@ export const Thumbnail = ({
 
   if (error && !thumbnailSrc) {
     return (
-      <div className={`bg-slate-700 flex items-center justify-center ${className}`}>
+      <div
+        className={`bg-slate-700 flex items-center justify-center ${className}`}
+      >
         <div className="text-xs text-red-400">✗</div>
       </div>
     );
