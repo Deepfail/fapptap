@@ -1,23 +1,23 @@
 [
   {
     "id": "clip-1",
-    "name": "Sample Clip 1",
-    "path": "mock/clip1.mp4",
-    "duration": 8.2,
-    "thumbnail": "mock/thumb1.jpg"
+    "name": "Test Video 1",
+    "path": "/mock/media/test.mp4",
+    "duration": 10.0,
+    "thumbnail": "/mock/thumb1.jpg"
   },
   {
     "id": "clip-2",
-    "name": "Sample Clip 2",
-    "path": "mock/clip2.mp4",
-    "duration": 12.5,
-    "thumbnail": "mock/thumb2.jpg"
+    "name": "Test Video 2",
+    "path": "/mock/media/test.mp4",
+    "duration": 10.0,
+    "thumbnail": "/mock/thumb2.jpg"
   },
   {
     "id": "clip-3",
-    "name": "Sample Clip 3",
-    "path": "mock/clip3.mp4",
-    "duration": 6.1,
-    "thumbnail": "mock/thumb3.jpg"
+    "name": "Test Video 3",
+    "path": "/mock/media/test.mp4",
+    "duration": 10.0,
+    "thumbnail": "/mock/thumb3.jpg"
   }
 ]

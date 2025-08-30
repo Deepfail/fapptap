@@ -1,19 +1,21 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize2 } from "lucide-react";
+import {
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  Maximize2,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
 import { useMediaStore } from "../state/mediaStore";
 import { TimelineStrip } from "./TimelineStrip";
 
 export function PreviewPane() {
-  const {
-    mediaFiles,
-    currentClipId,
-    isPlaying,
-    setPlayhead,
-    setPlaying
-  } = useMediaStore();
-  
+  const { mediaFiles, currentClipId, isPlaying, setPlayhead, setPlaying } =
+    useMediaStore();
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -21,13 +23,15 @@ export function PreviewPane() {
   const [showControls, setShowControls] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const controlsTimeoutRef = useRef<number | null>(null);
-  
-  const currentFile = currentClipId ? mediaFiles.find(f => f.id === currentClipId) : null;
-  
+
+  const currentFile = currentClipId
+    ? mediaFiles.find((f) => f.id === currentClipId)
+    : null;
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const resetControlsTimeout = () => {
@@ -69,14 +73,17 @@ export function PreviewPane() {
     }
   }, [isPlaying, play, pause]);
 
-  const seek = useCallback((time: number) => {
-    if (videoRef.current && duration > 0) {
-      const clampedTime = Math.max(0, Math.min(time, duration));
-      videoRef.current.currentTime = clampedTime;
-      setCurrentTime(clampedTime);
-      setPlayhead(clampedTime);
-    }
-  }, [duration, setPlayhead]);
+  const seek = useCallback(
+    (time: number) => {
+      if (videoRef.current && duration > 0) {
+        const clampedTime = Math.max(0, Math.min(time, duration));
+        videoRef.current.currentTime = clampedTime;
+        setCurrentTime(clampedTime);
+        setPlayhead(clampedTime);
+      }
+    },
+    [duration, setPlayhead]
+  );
 
   const skipBackward = () => seek(currentTime - 10);
   const skipForward = () => seek(currentTime + 10);
@@ -85,46 +92,49 @@ export function PreviewPane() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only handle shortcuts when not in input fields
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
         return;
       }
-      
+
       switch (e.key.toLowerCase()) {
-        case ' ':
-        case 'k':
+        case " ":
+        case "k":
           e.preventDefault();
           togglePlayPause();
           break;
-        case 'j':
+        case "j":
           e.preventDefault();
           skipBackward();
           break;
-        case 'l':
+        case "l":
           e.preventDefault();
           skipForward();
           break;
-        case '[':
+        case "[":
           e.preventDefault();
           seek(0);
           break;
-        case ']':
+        case "]":
           e.preventDefault();
           seek(duration);
           break;
-        case 'arrowleft':
+        case "arrowleft":
           e.preventDefault();
           seek(currentTime - 1);
           break;
-        case 'arrowright':
+        case "arrowright":
           e.preventDefault();
           seek(currentTime + 1);
           break;
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [currentTime, duration, togglePlayPause, seek]);
 
@@ -154,22 +164,22 @@ export function PreviewPane() {
     };
 
     const handleError = () => {
-      setError('Unable to load video. Format may not be supported.');
+      setError("Unable to load video. Format may not be supported.");
       setPlaying(false);
     };
 
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handlePause);
-    video.addEventListener('error', handleError);
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("pause", handlePause);
+    video.addEventListener("error", handleError);
 
     return () => {
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('play', handlePlay);
-      video.removeEventListener('pause', handlePause);
-      video.removeEventListener('error', handleError);
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("pause", handlePause);
+      video.removeEventListener("error", handleError);
     };
   }, [setPlaying, setPlayhead]);
 
@@ -197,7 +207,7 @@ export function PreviewPane() {
   return (
     <div className="h-full flex flex-col">
       {/* Video Container */}
-      <div 
+      <div
         className="flex-1 relative bg-black group"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
@@ -210,23 +220,26 @@ export function PreviewPane() {
               className="w-full h-full object-contain"
               playsInline
             />
-            
+
             {error && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/80">
                 <div className="text-center">
                   <p className="text-red-400 mb-2">⚠️ Playback Error</p>
                   <p className="text-sm text-slate-400">{error}</p>
                   <p className="text-xs text-slate-500 mt-2">
-                    Try converting to a supported format or check codec compatibility
+                    Try converting to a supported format or check codec
+                    compatibility
                   </p>
                 </div>
               </div>
             )}
-            
+
             {/* Video Controls Overlay */}
-            <div className={`absolute inset-0 transition-opacity duration-300 ${
-              showControls ? 'opacity-100' : 'opacity-0'
-            }`}>
+            <div
+              className={`absolute inset-0 transition-opacity duration-300 ${
+                showControls ? "opacity-100" : "opacity-0"
+              }`}
+            >
               {/* Center Play/Pause Button */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <Button
@@ -272,7 +285,7 @@ export function PreviewPane() {
                     <Button size="sm" variant="ghost" onClick={skipForward}>
                       <SkipForward className="h-4 w-4" />
                     </Button>
-                    
+
                     <div className="flex items-center gap-2 ml-4">
                       <Volume2 className="h-4 w-4" />
                       <Slider
@@ -286,7 +299,9 @@ export function PreviewPane() {
                   </div>
 
                   <div className="flex items-center gap-4 text-sm">
-                    <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
+                    <span>
+                      {formatTime(currentTime)} / {formatTime(duration)}
+                    </span>
                     <Button size="sm" variant="ghost">
                       <Maximize2 className="h-4 w-4" />
                     </Button>
@@ -302,7 +317,9 @@ export function PreviewPane() {
                 <Play className="h-12 w-12 text-slate-500" />
               </div>
               <p className="text-slate-400 mb-2">No media selected</p>
-              <p className="text-sm text-slate-500">Select a clip from the library to preview</p>
+              <p className="text-sm text-slate-500">
+                Select a clip from the library to preview
+              </p>
             </div>
           </div>
         )}

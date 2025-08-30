@@ -4,11 +4,11 @@ import { LibraryPane } from "./components/LibraryPane";
 import { PreviewPane } from "./components/PreviewPane";
 import { ActionsPane } from "./components/ActionsPane";
 import { TopBar } from "./components/TopBar";
-import { useMediaStore } from "./state/mediaStore";
+import { useMediaStore, MediaStore } from "./state/mediaStore";
 import "./App.css";
 
 function App() {
-  const loadPrefs = useMediaStore((state) => state.loadPrefs);
+  const loadPrefs = useMediaStore((state: MediaStore) => state.loadPrefs);
 
   useEffect(() => {
     // Load preferences on app startup
