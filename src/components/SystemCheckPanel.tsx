@@ -32,8 +32,8 @@ export const SystemCheckPanel = () => {
     // Check Tauri availability
     newChecks.push({
       name: "Tauri Runtime",
-      status: isTauriAvailable() ? "ok" : "warning",
-      message: isTauriAvailable()
+      status: IS_DESKTOP ? "ok" : "warning",
+      message: IS_DESKTOP
         ? "Desktop runtime available"
         : "Browser mode - limited features",
     });
@@ -99,7 +99,7 @@ export const SystemCheckPanel = () => {
         : "HTTP - some APIs may be limited",
     });
 
-    if (isTauriAvailable()) {
+    if (IS_DESKTOP) {
       // Desktop-specific checks
       try {
         // Check file system access
@@ -169,7 +169,7 @@ export const SystemCheckPanel = () => {
   };
 
   const openFolder = (path: string) => {
-    if (isTauriAvailable()) {
+    if (IS_DESKTOP) {
       // Would use Tauri shell to open folder
       alert(`Would open folder: ${path}`);
     } else {
@@ -295,7 +295,7 @@ export const SystemCheckPanel = () => {
         {/* Environment Info */}
         <div className="pt-2 text-xs text-muted-foreground space-y-1">
           <div>
-            <strong>Mode:</strong> {isTauriAvailable() ? "Desktop" : "Browser"}
+            <strong>Mode:</strong> {IS_DESKTOP ? "Desktop" : "Browser"}
           </div>
           <div>
             <strong>User Agent:</strong> {navigator.userAgent.slice(0, 50)}...
