@@ -1,17 +1,98 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Button } from "./components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./components/ui/card";
+import { Progress } from "./components/ui/progress";
+// Removed unused UI primitives until needed
 import { Toaster } from "./components/ui/sonner";
-import { LibraryPane } from "./components/LibraryPane";
-import { PreviewPane } from "./components/PreviewPane";
-import { ActionsPane } from "./components/ActionsPane";
-import { TopBar } from "./components/TopBar";
-import { useMediaStore } from "./state/mediaStore";
+import { toast } from "sonner";
+import { Badge } from "./components/ui/badge";
+import { PythonWorker, WorkerMessage, isTauriAvailable } from "./lib/worker";
+import {
+  Activity,
+  Film,
+  Scissors,
+  Play,
+  LucideIcon,
+  Sparkles,
+} from "lucide-react";
+import { Waveform } from "./components/Waveform";
+import { ClipList } from "./components/ClipList";
+import { PreviewPlayer } from "./components/PreviewPlayer";
+import { Timeline } from "./components/Timeline";
+import { ZoomControls } from "./components/ZoomControls";
+import { EditorProvider } from "./state/editorStore";
+import { LogPanel, LogEntry } from "./components/LogPanel";
 import "./App.css";
+import { DragGhost } from "./components/DragGhost";
+import { EffectsInspector } from "./components/EffectsInspector";
+import { CutlistExporter } from "./components/CutlistExporter";
+import { SystemCheckPanel } from "./components/SystemCheckPanel";
+import { ProjectManager } from "./components/ProjectManager";
+
+interface StageConfig {
+  icon: LucideIcon;
+  description: string;
+  color: string;
+}
+
+interface BeatsData {
+  version: number;
+  engine: string;
+  tempo_global: number;
+  beats: number[];
+  strength: number[];
+  tempo_curve: {
+    t: number[];
+    bpm: number[];
+  };
+  debug: {
+    sr: number;
+    duration: number;
+    onset_env_peak: number;
+    onset_env_mean: number;
+    preprocessing: {
+      hpss_percussive_peak: number;
+      hpss_percussive_rms: number;
+      transient_peak: number;
+      transient_rms: number;
+    };
+  };
+}
 
 function App() {
-  const loadPrefs = useMediaStore(state => state.loadPrefs);
-  
+  const [worker] = useState(() => new PythonWorker());
+  const [tauriAvailable] = useState(() => isTauriAvailable());
+  const [songPath, setSongPath] = useState<string>("");
+  const [clipsPath, setClipsPath] = useState<string>("");
+  const [beatEngine] = useState<string>("advanced");
+  const [currentStage, setCurrentStage] = useState<string>("");
+  const [progress, setProgress] = useState<number>(0);
+  const [beatsData, setBeatsData] = useState<BeatsData | null>(null);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [status, setStatus] = useState<
+    Record<string, { status: string; progress: number }>
+  >({
+    beats: { status: "idle", progress: 0 },
+    shots: { status: "idle", progress: 0 },
+    cutlist: { status: "idle", progress: 0 },
+    render: { status: "idle", progress: 0 },
+  });
+
+  const addLog = (log: LogEntry) => {
+    setLogs((prev) => [log, ...prev.slice(0, 199)]); // Keep last 200 logs
+  };
+
+  const clearLogs = () => {
+    setLogs([]);
+  };
+
   useEffect(() => {
-<<<<<<< HEAD
     const unsubscribe = worker.onMessage((msg: WorkerMessage) => {
       if (msg.stage) {
         setCurrentStage(msg.stage);
@@ -141,49 +222,6 @@ function App() {
         type: "info",
         stage: "setup",
       });
-    }
-  };
-
-  const handleSelectVideoFile = async () => {
-    try {
-      console.log("Selecting video file...");
-      const path = await worker.selectVideoFile();
-      if (path) {
-        // Add the video directly to the clips list
-        const filename = path.split(/[\/\\]/).pop() || "Unknown";
-        const videoId = `video-${Date.now()}`;
-        const newClip = {
-          id: videoId,
-          name: filename,
-          path: path,
-          duration: 10, // Default duration, can be updated later if metadata is available
-          thumbnail: "" // Can be generated later if needed
-        };
-        
-        // If we're in a real Tauri environment, we'd add the clip to the actual clips list
-        // For now, we'll use the window.__MOCK_CLIPS as a temporary solution
-        if ((window as any).__MOCK_CLIPS) {
-          (window as any).__MOCK_CLIPS = [
-            ...(window as any).__MOCK_CLIPS,
-            newClip
-          ];
-        }
-        
-        addLog({
-          id: typeof crypto !== "undefined" && (crypto as any).randomUUID
-            ? (crypto as any).randomUUID()
-            : Date.now().toString(),
-          timestamp: new Date(),
-          message: `Selected video file: ${filename}`,
-          type: "success",
-          stage: "setup",
-        });
-        
-        toast.success(`Added video: ${filename}`);
-      }
-    } catch (error) {
-      console.error("Error selecting video file:", error);
-      toast.error(`Failed to select video: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
@@ -385,9 +423,6 @@ function App() {
                   <Button size="sm" onClick={handleSelectClips}>
                     Select Clips
                   </Button>
-                  <Button size="sm" onClick={handleSelectVideoFile}>
-                    Select Video
-                  </Button>
                 </div>
                 <div className="h-96 overflow-auto">
                   <ClipList />
@@ -517,37 +552,12 @@ function App() {
             <SystemCheckPanel />
             <LogPanel logs={logs} onClear={clearLogs} />
           </div>
-=======
-    // Load preferences on app startup
-    loadPrefs();
-  }, [loadPrefs]);
+        </div>
 
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col">
-      {/* Top Bar */}
-      <TopBar />
-      
-      {/* Main Three-Pane Layout */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Pane: Library (320-420px) */}
-        <div className="w-80 lg:w-96 border-r border-slate-700 bg-slate-800/50">
-          <LibraryPane />
-        </div>
-        
-        {/* Center Pane: Preview (flexible) */}
-        <div className="flex-1 bg-slate-900">
-          <PreviewPane />
-        </div>
-        
-        {/* Right Pane: Actions (320px) */}
-        <div className="w-80 border-l border-slate-700 bg-slate-800/50">
-          <ActionsPane />
->>>>>>> b358f852d1c77a8feb31c7810359d4fc1dda92fb
-        </div>
+        <Toaster position="top-right" theme="light" />
+        <DragGhost />
       </div>
-
-      <Toaster position="top-right" theme="dark" />
-    </div>
+    </EditorProvider>
   );
 }
 
