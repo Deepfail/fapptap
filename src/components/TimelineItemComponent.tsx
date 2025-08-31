@@ -8,7 +8,8 @@ interface TimelineItemComponentProps {
   pixelsPerSecond: number;
   panOffset: number;
   isSelected: boolean;
-  onSelect: (id: string) => void;
+  isMultiSelected: boolean;
+  onSelect: (id: string, mode?: 'replace' | 'add' | 'toggle') => void;
 }
 
 export const TimelineItemComponent = ({
@@ -17,9 +18,10 @@ export const TimelineItemComponent = ({
   pixelsPerSecond,
   panOffset,
   isSelected,
+  isMultiSelected,
   onSelect
 }: TimelineItemComponentProps) => {
-  const { trimTimelineItem, moveTimelineItem, deleteTimelineItem } = useEditor();
+  const { trimTimelineItem, moveTimelineItem, deleteTimelineItem, selectedTimelineItemIds, deleteSelectedItems } = useEditor();
   const [isDragging, setIsDragging] = useState(false);
   const [, setIsResizing] = useState<'left' | 'right' | null>(null);
   const itemRef = useRef<HTMLDivElement>(null);
@@ -32,7 +34,16 @@ export const TimelineItemComponent = ({
 
   const handleMouseDown = useCallback((e: React.MouseEvent, type: 'move' | 'left' | 'right') => {
     e.stopPropagation();
-    onSelect(item.id);
+    
+    // Handle multi-selection based on modifier keys
+    let selectionMode: 'replace' | 'add' | 'toggle' = 'replace';
+    if (e.ctrlKey || e.metaKey) {
+      selectionMode = 'toggle';
+    } else if (e.shiftKey) {
+      selectionMode = 'add';
+    }
+    
+    onSelect(item.id, selectionMode);
     
     const dragStart = {
       x: e.clientX,
@@ -81,20 +92,45 @@ export const TimelineItemComponent = ({
       case 'Delete':
       case 'Backspace':
         e.preventDefault();
-        deleteTimelineItem(item.id);
+        // If multiple items are selected, delete all selected items
+        if (selectedTimelineItemIds.size > 1) {
+          deleteSelectedItems();
+        } else {
+          deleteTimelineItem(item.id);
+        }
         break;
       case ',':
         e.preventDefault();
         // Nudge left by 1 frame (assume 24fps = ~0.042s)
-        moveTimelineItem(item.id, Math.max(0, item.start - 0.042));
+        if (selectedTimelineItemIds.size > 1) {
+          // For multi-selection, nudge all selected items
+          selectedTimelineItemIds.forEach(id => {
+            const selectedItem = useEditor().timeline.find(t => t.id === id);
+            if (selectedItem) {
+              moveTimelineItem(id, Math.max(0, selectedItem.start - 0.042));
+            }
+          });
+        } else {
+          moveTimelineItem(item.id, Math.max(0, item.start - 0.042));
+        }
         break;
       case '.':
         e.preventDefault();
         // Nudge right by 1 frame
-        moveTimelineItem(item.id, item.start + 0.042);
+        if (selectedTimelineItemIds.size > 1) {
+          // For multi-selection, nudge all selected items
+          selectedTimelineItemIds.forEach(id => {
+            const selectedItem = useEditor().timeline.find(t => t.id === id);
+            if (selectedItem) {
+              moveTimelineItem(id, selectedItem.start + 0.042);
+            }
+          });
+        } else {
+          moveTimelineItem(item.id, item.start + 0.042);
+        }
         break;
     }
-  }, [isSelected, item, moveTimelineItem, deleteTimelineItem]);
+  }, [isSelected, item, moveTimelineItem, deleteTimelineItem, selectedTimelineItemIds, deleteSelectedItems]);
 
   return (
     <div
@@ -103,7 +139,9 @@ export const TimelineItemComponent = ({
       tabIndex={0}
       className={`absolute top-2 rounded overflow-hidden cursor-pointer transition-all duration-200 group ${
         isSelected
-          ? "ring-2 ring-indigo-400 shadow-lg z-10"
+          ? isMultiSelected 
+            ? "ring-2 ring-purple-400 shadow-lg z-10"  // Purple for multi-selection
+            : "ring-2 ring-indigo-400 shadow-lg z-10"  // Blue for single selection
           : "hover:shadow-md"
       } ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       style={{ 
@@ -111,7 +149,16 @@ export const TimelineItemComponent = ({
         width: Math.max(60, width),
         height: '40px'
       }}
-      onClick={() => onSelect(item.id)}
+      onClick={(e) => {
+        // Handle multi-selection based on modifier keys
+        let selectionMode: 'replace' | 'add' | 'toggle' = 'replace';
+        if (e.ctrlKey || e.metaKey) {
+          selectionMode = 'toggle';
+        } else if (e.shiftKey) {
+          selectionMode = 'add';
+        }
+        onSelect(item.id, selectionMode);
+      }}
       onKeyDown={handleKeyDown}
       onMouseDown={(e) => handleMouseDown(e, 'move')}
     >

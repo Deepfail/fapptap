@@ -8,7 +8,9 @@ export const Timeline = () => {
     timeline,
     clips,
     selectedTimelineItemId,
+    selectedTimelineItemIds,
     selectTimelineItem,
+    selectTimelineItems,
     addClipToTimeline,
     pixelsPerSecond,
     playhead,
@@ -238,6 +240,9 @@ export const Timeline = () => {
           {/* Timeline items */}
           {timeline.map((item) => {
             const clip = clips.find((c) => c.id === item.clipId);
+            const isSelected = selectedTimelineItemId === item.id;
+            const isMultiSelected = selectedTimelineItemIds.size > 1 && selectedTimelineItemIds.has(item.id);
+            
             return (
               <TimelineItemComponent
                 key={item.id}
@@ -245,8 +250,15 @@ export const Timeline = () => {
                 clip={clip}
                 pixelsPerSecond={pixelsPerSecond}
                 panOffset={panOffset}
-                isSelected={selectedTimelineItemId === item.id}
-                onSelect={selectTimelineItem}
+                isSelected={isSelected}
+                isMultiSelected={isMultiSelected}
+                onSelect={(id, mode = 'replace') => {
+                  if (mode === 'replace') {
+                    selectTimelineItem(id);
+                  } else {
+                    selectTimelineItems([id], mode);
+                  }
+                }}
               />
             );
           })}
