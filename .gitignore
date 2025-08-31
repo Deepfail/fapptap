@@ -70,6 +70,57 @@ cache/
 render/
 *.local
 
+# GitHub file size limits (100MB+)
+# Exclude any file over 50MB to be safe
+*.bin
+*.exe
+*.dll
+*.so
+*.dylib
+*.app
+*.dmg
+*.pkg
+*.msi
+*.deb
+*.rpm
+*.iso
+*.img
+*.vdi
+*.vmdk
+*.ova
+*.ovf
+
+# Large media and data files
+*.wav
+*.aac
+*.ogg
+*.m4a
+*.wma
+*.flac
+*.dat
+*.dump
+*.backup
+*.bak
+
+# Large development files
+*.pdb
+*.lib
+*.a
+*.obj
+*.o
+*.lo
+*.la
+*.al
+*.libs
+*.dSYM/
+*.su
+*.idb
+*.ipdb
+
+# Binaries directory (contains large executables)
+src-tauri/binaries/
+!src-tauri/binaries/.gitkeep
+
 # Python
 __pycache__/
 *.py[cod]
