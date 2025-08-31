@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { isTauriAvailable } from '../lib/worker';
+import { toMediaUrl } from '../lib/mediaUrl';
 
 interface ThumbnailProps {
   src: string;
@@ -27,9 +28,10 @@ export const Thumbnail = ({
       // First try the provided src
       try {
         setLoading(true);
-        const response = await fetch(src);
+        const mediaSrc = toMediaUrl(src);
+        const response = await fetch(mediaSrc);
         if (response.ok) {
-          setThumbnailSrc(src);
+          setThumbnailSrc(mediaSrc);
           setLoading(false);
           return;
         }
@@ -67,7 +69,7 @@ export const Thumbnail = ({
       const thumbnailPath = `${cacheDir}/${clipId}_${timestamp}.jpg`;
       
       if (await exists(thumbnailPath)) {
-        setThumbnailSrc(thumbnailPath);
+        setThumbnailSrc(toMediaUrl(thumbnailPath));
         return;
       }
 
@@ -84,7 +86,7 @@ export const Thumbnail = ({
       const output = await command.execute();
       
       if (output.code === 0) {
-        setThumbnailSrc(thumbnailPath);
+        setThumbnailSrc(toMediaUrl(thumbnailPath));
       } else {
         throw new Error(`FFmpeg failed with code ${output.code}`);
       }

@@ -18,7 +18,7 @@ import {
   Clock
 } from "lucide-react";
 import { useMediaStore } from "../state/mediaStore";
-import { PythonWorker } from "../lib/worker";
+import { PythonWorker, WorkerStage } from "../lib/worker";
 import { toast } from "sonner";
 
 const stageConfigs = {
@@ -70,7 +70,7 @@ export function ActionsPane() {
     return job || { status: 'idle', progress: 0 };
   };
   
-  const runStage = async (stage: string) => {
+  const runStage = async (stage: WorkerStage) => {
     if (!hasRequiredInputs) {
       toast.error("Please select a song, clips directory, and at least one clip");
       return;
@@ -202,7 +202,7 @@ export function ActionsPane() {
                     )}
                     <Button
                       size="sm"
-                      onClick={() => runStage(stage)}
+                      onClick={() => runStage(stage as WorkerStage)}
                       disabled={!hasRequiredInputs || job.status === 'running'}
                     >
                       Run

@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { useEditor } from "../state/editorStore";
 import { Button } from "./ui/button";
+import { toMediaUrl } from "../lib/mediaUrl";
 
 export const PreviewPlayer = ({ src }: { src?: string }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -13,7 +14,8 @@ export const PreviewPlayer = ({ src }: { src?: string }) => {
   const clip = selectedItem
     ? clips.find((c) => c.id === selectedItem.clipId)
     : null;
-  const playSrc = clip ? clip.path : src;
+  const rawSrc = clip ? clip.path : src;
+  const playSrc = rawSrc ? toMediaUrl(rawSrc) : undefined;
 
   // Transport controls
   const play = useCallback(() => {

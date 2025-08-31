@@ -13,12 +13,12 @@
     "windows": [
       {
         "title": "fapptap-ui",
-        "width": 800,
-        "height": 600
+        "width": 1280,
+        "height": 768
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self' asset: https://asset.localhost; connect-src 'self' ws://localhost:* ws://127.0.0.1:* http://localhost:* http://127.0.0.1:*; img-src 'self' asset: https://asset.localhost data: blob:; media-src 'self' asset: https://asset.localhost data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval';"
     }
   },
   "bundle": {
@@ -33,6 +33,29 @@
     ]
   },
   "plugins": {
-    "store": {}
+    "store": {},
+    "shell": {
+      "open": true,
+      "scope": [
+        {
+          "name": "run-python-worker",
+          "cmd": "python",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "run-ffmpeg", 
+          "cmd": "ffmpeg",
+          "args": true,
+          "sidecar": false
+        },
+        {
+          "name": "run-ffprobe",
+          "cmd": "ffprobe", 
+          "args": true,
+          "sidecar": false
+        }
+      ]
+    }
   }
 }
