@@ -6,6 +6,7 @@ import { Badge } from "./ui/badge";
 import { useMediaStore } from "../state/mediaStore";
 import { MediaFile } from "../state/mediaStore";
 import { cn } from "../lib/utils";
+import { toMediaUrl } from "../lib/mediaUrl";
 
 interface MediaFileCardProps {
   file: MediaFile;
@@ -123,7 +124,7 @@ export function MediaFileCard({ file, viewMode }: MediaFileCardProps) {
           <div className="relative w-16 h-9 bg-slate-800 rounded overflow-hidden flex-shrink-0">
             {file.thumbnail && (
               <img
-                src={file.thumbnail}
+                src={toMediaUrl(file.thumbnail)}
                 alt={file.name}
                 className="w-full h-full object-cover"
               />
@@ -209,7 +210,7 @@ export function MediaFileCard({ file, viewMode }: MediaFileCardProps) {
       <div className="aspect-video bg-slate-800 relative overflow-hidden">
         {file.thumbnail && (
           <img
-            src={file.thumbnail}
+            src={toMediaUrl(file.thumbnail)}
             alt={file.name}
             className="w-full h-full object-cover"
           />
@@ -218,7 +219,7 @@ export function MediaFileCard({ file, viewMode }: MediaFileCardProps) {
         {/* Hidden video for quick-play */}
         <video
           ref={videoRef}
-          src={file.path}
+          src={toMediaUrl(file.path)}
           className="absolute inset-0 w-full h-full object-cover opacity-0"
           muted
           playsInline

@@ -5,6 +5,7 @@ import { PreviewPane } from "./components/PreviewPane";
 import { ActionsPane } from "./components/ActionsPane";
 import { TopBar } from "./components/TopBar";
 import { useMediaStore } from "./state/mediaStore";
+import { dev } from "./lib/platform";
 import "./App.css";
 
 function App() {
@@ -13,6 +14,9 @@ function App() {
   useEffect(() => {
     // Load preferences on app startup
     loadPrefs();
+    
+    // Log platform info in development
+    dev.logPlatformInfo();
   }, [loadPrefs]);
 
   return (
