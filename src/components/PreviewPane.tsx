@@ -22,7 +22,7 @@ export function PreviewPane() {
   const [volume, setVolume] = useState(0.5);
   const [showControls, setShowControls] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const controlsTimeoutRef = useRef<number | null>(null);
+  const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentFile = currentClipId
     ? mediaFiles.find((f) => f.id === currentClipId)

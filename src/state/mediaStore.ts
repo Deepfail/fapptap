@@ -184,7 +184,7 @@ export const useMediaStore = create<MediaStore>()(
       set((state) => ({
         mediaFiles: state.mediaFiles.filter((file) => file.id !== id),
         selectedClipIds: new Set(
-          [...state.selectedClipIds].filter((cid) => cid !== id)
+          Array.from(state.selectedClipIds).filter((cid) => cid !== id)
         ),
       }));
     },
@@ -322,7 +322,7 @@ export const useMediaStore = create<MediaStore>()(
 );
 
 // Auto-save preferences when they change (debounced)
-let saveTimeout: number | null = null;
+let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 useMediaStore.subscribe(
   (state) => state.prefs,
@@ -348,7 +348,7 @@ useMediaStore.subscribe(
         a.pixelsPerSecond === b.pixelsPerSecond &&
         a.theme === b.theme &&
         a.selectedClipIds.size === b.selectedClipIds.size &&
-        [...a.selectedClipIds].every((id) => b.selectedClipIds.has(id))
+        Array.from(a.selectedClipIds).every((id) => b.selectedClipIds.has(id))
       );
     },
   }
