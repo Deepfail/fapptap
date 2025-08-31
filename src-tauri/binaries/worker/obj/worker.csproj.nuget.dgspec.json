@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Files\\Projects\\fapptap\\src-tauri\\binaries\\worker\\worker.csproj": {}
+    "/home/runner/work/fapptap/fapptap/src-tauri/binaries/worker/worker.csproj": {}
   },
   "projects": {
-    "C:\\Files\\Projects\\fapptap\\src-tauri\\binaries\\worker\\worker.csproj": {
+    "/home/runner/work/fapptap/fapptap/src-tauri/binaries/worker/worker.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Files\\Projects\\fapptap\\src-tauri\\binaries\\worker\\worker.csproj",
+        "projectUniqueName": "/home/runner/work/fapptap/fapptap/src-tauri/binaries/worker/worker.csproj",
         "projectName": "worker",
-        "projectPath": "C:\\Files\\Projects\\fapptap\\src-tauri\\binaries\\worker\\worker.csproj",
-        "packagesPath": "C:\\Users\\Virta\\.nuget\\packages\\",
-        "outputPath": "C:\\Files\\Projects\\fapptap\\src-tauri\\binaries\\worker\\obj\\",
+        "projectPath": "/home/runner/work/fapptap/fapptap/src-tauri/binaries/worker/worker.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/work/fapptap/fapptap/src-tauri/binaries/worker/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Virta\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -36,13 +32,7 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -51,7 +41,7 @@
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.16, )",
+              "version": "[8.0.19, )",
               "autoReferenced": true
             }
           },
@@ -68,32 +58,16 @@
           "warn": true,
           "downloadDependencies": [
             {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.16, 8.0.16]"
+              "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
+              "version": "[8.0.19, 8.0.19]"
             },
             {
-              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-              "version": "[8.0.16, 8.0.16]"
+              "name": "Microsoft.NETCore.App.Host.linux-x64",
+              "version": "[8.0.19, 8.0.19]"
             },
             {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Runtime.win-x64",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
-              "version": "[8.0.16, 8.0.16]"
+              "name": "Microsoft.NETCore.App.Runtime.linux-x64",
+              "version": "[8.0.19, 8.0.19]"
             }
           ],
           "frameworkReferences": {
@@ -101,11 +75,11 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.119/PortableRuntimeIdentifierGraph.json"
         }
       },
       "runtimes": {
-        "win-x64": {
+        "linux-x64": {
           "#import": []
         }
       }
