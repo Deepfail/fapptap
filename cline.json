@@ -128,7 +128,7 @@
         "/c",
         "set FIRECRAWL_API_KEY=fc-a2cd8a3fd6f241879099613c48a98f21 && npx -y firecrawl-mcp"
       ],
-      "disabled": true,
+      "disabled": false,
       "autoApprove": ["firecrawl_search", "firecrawl_scrape"]
     },
     "@21st-dev/magic": {

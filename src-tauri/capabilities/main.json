@@ -1,0 +1,21 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main",
+  "description": "Main window capabilities (sidecars, fs, dialog, store)",
+  "windows": ["main"],
+  "permissions": [
+    { "identifier": "core:default" },
+    { "identifier": "dialog:allow-open" },
+    { "identifier": "fs:read-all" },
+    { "identifier": "fs:write-all" },
+    { "identifier": "shell:allow-open" },
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        { "name": "binaries/worker", "sidecar": true },
+        { "name": "binaries/ffmpeg", "sidecar": true },
+        { "name": "binaries/ffprobe", "sidecar": true }
+      ]
+    }
+  ]
+}

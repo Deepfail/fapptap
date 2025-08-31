@@ -1,0 +1,20 @@
+# pack-refs with: peeled fully-peeled sorted 
+53cc0fcf935d9212f35d96762531eb18f7d8c5a4 refs/remotes/origin/ContextMenu-hpopupmenu
+8a63c11a8642a2adbc5dc5a968e57f6606e4b598 refs/remotes/origin/chore/clarify-fs-rust-usage
+9cc10cb66d74163a67465b3261d0b29183d074c8 refs/remotes/origin/feat/sponsors2
+5fd0a0e9a97edd913bfdea46273b075445ae869c refs/remotes/origin/fix-menu-migration
+57ab676ace8f082e48721ce82d5a7934d12dd123 refs/remotes/origin/fix-node-sidecar
+db5823644ac7c0eefd1aab74b655c329c07a818f refs/remotes/origin/fix/v1-upgrade-commands
+5e3bf579e53ec7d6fec71100475d9e4bafe58358 refs/remotes/origin/poc-typedoc-html
+8a08ef4cbaf7448009cec018077a2a721e214f93 refs/remotes/origin/releases-page-plugins
+297a31b34b1105c82bcc43106d566618e780133f refs/remotes/origin/renovate/astro-and-starlight-packages
+c494cc82c563ab4d098fd48459c1cd975f85e865 refs/remotes/origin/renovate/node-22.x-lockfile
+e7eeac2e5a9bc95ecfd5e760fe7b1fca4096d50c refs/remotes/origin/renovate/packages-plugins-workspace-digest
+1f3270d6f8b952f57185bdcf5204094de1c8f0b9 refs/remotes/origin/renovate/packages-tauri-digest
+e35e18eed2f0cc65eebea9264e97cfef63b47d54 refs/remotes/origin/renovate/sharp-0.x
+e770b48e92c7c49430bb9be56cc8a690a3c86496 refs/remotes/origin/renovate/shiki-monorepo
+fc7ce420609b79be6792d4b3aa1e24390327be79 refs/remotes/origin/typedoc-i
+939822e82c8fe07cb990ae599f6a8a6591ab0f72 refs/remotes/origin/update-starlight-astro-built-on-vitor
+9fa17b124485a92c5f2ccecee577631fb8505c81 refs/remotes/origin/updates-n-stuff
+84c2c3cecca1ce75bffbc8a957b9a483004beafa refs/remotes/origin/v1
+763fc869582e21bebe38db77d7c75e1efe276f75 refs/remotes/origin/v2

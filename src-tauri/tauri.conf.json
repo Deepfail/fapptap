@@ -4,26 +4,23 @@
   "version": "0.1.0",
   "identifier": "com.pornaid.fapptap",
   "build": {
-    "beforeDevCommand": "npm run dev -- --port=1422",
+    "beforeDevCommand": "npm run dev -- --port=1422 --strictPort",
     "devUrl": "http://localhost:1422",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
   "app": {
     "windows": [
-      {
-        "title": "fapptap-ui",
-        "width": 800,
-        "height": 600
-      }
+      { "title": "fapptap-ui", "width": 1280, "height": 800, "resizable": true }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self' ipc: http://ipc.localhost ws:; img-src 'self' asset: http://asset.localhost blob: data:; media-src 'self' asset: http://asset.localhost blob: data:; connect-src 'self' http://localhost:1422 ws://localhost:1422 ipc:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'"
     }
   },
   "bundle": {
     "active": true,
     "targets": "all",
+    "externalBin": ["binaries/worker", "binaries/ffmpeg", "binaries/ffprobe"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -31,18 +28,5 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
-  },
-  "plugins": {
-    "store": {},
-    "shell": {
-      "open": true
-    },
-    "dialog": null,
-    "fs": {
-      "requireLiteralLeadingDot": false
-    },
-    "opener": {
-      "requireLiteralLeadingDot": false
-    }
   }
 }

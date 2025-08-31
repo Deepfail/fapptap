@@ -1,17 +1,26 @@
-import { useEffect } from "react";
-import { Toaster } from "./components/ui/sonner";
-import { LibraryPane } from "./components/LibraryPane";
-import { PreviewPane } from "./components/PreviewPane";
+// src/App.tsx
+import { useEffect, useState } from "react";
+
+// UI & panes
+import { Toaster } from "@/components/ui/sonner";
+import { LibraryPane } from "@/components/library";
+import { PreviewPlayer } from "@/components/preview";
 import { ActionsPane } from "./components/ActionsPane";
 import { TopBar } from "./components/TopBar";
+
+// state (prefs loader)
 import { useMediaStore, MediaStore } from "./state/mediaStore";
+
 import "./App.css";
 
-function App() {
+export default function App() {
   const loadPrefs = useMediaStore((state: MediaStore) => state.loadPrefs);
 
+  // local wiring: selected clip for preview + last dir (can persist later via Tauri Store)
+  const [currentClip, setCurrentClip] = useState<string | undefined>();
+  const [lastDir, setLastDir] = useState<string | undefined>();
+
   useEffect(() => {
-    // Load preferences on app startup
     loadPrefs();
   }, [loadPrefs]);
 
@@ -22,25 +31,35 @@ function App() {
 
       {/* Main Three-Pane Layout */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Pane: Library (320-420px) */}
-        <div className="w-80 lg:w-96 border-r border-slate-700 bg-slate-800/50">
-          <LibraryPane />
-        </div>
+        {/* Left Pane: Library (320–420px) */}
+        <aside className="w-80 lg:w-96 border-r border-slate-700 bg-slate-800/50 overflow-hidden">
+          <LibraryPane
+            initialDir={lastDir}
+            onDirChange={setLastDir}
+            onSelectClip={setCurrentClip}
+          />
+        </aside>
 
         {/* Center Pane: Preview (flexible) */}
-        <div className="flex-1 bg-slate-900">
-          <PreviewPane />
-        </div>
+        <main className="flex-1 bg-slate-900 p-3 overflow-hidden">
+          <div className="h-full rounded-xl border border-slate-700 overflow-hidden">
+            <PreviewPlayer
+              srcPath={currentClip}
+              muted
+              // later: publish t to a transport/timeline store
+              onTime={() => {}}
+            />
+            {/* TODO: mount Beats strip under the player */}
+          </div>
+        </main>
 
         {/* Right Pane: Actions (320px) */}
-        <div className="w-80 border-l border-slate-700 bg-slate-800/50">
+        <aside className="w-80 border-l border-slate-700 bg-slate-800/50 overflow-auto">
           <ActionsPane />
-        </div>
+        </aside>
       </div>
 
       <Toaster position="top-right" theme="dark" />
     </div>
   );
 }
-
-export default App;

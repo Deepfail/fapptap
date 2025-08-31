@@ -322,7 +322,7 @@ export const useMediaStore = create<MediaStore>()(
 );
 
 // Auto-save preferences when they change (debounced)
-let saveTimeout: number | null = null;
+let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 useMediaStore.subscribe(
   (state) => state.prefs,

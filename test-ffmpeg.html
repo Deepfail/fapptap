@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>FFmpeg Sidecar Test</title>
+  </head>
+  <body>
+    <h1>FFmpeg Sidecar Test</h1>
+    <button id="test-ffmpeg">Test FFmpeg Version</button>
+    <button id="test-ffprobe">Test FFprobe Version</button>
+    <button id="test-worker">Test Worker</button>
+    <pre id="output"></pre>
+
+    <script type="module">
+      import {
+        ffmpegVersion,
+        ffprobeVersion,
+        runWorker,
+      } from "./src/lib/exec.js";
+
+      const output = document.getElementById("output");
+
+      document
+        .getElementById("test-ffmpeg")
+        .addEventListener("click", async () => {
+          try {
+            output.textContent = "Testing FFmpeg...\n";
+            const result = await ffmpegVersion();
+            output.textContent += `FFmpeg Result:\nCode: ${result.code}\nStdout: ${result.stdout}\nStderr: ${result.stderr}\n\n`;
+          } catch (error) {
+            output.textContent += `FFmpeg Error: ${error.message}\n\n`;
+          }
+        });
+
+      document
+        .getElementById("test-ffprobe")
+        .addEventListener("click", async () => {
+          try {
+            output.textContent += "Testing FFprobe...\n";
+            const result = await ffprobeVersion();
+            output.textContent += `FFprobe Result:\nCode: ${result.code}\nStdout: ${result.stdout}\nStderr: ${result.stderr}\n\n`;
+          } catch (error) {
+            output.textContent += `FFprobe Error: ${error.message}\n\n`;
+          }
+        });
+
+      document
+        .getElementById("test-worker")
+        .addEventListener("click", async () => {
+          try {
+            output.textContent += "Testing Worker...\n";
+            const result = await runWorker("--version");
+            output.textContent += `Worker Result:\nCode: ${result.code}\nStdout: ${result.stdout}\nStderr: ${result.stderr}\n\n`;
+          } catch (error) {
+            output.textContent += `Worker Error: ${error.message}\n\n`;
+          }
+        });
+    </script>
+  </body>
+</html>

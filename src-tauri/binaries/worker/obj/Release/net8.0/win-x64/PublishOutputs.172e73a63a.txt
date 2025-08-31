@@ -1,0 +1,2 @@
+C:\Files\Projects\fapptap\src-tauri\binaries\worker\worker.pdb
+C:\Files\Projects\fapptap\src-tauri\binaries\worker\worker.exe

@@ -118,27 +118,112 @@ export const SystemCheckPanel = () => {
         });
       }
 
-      // Check if Python worker is available (mock check)
-      newChecks.push({
-        name: "Python Worker",
-        status: "warning",
-        message: "Check worker/main.py exists",
-        action: {
-          label: "Test",
-          onClick: () => alert("Would test Python worker connection"),
-        },
-      });
+      // Check Python worker availability
+      try {
+        const { runWorker } = await import("@/lib/exec");
+        const result = await runWorker("--version");
+        newChecks.push({
+          name: "Python Worker",
+          status: result.code === 0 ? "ok" : "error",
+          message:
+            result.code === 0
+              ? "Worker executable available"
+              : `Worker failed: ${result.stderr}`,
+          action: {
+            label: "Test",
+            onClick: async () => {
+              try {
+                const testResult = await runWorker("--version");
+                alert(
+                  `Worker test result:\nCode: ${testResult.code}\nOutput: ${testResult.stdout}\nError: ${testResult.stderr}`
+                );
+              } catch (err) {
+                alert(`Worker test failed: ${err}`);
+              }
+            },
+          },
+        });
+      } catch (err) {
+        newChecks.push({
+          name: "Python Worker",
+          status: "error",
+          message: `Worker not available: ${err}`,
+        });
+      }
 
-      // Check FFmpeg availability (mock check)
-      newChecks.push({
-        name: "FFmpeg",
-        status: "warning",
-        message: "Check ffmpeg in PATH",
-        action: {
-          label: "Test",
-          onClick: () => alert("Would test FFmpeg installation"),
-        },
-      });
+      // Check FFmpeg availability
+      try {
+        const { ffmpegVersion } = await import("@/lib/exec");
+        const result = await ffmpegVersion();
+        newChecks.push({
+          name: "FFmpeg",
+          status: result.code === 0 ? "ok" : "error",
+          message:
+            result.code === 0
+              ? "FFmpeg sidecar available"
+              : `FFmpeg failed: ${result.stderr}`,
+          action: {
+            label: "Test",
+            onClick: async () => {
+              try {
+                const testResult = await ffmpegVersion();
+                alert(
+                  `FFmpeg test result:\nCode: ${
+                    testResult.code
+                  }\nOutput: ${testResult.stdout.slice(0, 200)}...\nError: ${
+                    testResult.stderr
+                  }`
+                );
+              } catch (err) {
+                alert(`FFmpeg test failed: ${err}`);
+              }
+            },
+          },
+        });
+      } catch (err) {
+        newChecks.push({
+          name: "FFmpeg",
+          status: "error",
+          message: `FFmpeg not available: ${err}`,
+        });
+      }
+
+      // Check FFprobe availability
+      try {
+        const { ffprobeVersion } = await import("@/lib/exec");
+        const result = await ffprobeVersion();
+        newChecks.push({
+          name: "FFprobe",
+          status: result.code === 0 ? "ok" : "error",
+          message:
+            result.code === 0
+              ? "FFprobe sidecar available"
+              : `FFprobe failed: ${result.stderr}`,
+          action: {
+            label: "Test",
+            onClick: async () => {
+              try {
+                const testResult = await ffprobeVersion();
+                alert(
+                  `FFprobe test result:\nCode: ${
+                    testResult.code
+                  }\nOutput: ${testResult.stdout.slice(0, 200)}...\nError: ${
+                    testResult.stderr
+                  }`
+                );
+              } catch (err) {
+                alert(`FFprobe test failed: ${err}`);
+              }
+            },
+          },
+        });
+      } catch (err) {
+        newChecks.push({
+          name: "FFprobe",
+          status: "error",
+          message: `FFprobe not available: ${err}`,
+        });
+      }
     } else {
       // Browser-specific checks
       newChecks.push({
