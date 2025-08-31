@@ -1,6 +1,0 @@
-config.md
-cli.mdx
-acl/*.md
-!acl/core-permissions.mdx
-javascript/*
-!javascript/index.mdx
