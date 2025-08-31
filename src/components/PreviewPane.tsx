@@ -3,7 +3,7 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize2 } from "lucide-r
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
 import { useMediaStore } from "../state/mediaStore";
-import { TimelineStrip } from "./TimelineStrip";
+import { Timeline } from "./Timeline";
 
 export function PreviewPane() {
   const {
@@ -308,9 +308,9 @@ export function PreviewPane() {
         )}
       </div>
 
-      {/* Timeline Strip */}
+      {/* Timeline */}
       <div className="border-t border-slate-700">
-        <TimelineStrip />
+        <Timeline />
       </div>
 
       {/* Transport Help */}

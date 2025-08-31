@@ -6,6 +6,7 @@ import { useMediaStore } from "../state/mediaStore";
 import { PythonWorker } from "../lib/worker";
 import { MediaFileCard } from "./MediaFileCard";
 import { Input } from "./ui/input";
+import { ClipList } from "./ClipList";
 
 export function LibraryPane() {
   const {
@@ -172,6 +173,11 @@ export function LibraryPane() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto">
+        {/* Timeline Clips Section */}
+        <div className="border-b border-slate-700">
+          <ClipList />
+        </div>
+        
         {clipsDir && (
           <div className="p-3 bg-slate-800/50 border-b border-slate-700 text-xs text-slate-400">
             📁 {clipsDir}
