@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { IS_DESKTOP } from "@/lib/platform";
+import { IS_DESKTOP, isTauriAvailable } from "@/lib/platform";
 import {
   CheckCircle,
   XCircle,
@@ -30,12 +30,11 @@ export const SystemCheckPanel = () => {
     const newChecks: SystemCheck[] = [];
 
     // Check Tauri availability
+    const desktopNow = isTauriAvailable();
     newChecks.push({
       name: "Tauri Runtime",
-      status: IS_DESKTOP ? "ok" : "warning",
-      message: IS_DESKTOP
-        ? "Desktop runtime available"
-        : "Browser mode - limited features",
+      status: desktopNow ? "ok" : "warning",
+      message: desktopNow ? "Desktop runtime available" : "Browser mode - limited features",
     });
 
     // Check local storage
@@ -99,7 +98,7 @@ export const SystemCheckPanel = () => {
         : "HTTP - some APIs may be limited",
     });
 
-    if (IS_DESKTOP) {
+  if (desktopNow) {
       // Desktop-specific checks
       try {
         // Check file system access
@@ -236,8 +235,8 @@ export const SystemCheckPanel = () => {
   };
 
   const openFolder = (path: string) => {
-    if (IS_DESKTOP) {
-      // Would use Tauri shell to open folder
+    if (isTauriAvailable()) {
+      // TODO: implement actual folder open via shell open
       alert(`Would open folder: ${path}`);
     } else {
       alert("Folder opening only available in desktop mode");
