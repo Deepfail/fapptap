@@ -97,12 +97,22 @@ export function ActionsPane() {
     try {
       updateJob(jobId, { status: "running", progress: 0 });
 
-      await worker.runStage(stage, {
-        song: songPath,
-        clips: clipsDir,
-        proxy: stage === "render",
-        engine: prefs.engine,
-      });
+      await worker.runStage(
+        stage,
+        {
+          song: songPath,
+          clips: clipsDir,
+          proxy: stage === "render",
+          engine: prefs.engine,
+        },
+        (message) => {
+          // Handle progress updates from worker
+          updateJob(jobId, {
+            progress: message.progress ?? 0,
+            message: message.message || `${stage} in progress...`,
+          });
+        }
+      );
 
       updateJob(jobId, {
         status: "completed",
@@ -125,10 +135,16 @@ export function ActionsPane() {
     }
   };
 
-  const cancelJob = (jobId: string) => {
-    // TODO: Implement actual job cancellation in worker
-    updateJob(jobId, { status: "error", error: "Cancelled by user" });
-    toast.info("Job cancelled");
+  const cancelJob = async (jobId: string) => {
+    try {
+      await worker.cancel();
+      updateJob(jobId, { status: "error", error: "Cancelled by user", endTime: Date.now() });
+      toast.info("Job cancelled");
+    } catch (error) {
+      console.warn("Failed to cancel job:", error);
+      updateJob(jobId, { status: "error", error: "Cancelled by user", endTime: Date.now() });
+      toast.info("Job cancelled");
+    }
   };
 
   const clearCompletedJobs = () => {
