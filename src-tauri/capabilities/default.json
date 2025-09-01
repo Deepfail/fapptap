@@ -5,18 +5,56 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
-    "dialog:allow-open",
     "dialog:default",
-    "fs:read-all",
-    "fs:write-all",
+    "fs:default",
     "shell:default",
     "shell:allow-open",
     {
+      "identifier": "fs:scope-app-recursive",
+      "allow": [
+        { "path": "$APPDATA/**" },
+        { "path": "$APPLOCAL/**" },
+        { "path": "$RESOURCE/**" }
+      ]
+    },
+    {
       "identifier": "shell:allow-execute",
       "allow": [
-        { "name": "binaries/worker", "sidecar": true },
-        { "name": "binaries/ffmpeg", "sidecar": true },
-        { "name": "binaries/ffprobe", "sidecar": true }
+        {
+          "name": "binaries/worker",
+          "sidecar": true,
+          "args": true
+        },
+        {
+          "name": "binaries/ffmpeg",
+          "sidecar": true,
+          "args": true
+        },
+        {
+          "name": "binaries/ffprobe",
+          "sidecar": true,
+          "args": true
+        }
+      ]
+    },
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "binaries/worker",
+          "sidecar": true,
+          "args": true
+        },
+        {
+          "name": "binaries/ffmpeg",
+          "sidecar": true,
+          "args": true
+        },
+        {
+          "name": "binaries/ffprobe",
+          "sidecar": true,
+          "args": true
+        }
       ]
     }
   ]

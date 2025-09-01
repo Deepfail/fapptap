@@ -1,0 +1,1242 @@
+{
+  "fs:allow-home-read": {
+    "doc_id": "capabilities-for-windows-and-platforms",
+    "section_id": "capabilities-for-windows-and-platforms#guide"
+  },
+  "dialog:allow-ask": {
+    "doc_id": "capabilities-for-windows-and-platforms",
+    "section_id": "capabilities-for-windows-and-platforms#guide"
+  },
+  "core:default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#default-permissions"
+  },
+  "core:app:default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#default-permissions"
+  },
+  "core:event:default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#default-permissions"
+  },
+  "core:image:default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#default-permissions"
+  },
+  "core:menu:default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#default-permissions"
+  },
+  "core:path:default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#default-permissions"
+  },
+  "core:resources:default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#default-permissions"
+  },
+  "core:tray:default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#default-permissions"
+  },
+  "core:webview:default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#default-permissions"
+  },
+  "core:window:default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#default-permissions"
+  },
+  "core:app:allow-app-hide": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:deny-app-hide": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:allow-app-show": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:deny-app-show": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:allow-default-window-icon": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:deny-default-window-icon": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:allow-name": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:deny-name": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:allow-set-app-theme": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:deny-set-app-theme": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:allow-tauri-version": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:deny-tauri-version": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:allow-version": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:app:deny-version": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table"
+  },
+  "core:event:allow-emit": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-2"
+  },
+  "core:event:deny-emit": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-2"
+  },
+  "core:event:allow-emit-to": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-2"
+  },
+  "core:event:deny-emit-to": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-2"
+  },
+  "core:event:allow-listen": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-2"
+  },
+  "core:event:deny-listen": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-2"
+  },
+  "core:event:allow-unlisten": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-2"
+  },
+  "core:event:deny-unlisten": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-2"
+  },
+  "core:image:allow-from-bytes": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-3"
+  },
+  "core:image:deny-from-bytes": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-3"
+  },
+  "core:image:allow-from-path": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-3"
+  },
+  "core:image:deny-from-path": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-3"
+  },
+  "core:image:allow-new": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-3"
+  },
+  "core:image:deny-new": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-3"
+  },
+  "core:image:allow-rgba": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-3"
+  },
+  "core:image:deny-rgba": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-3"
+  },
+  "core:image:allow-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-3"
+  },
+  "core:image:deny-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-3"
+  },
+  "core:menu:allow-append": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-append": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-create-default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-create-default": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-get": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-get": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-insert": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-insert": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-is-checked": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-is-checked": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-is-enabled": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-is-enabled": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-items": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-items": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-new": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-new": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-popup": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-popup": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-prepend": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-prepend": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-remove": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-remove": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-remove-at": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-remove-at": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-set-accelerator": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-set-accelerator": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-set-as-app-menu": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-set-as-app-menu": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-set-as-help-menu-for-nsapp": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-set-as-help-menu-for-nsapp": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-set-as-window-menu": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-set-as-window-menu": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-set-as-windows-menu-for-nsapp": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-set-as-windows-menu-for-nsapp": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-set-checked": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-set-checked": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-set-enabled": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-set-enabled": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-set-icon": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-set-icon": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-set-text": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-set-text": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:allow-text": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:menu:deny-text": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-4-part-1"
+  },
+  "core:path:allow-basename": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:deny-basename": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:allow-dirname": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:deny-dirname": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:allow-extname": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:deny-extname": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:allow-is-absolute": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:deny-is-absolute": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:allow-join": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:deny-join": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:allow-normalize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:deny-normalize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:allow-resolve": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:deny-resolve": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:allow-resolve-directory": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:path:deny-resolve-directory": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-5"
+  },
+  "core:resources:allow-close": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-6"
+  },
+  "core:resources:deny-close": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-6"
+  },
+  "core:tray:allow-get-by-id": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:deny-get-by-id": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:allow-new": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:deny-new": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:allow-remove-by-id": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:deny-remove-by-id": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:allow-set-icon": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:deny-set-icon": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:allow-set-icon-as-template": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:deny-set-icon-as-template": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:allow-set-menu": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:deny-set-menu": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:allow-set-show-menu-on-left-click": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:deny-set-show-menu-on-left-click": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:allow-set-temp-dir-path": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:deny-set-temp-dir-path": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:allow-set-title": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:deny-set-title": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:allow-set-tooltip": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:deny-set-tooltip": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:allow-set-visible": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:tray:deny-set-visible": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-7"
+  },
+  "core:webview:allow-clear-all-browsing-data": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-clear-all-browsing-data": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-create-webview": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-create-webview": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-create-webview-window": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-create-webview-window": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-get-all-webviews": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-get-all-webviews": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-internal-toggle-devtools": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-internal-toggle-devtools": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-print": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-print": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-reparent": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-reparent": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-set-webview-focus": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-set-webview-focus": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-set-webview-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-set-webview-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-set-webview-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-set-webview-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-set-webview-zoom": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-set-webview-zoom": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-webview-close": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-webview-close": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-webview-hide": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-webview-hide": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-webview-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-webview-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-webview-show": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-webview-show": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:allow-webview-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:webview:deny-webview-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-8"
+  },
+  "core:window:allow-available-monitors": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-available-monitors": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-center": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-center": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-close": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-close": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-create": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-create": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-current-monitor": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-current-monitor": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-cursor-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-cursor-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-destroy": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-destroy": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-get-all-windows": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-get-all-windows": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-hide": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-hide": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-inner-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-inner-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-inner-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-inner-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-internal-toggle-maximize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-internal-toggle-maximize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-is-closable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-is-closable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-is-decorated": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-is-decorated": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-is-enabled": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-is-enabled": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-is-focused": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-is-focused": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-is-fullscreen": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-is-fullscreen": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-is-maximizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-is-maximizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-is-maximized": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-is-maximized": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-is-minimizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-is-minimizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-is-minimized": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-is-minimized": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-is-resizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-is-resizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-is-visible": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-is-visible": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-maximize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-maximize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-minimize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-minimize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-monitor-from-point": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-monitor-from-point": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-outer-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-outer-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-outer-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-outer-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-primary-monitor": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-primary-monitor": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-request-user-attention": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-request-user-attention": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-scale-factor": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-scale-factor": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-always-on-bottom": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-always-on-bottom": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-always-on-top": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-always-on-top": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-closable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-closable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-content-protected": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-content-protected": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-cursor-grab": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-cursor-grab": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-cursor-icon": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-cursor-icon": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-cursor-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-cursor-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-cursor-visible": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-cursor-visible": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-decorations": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-decorations": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-effects": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-effects": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-enabled": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-enabled": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-focus": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-focus": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-fullscreen": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-fullscreen": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-icon": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-icon": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-ignore-cursor-events": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-ignore-cursor-events": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-max-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-max-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-maximizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-maximizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-min-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-min-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-minimizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-minimizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-position": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-progress-bar": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-progress-bar": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-resizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-resizable": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-shadow": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-shadow": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-size": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-size-constraints": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-size-constraints": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-skip-taskbar": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-skip-taskbar": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-theme": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-theme": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-title": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-title": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-title-bar-style": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-title-bar-style": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-set-visible-on-all-workspaces": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-set-visible-on-all-workspaces": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-show": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-show": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-start-dragging": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-start-dragging": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-start-resize-dragging": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-start-resize-dragging": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-theme": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-theme": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-title": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-title": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-toggle-maximize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-toggle-maximize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-unmaximize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-unmaximize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:allow-unminimize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "core:window:deny-unminimize": {
+    "doc_id": "core-permissions",
+    "section_id": "core-permissions#permission-table-9-part-1"
+  },
+  "fs:allow-read-text-file": {
+    "doc_id": "resources",
+    "section_id": "resources#accessing-files-in-javascript"
+  },
+  "fs:allow-resource-read-recursive": {
+    "doc_id": "resources",
+    "section_id": "resources#accessing-files-in-javascript"
+  },
+  "shell:allow-execute": {
+    "doc_id": "sidecar",
+    "section_id": "sidecar#running-it-from-javascript"
+  },
+  "shell:allow-spawn": {
+    "doc_id": "sidecar",
+    "section_id": "sidecar#running-it-from-javascript"
+  },
+  "shell:allow-open": {
+    "doc_id": "using-plugin-permissions",
+    "section_id": "using-plugin-permissions#introduction-part-1"
+  },
+  "fs:allow-write-text-file": {
+    "doc_id": "using-plugin-permissions",
+    "section_id": "using-plugin-permissions#introduction-part-1"
+  },
+  "fs:allow-app-write": {
+    "doc_id": "using-plugin-permissions",
+    "section_id": "using-plugin-permissions#introduction-part-1"
+  },
+  "fs:allow-app-write-recursive": {
+    "doc_id": "using-plugin-permissions",
+    "section_id": "using-plugin-permissions#introduction-part-1"
+  },
+  "fs:allow-appcache-write": {
+    "doc_id": "using-plugin-permissions",
+    "section_id": "using-plugin-permissions#introduction-part-1"
+  },
+  "fs:allow-appcache-write-recursive": {
+    "doc_id": "using-plugin-permissions",
+    "section_id": "using-plugin-permissions#introduction-part-1"
+  },
+  "fs:allow-appconf": {
+    "doc_id": "using-plugin-permissions",
+    "section_id": "using-plugin-permissions#introduction-part-1"
+  },
+  "window:allow-start-dragging": {
+    "doc_id": "window-customization",
+    "section_id": "window-customization#permissions"
+  }
+}

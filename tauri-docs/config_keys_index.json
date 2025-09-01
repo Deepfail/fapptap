@@ -1,0 +1,178 @@
+{
+  "app.emit": {
+    "doc_id": "calling-frontend",
+    "section_id": "calling-frontend#global-events"
+  },
+  "app.emit_to": {
+    "doc_id": "calling-frontend",
+    "section_id": "calling-frontend#webview-event"
+  },
+  "app.emit_filter": {
+    "doc_id": "calling-frontend",
+    "section_id": "calling-frontend#webview-event"
+  },
+  "app.get_webview_window": {
+    "doc_id": "calling-frontend",
+    "section_id": "calling-frontend#evaluating-javascript"
+  },
+  "app.withGlobalTauri": {
+    "doc_id": "calling-rust",
+    "section_id": "calling-rust#basic-example"
+  },
+  "window.__TAURI__.core.invoke": {
+    "doc_id": "calling-rust",
+    "section_id": "calling-rust#basic-example"
+  },
+  "window.label": {
+    "doc_id": "calling-rust",
+    "section_id": "calling-rust#complete-example"
+  },
+  "window.location.href": {
+    "doc_id": "calling-rust",
+    "section_id": "calling-rust#global-events"
+  },
+  "app.png": {
+    "doc_id": "configuration-files",
+    "section_id": "configuration-files#supported-formats"
+  },
+  "app.updater": {
+    "doc_id": "configuration-files",
+    "section_id": "configuration-files#supported-formats"
+  },
+  "app.windows": {
+    "doc_id": "configuration-files",
+    "section_id": "configuration-files#supported-formats"
+  },
+  "plugins.updater": {
+    "doc_id": "configuration-files",
+    "section_id": "configuration-files#supported-formats"
+  },
+  "windows.conf.json": {
+    "doc_id": "configuration-files",
+    "section_id": "configuration-files#platform-specific-configuration"
+  },
+  "windows.toml": {
+    "doc_id": "configuration-files",
+    "section_id": "configuration-files#platform-specific-configuration"
+  },
+  "app.app": {
+    "doc_id": "create-project",
+    "section_id": "create-project#scaffold-a-new-project"
+  },
+  "app.listen": {
+    "doc_id": "frontend-listen",
+    "section_id": "frontend-listen#listening-to-events-on-rust"
+  },
+  "app.unlisten": {
+    "doc_id": "frontend-listen",
+    "section_id": "frontend-listen#listening-to-events-on-rust"
+  },
+  "app.handle": {
+    "doc_id": "frontend-listen",
+    "section_id": "frontend-listen#listening-to-events-on-rust"
+  },
+  "app.once": {
+    "doc_id": "frontend-listen",
+    "section_id": "frontend-listen#listening-to-events-on-rust"
+  },
+  "app.cli": {
+    "doc_id": "migrate-from-tauri-1",
+    "section_id": "migrate-from-tauri-1#migrate-to-cli-plugin"
+  },
+  "app.clipboard": {
+    "doc_id": "migrate-from-tauri-1",
+    "section_id": "migrate-from-tauri-1#migrate-to-clipboard-plugin"
+  },
+  "app.dialog": {
+    "doc_id": "migrate-from-tauri-1",
+    "section_id": "migrate-from-tauri-1#migrate-to-dialog-plugin"
+  },
+  "app.global_shortcut": {
+    "doc_id": "migrate-from-tauri-1",
+    "section_id": "migrate-from-tauri-1#migrate-to-global-shortcut-plugin"
+  },
+  "app.notification": {
+    "doc_id": "migrate-from-tauri-1",
+    "section_id": "migrate-from-tauri-1#migrate-to-notification-plugin"
+  },
+  "app.default_window_icon": {
+    "doc_id": "migrate-from-tauri-1",
+    "section_id": "migrate-from-tauri-1#use-taurimenumenubuilder"
+  },
+  "app.set_menu": {
+    "doc_id": "migrate-from-tauri-1",
+    "section_id": "migrate-from-tauri-1#menu-events"
+  },
+  "app.on_menu_event": {
+    "doc_id": "migrate-from-tauri-1",
+    "section_id": "migrate-from-tauri-1#menu-events"
+  },
+  "app.shell": {
+    "doc_id": "migrate-from-tauri-1",
+    "section_id": "migrate-from-tauri-1#migrate-to-shell-plugin"
+  },
+  "app.path": {
+    "doc_id": "migrate-from-tauri-1",
+    "section_id": "migrate-from-tauri-1#migrate-path-to-tauri-manager"
+  },
+  "build.rs": {
+    "doc_id": "project-structure",
+    "section_id": "project-structure#introduction"
+  },
+  "app.exe": {
+    "doc_id": "sidecar-nodejs",
+    "section_id": "sidecar-nodejs#guide"
+  },
+  "window.addEventListener": {
+    "doc_id": "splashscreen",
+    "section_id": "splashscreen#steps-part-1"
+  },
+  "app.clone": {
+    "doc_id": "splashscreen",
+    "section_id": "splashscreen#steps-part-1"
+  },
+  "app.state": {
+    "doc_id": "splashscreen",
+    "section_id": "splashscreen#steps-part-1"
+  },
+  "app.manage": {
+    "doc_id": "state-management",
+    "section_id": "state-management#introduction"
+  },
+  "window.app_handle": {
+    "doc_id": "state-management",
+    "section_id": "state-management#access-state-with-the-manager-trait"
+  },
+  "app.exit": {
+    "doc_id": "system-tray",
+    "section_id": "system-tray#listen-to-menu-events"
+  },
+  "window.unminimize": {
+    "doc_id": "system-tray",
+    "section_id": "system-tray#listen-to-tray-events"
+  },
+  "window.show": {
+    "doc_id": "system-tray",
+    "section_id": "system-tray#listen-to-tray-events"
+  },
+  "window.set_focus": {
+    "doc_id": "system-tray",
+    "section_id": "system-tray#listen-to-tray-events"
+  },
+  "window.__TAURI__.window": {
+    "doc_id": "window-customization",
+    "section_id": "window-customization#javascript"
+  },
+  "window.startDragging": {
+    "doc_id": "window-customization",
+    "section_id": "window-customization#manual-implementation-of-data-tauri-drag-region"
+  },
+  "window.ns_window": {
+    "doc_id": "window-customization",
+    "section_id": "window-customization#macos-transparent-titlebar-with-custom-window-background-color"
+  },
+  "app.test1": {
+    "doc_id": "writing-plugin-permissions",
+    "section_id": "writing-plugin-permissions#introduction-part-1"
+  }
+}

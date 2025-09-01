@@ -1,0 +1,34 @@
+{
+  "download": {
+    "doc_id": "calling-frontend",
+    "section_id": "calling-frontend#channels"
+  },
+  "my_custom_command": {
+    "doc_id": "calling-rust",
+    "section_id": "calling-rust#basic-example"
+  },
+  "login": {
+    "doc_id": "calling-rust",
+    "section_id": "calling-rust#error-handling"
+  },
+  "read": {
+    "doc_id": "calling-rust",
+    "section_id": "calling-rust#error-handling"
+  },
+  "upload": {
+    "doc_id": "calling-rust",
+    "section_id": "calling-rust#accessing-raw-request"
+  },
+  "hello": {
+    "doc_id": "resources",
+    "section_id": "resources#accessing-files-in-javascript"
+  },
+  "set_complete": {
+    "doc_id": "splashscreen",
+    "section_id": "splashscreen#steps-part-1"
+  },
+  "plugin:test|write_custom_file": {
+    "doc_id": "writing-plugin-permissions",
+    "section_id": "writing-plugin-permissions#introduction-part-1"
+  }
+}
