@@ -157,23 +157,14 @@ export const SystemCheckPanel = () => {
         const result = await ffmpegVersion();
         newChecks.push({
           name: "FFmpeg",
-          status: result.code === 0 ? "ok" : "error",
-          message:
-            result.code === 0
-              ? "FFmpeg sidecar available"
-              : `FFmpeg failed: ${result.stderr}`,
+          status: "ok",
+          message: `FFmpeg available: ${result}`,
           action: {
             label: "Test",
             onClick: async () => {
               try {
                 const testResult = await ffmpegVersion();
-                alert(
-                  `FFmpeg test result:\nCode: ${
-                    testResult.code
-                  }\nOutput: ${testResult.stdout.slice(0, 200)}...\nError: ${
-                    testResult.stderr
-                  }`
-                );
+                alert(`FFmpeg version: ${testResult}`);
               } catch (err) {
                 alert(`FFmpeg test failed: ${err}`);
               }
@@ -194,23 +185,14 @@ export const SystemCheckPanel = () => {
         const result = await ffprobeVersion();
         newChecks.push({
           name: "FFprobe",
-          status: result.code === 0 ? "ok" : "error",
-          message:
-            result.code === 0
-              ? "FFprobe sidecar available"
-              : `FFprobe failed: ${result.stderr}`,
+          status: "ok", 
+          message: `FFprobe available: ${result}`,
           action: {
             label: "Test",
             onClick: async () => {
               try {
                 const testResult = await ffprobeVersion();
-                alert(
-                  `FFprobe test result:\nCode: ${
-                    testResult.code
-                  }\nOutput: ${testResult.stdout.slice(0, 200)}...\nError: ${
-                    testResult.stderr
-                  }`
-                );
+                alert(`FFprobe version: ${testResult}`);
               } catch (err) {
                 alert(`FFprobe test failed: ${err}`);
               }

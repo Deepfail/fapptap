@@ -30,7 +30,7 @@ export default function PreviewPlayer({
   const [duration, setDuration] = useState<number>(0);
   const [current, setCurrent] = useState<number>(0);
 
-  const src = useMemo(() => toMediaSrc(srcPath), [srcPath]);
+  const src = useMemo(() => toMediaSrc(srcPath || ""), [srcPath]);
 
   // metadata
   const handleLoaded = () => {
