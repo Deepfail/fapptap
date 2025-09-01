@@ -101,35 +101,48 @@ export const SystemCheckPanel = () => {
   if (desktopNow) {
       // Desktop-specific checks
       try {
-        // Check file system access
+        // Check file system access using a guaranteed allowed path (HOME directory scope)
         const { exists } = await import("@tauri-apps/plugin-fs");
-        await exists(".");
+        // Use a common system path variable via JS path API (fallback: try relative)
+        let target = "";
+        try {
+          const pathMod = await import("@tauri-apps/api/path");
+          target = await (pathMod as any).homeDir();
+        } catch {
+          target = ".";
+        }
+        const ok = await exists(target);
         newChecks.push({
           name: "File System",
-          status: "ok",
-          message: "Full file system access available",
+          status: ok ? "ok" : "warning",
+          message: ok
+            ? `Exists check ok at ${target}`
+            : `Exists failed at ${target}`,
         });
-      } catch {
+      } catch (err) {
         newChecks.push({
           name: "File System",
           status: "error",
-          message: "File system access denied",
+          message: `Access error: ${err}`,
         });
       }
 
       // Check Python worker availability (invoke a lightweight stage)
       try {
         const { runWorker } = await import("@/lib/exec");
-        const result = await runWorker("beats", { dryrun: true as any });
+        const result = await runWorker("beats");
         newChecks.push({
           name: "Python Worker",
           status: result.code === 0 ? "ok" : "warning",
-          message: result.code === 0 ? "Worker responsive" : `Worker returned code ${result.code}`,
+          message:
+            result.code === 0
+              ? "Worker responsive"
+              : `Exit ${result.code}: ${(result.stderr || result.stdout).split(/\r?\n/)[0]}`,
           action: {
             label: "Test",
             onClick: async () => {
               try {
-                const testResult = await runWorker("beats", { dryrun: true as any });
+                const testResult = await runWorker("beats");
                 alert(
                   `Worker test:\nCode: ${testResult.code}\nStdout:\n${testResult.stdout}\nStderr:\n${testResult.stderr}`
                 );

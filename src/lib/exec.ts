@@ -42,13 +42,16 @@ export async function ffmpegVersion(): Promise<CommandResult> {
   try {
     const command = Command.sidecar("binaries/ffmpeg", ["-version"]);
     const result = await command.execute();
-
+    if (result.code !== 0) {
+      console.error("FFmpeg sidecar non-zero exit", result);
+    }
     return {
       code: result.code ?? -1,
       stdout: result.stdout,
       stderr: result.stderr,
     };
   } catch (error) {
+    console.error("FFmpeg version retrieval failed", error);
     throw new Error(`Failed to get FFmpeg version: ${error}`);
   }
 }
@@ -64,13 +67,16 @@ export async function ffprobeVersion(): Promise<CommandResult> {
   try {
     const command = Command.sidecar("binaries/ffprobe", ["-version"]);
     const result = await command.execute();
-
+    if (result.code !== 0) {
+      console.error("FFprobe sidecar non-zero exit", result);
+    }
     return {
       code: result.code ?? -1,
       stdout: result.stdout,
       stderr: result.stderr,
     };
   } catch (error) {
+    console.error("FFprobe version retrieval failed", error);
     throw new Error(`Failed to get FFprobe version: ${error}`);
   }
 }
@@ -103,6 +109,9 @@ export async function runWorker(
 
   const command = Command.sidecar("binaries/worker", workerArgs);
   const result = await command.execute();
+  if (result.code !== 0) {
+    console.error("Worker sidecar non-zero exit", { workerArgs, result });
+  }
 
   return {
     code: result.code ?? -1,

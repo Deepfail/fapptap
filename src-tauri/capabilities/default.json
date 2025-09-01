@@ -6,13 +6,32 @@
   "permissions": [
     "core:default",
     "dialog:default",
-  "fs:default",
-    "fs:allow-home-read-recursive",
-    "fs:allow-download-read-recursive",
-    "fs:allow-document-read-recursive",
-    "fs:allow-desktop-read-recursive",
-    "fs:allow-picture-read-recursive",
-    "fs:allow-video-read-recursive",
+
+    
+    "fs:default",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "$HOME" }, { "path": "$HOME/**/*" },
+        { "path": "$DESKTOP" }, { "path": "$DESKTOP/**/*" },
+        { "path": "$DOCUMENT" }, { "path": "$DOCUMENT/**/*" },
+        { "path": "$DOWNLOAD" }, { "path": "$DOWNLOAD/**/*" },
+        { "path": "$VIDEO" }, { "path": "$VIDEO/**/*" },
+        { "path": "$PICTURE" }, { "path": "$PICTURE/**/*" }
+      ]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [
+        { "path": "$HOME/*" }, { "path": "$HOME/**/*" },
+        { "path": "$DESKTOP/*" }, { "path": "$DESKTOP/**/*" },
+        { "path": "$DOCUMENT/*" }, { "path": "$DOCUMENT/**/*" },
+        { "path": "$DOWNLOAD/*" }, { "path": "$DOWNLOAD/**/*" },
+        { "path": "$VIDEO/*" }, { "path": "$VIDEO/**/*" },
+        { "path": "$PICTURE/*" }, { "path": "$PICTURE/**/*" }
+      ]
+    },
+
     
     "store:default",
     "store:allow-load",
@@ -21,46 +40,24 @@
     "store:allow-get",
     "store:allow-values",
     "store:allow-entries",
+
+    
     "shell:default",
     "shell:allow-open",
     {
       "identifier": "shell:allow-execute",
       "allow": [
-        {
-          "name": "binaries/worker",
-          "sidecar": true,
-          "args": true
-        },
-        {
-          "name": "binaries/ffmpeg",
-          "sidecar": true,
-          "args": true
-        },
-        {
-          "name": "binaries/ffprobe",
-          "sidecar": true,
-          "args": true
-        }
+        { "name": "binaries/worker", "sidecar": true, "args": true },
+        { "name": "binaries/ffmpeg", "sidecar": true, "args": true },
+        { "name": "binaries/ffprobe", "sidecar": true, "args": true }
       ]
     },
     {
       "identifier": "shell:allow-spawn",
       "allow": [
-        {
-          "name": "binaries/worker",
-          "sidecar": true,
-          "args": true
-        },
-        {
-          "name": "binaries/ffmpeg",
-          "sidecar": true,
-          "args": true
-        },
-        {
-          "name": "binaries/ffprobe",
-          "sidecar": true,
-          "args": true
-        }
+        { "name": "binaries/worker", "sidecar": true, "args": true },
+        { "name": "binaries/ffmpeg", "sidecar": true, "args": true },
+        { "name": "binaries/ffprobe", "sidecar": true, "args": true }
       ]
     }
   ]
