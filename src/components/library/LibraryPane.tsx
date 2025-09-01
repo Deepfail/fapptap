@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readDir } from "@tauri-apps/plugin-fs";
 import { toMediaSrc } from "@/lib/mediaUrl";
+import { onDesktopAvailable } from "@/lib/platform";
 
 const VIDEO_EXT = new Set(["mp4", "mov", "mkv", "webm", "avi", "m4v"]);
 
@@ -121,6 +122,12 @@ export default function LibraryPane({
 
 function ClipTile({ clip, onClick }: { clip: Clip; onClick?: () => void }) {
   const [src, setSrc] = useState<string>("");
+  const [tauriReadyTick, setTauriReadyTick] = useState(0);
+  useEffect(() => {
+    const off = onDesktopAvailable(() => setTauriReadyTick(t => t + 1));
+    return off;
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -134,7 +141,7 @@ function ClipTile({ clip, onClick }: { clip: Clip; onClick?: () => void }) {
     return () => {
       cancelled = true;
     };
-  }, [clip.path]);
+  }, [clip.path, tauriReadyTick]);
 
   return (
     <button

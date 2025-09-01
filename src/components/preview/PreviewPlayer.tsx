@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { toMediaSrc, isMediaFile } from "@/lib/mediaUrl";
-import { IS_DESKTOP } from "@/lib/platform";
+import { IS_DESKTOP, onDesktopAvailable } from "@/lib/platform";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -237,6 +237,12 @@ export default function PreviewPlayer({
   useEffect(() => () => { if (hideTimeout.current) clearTimeout(hideTimeout.current); }, []);
 
   // Resolve source (async) when path changes
+  const [tauriReadyTick, setTauriReadyTick] = useState(0);
+  useEffect(() => {
+    const off = onDesktopAvailable(() => setTauriReadyTick(t => t + 1));
+    return off;
+  }, []);
+
   useEffect(() => {
     const token = ++srcTokenRef.current;
     if (!srcPath) {
@@ -266,7 +272,7 @@ export default function PreviewPlayer({
         if (token === srcTokenRef.current) setResolving(false);
       }
     })();
-  }, [srcPath, onError]);
+  }, [srcPath, tauriReadyTick, onError]);
 
   return (
     <div

@@ -117,24 +117,21 @@ export const SystemCheckPanel = () => {
         });
       }
 
-      // Check Python worker availability
+      // Check Python worker availability (invoke a lightweight stage)
       try {
         const { runWorker } = await import("@/lib/exec");
-        const result = await runWorker("--version");
+        const result = await runWorker("beats", { dryrun: true as any });
         newChecks.push({
           name: "Python Worker",
-          status: result.code === 0 ? "ok" : "error",
-          message:
-            result.code === 0
-              ? "Worker executable available"
-              : `Worker failed: ${result.stderr}`,
+          status: result.code === 0 ? "ok" : "warning",
+          message: result.code === 0 ? "Worker responsive" : `Worker returned code ${result.code}`,
           action: {
             label: "Test",
             onClick: async () => {
               try {
-                const testResult = await runWorker("--version");
+                const testResult = await runWorker("beats", { dryrun: true as any });
                 alert(
-                  `Worker test result:\nCode: ${testResult.code}\nOutput: ${testResult.stdout}\nError: ${testResult.stderr}`
+                  `Worker test:\nCode: ${testResult.code}\nStdout:\n${testResult.stdout}\nStderr:\n${testResult.stderr}`
                 );
               } catch (err) {
                 alert(`Worker test failed: ${err}`);
@@ -154,16 +151,17 @@ export const SystemCheckPanel = () => {
       try {
         const { ffmpegVersion } = await import("@/lib/exec");
         const result = await ffmpegVersion();
+        const verLine = result.stdout.split(/\r?\n/)[0] || result.stdout.trim();
         newChecks.push({
           name: "FFmpeg",
-          status: "ok",
-          message: `FFmpeg available: ${result}`,
+          status: result.code === 0 ? "ok" : "warning",
+          message: result.code === 0 ? verLine : `Exit ${result.code}: ${result.stderr.split(/\r?\n/)[0]}`,
           action: {
             label: "Test",
             onClick: async () => {
               try {
                 const testResult = await ffmpegVersion();
-                alert(`FFmpeg version: ${testResult}`);
+                alert(testResult.stdout || testResult.stderr);
               } catch (err) {
                 alert(`FFmpeg test failed: ${err}`);
               }
@@ -182,16 +180,17 @@ export const SystemCheckPanel = () => {
       try {
         const { ffprobeVersion } = await import("@/lib/exec");
         const result = await ffprobeVersion();
+        const verLine = result.stdout.split(/\r?\n/)[0] || result.stdout.trim();
         newChecks.push({
           name: "FFprobe",
-          status: "ok", 
-          message: `FFprobe available: ${result}`,
+          status: result.code === 0 ? "ok" : "warning",
+          message: result.code === 0 ? verLine : `Exit ${result.code}: ${result.stderr.split(/\r?\n/)[0]}`,
           action: {
             label: "Test",
             onClick: async () => {
               try {
                 const testResult = await ffprobeVersion();
-                alert(`FFprobe version: ${testResult}`);
+                alert(testResult.stdout || testResult.stderr);
               } catch (err) {
                 alert(`FFprobe test failed: ${err}`);
               }

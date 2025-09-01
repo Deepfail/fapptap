@@ -1,26 +1,26 @@
 /**
  * Media URL handling for both Tauri and browser environments
  */
-import { isTauriAvailable } from "./platform";
+import { onDesktopAvailable } from "./platform";
 
 // Lazy import reference for Tauri core functions (avoid bundling in browser builds unnecessarily)
 let convertFileSrcFn: ((path: string) => string) | null = null;
+let triedImport = false;
 
 async function ensureConvertFileSrc(): Promise<
   (path: string) => string
 > {
-  if (!isTauriAvailable()) {
-    return (p: string) => p;
-  }
   if (convertFileSrcFn) return convertFileSrcFn;
-  try {
-    const mod = await import("@tauri-apps/api/core");
-    convertFileSrcFn = mod.convertFileSrc;
-  } catch (e) {
-    // Fallback: identity function; consumer should handle load errors
-    convertFileSrcFn = (p: string) => p;
+  if (!triedImport) {
+    triedImport = true;
+    try {
+      const mod = await import("@tauri-apps/api/core");
+      convertFileSrcFn = mod.convertFileSrc;
+    } catch {
+      // ignore; will remain null
+    }
   }
-  return convertFileSrcFn!;
+  return convertFileSrcFn ?? ((p: string) => p);
 }
 
 /**
@@ -38,15 +38,33 @@ export function isAbsoluteFsPath(p: string): boolean {
  */
 export async function toMediaSrc(pathOrUrl: string): Promise<string> {
   if (!pathOrUrl) return "";
-  if (/^(?:https?:|blob:|data:)/i.test(pathOrUrl)) return pathOrUrl;
+  if (/^(?:https?:|blob:|data:|asset:)/i.test(pathOrUrl)) return pathOrUrl;
 
-  if (isTauriAvailable() && isAbsoluteFsPath(pathOrUrl)) {
+  const shouldConvert = isAbsoluteFsPath(pathOrUrl);
+  if (shouldConvert) {
     const convert = await ensureConvertFileSrc();
-    return convert(pathOrUrl);
+    try {
+      const out = convert(pathOrUrl);
+      if (out !== pathOrUrl) return out;
+    } catch { /* ignore */ }
+    // Diagnostic: we expected to convert but still returning raw path (likely early before Tauri ready)
+    if (shouldConvert) {
+      // eslint-disable-next-line no-console
+      console.debug("mediaUrl: convertFileSrc unavailable yet, returning raw path", pathOrUrl);
+    }
   }
-  // Fallback: relative or non-desktop environment
   return pathOrUrl;
 }
+
+// Re-convert previously raw absolute paths once desktop becomes available
+onDesktopAvailable(async () => {
+  if (!convertFileSrcFn) {
+    try {
+      const mod = await import("@tauri-apps/api/core");
+      convertFileSrcFn = mod.convertFileSrc;
+    } catch {}
+  }
+});
 
 /**
  * Check if a path/URL is a valid media file based on extension
