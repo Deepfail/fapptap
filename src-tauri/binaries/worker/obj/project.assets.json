@@ -2,15 +2,15 @@
   "version": 3,
   "targets": {
     "net8.0": {
-      "Microsoft.NET.ILLink.Tasks/8.0.19": {
+      "Microsoft.NET.ILLink.Tasks/8.0.16": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
       }
     },
-    "net8.0/linux-x64": {
-      "Microsoft.NET.ILLink.Tasks/8.0.19": {
+    "net8.0/win-x64": {
+      "Microsoft.NET.ILLink.Tasks/8.0.16": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
@@ -19,10 +19,10 @@
     }
   },
   "libraries": {
-    "Microsoft.NET.ILLink.Tasks/8.0.19": {
-      "sha512": "IhHf+zeZiaE5EXRyxILd4qM+Hj9cxV3sa8MpzZgeEhpvaG3a1VEGF6UCaPFLO44Kua3JkLKluE0SWVamS50PlA==",
+    "Microsoft.NET.ILLink.Tasks/8.0.16": {
+      "sha512": "0H1QaKpVibe++Zx6EYJQGhrpfz2bBPGiQ7Rpsmx8I3+oKv+ZRRIfVfmcj50KuZlhhRE6V02y5bUjP+V2oPM2ng==",
       "type": "package",
-      "path": "microsoft.net.illink.tasks/8.0.19",
+      "path": "microsoft.net.illink.tasks/8.0.16",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -36,7 +36,7 @@
         "build/Microsoft.NET.ILLink.Analyzers.props",
         "build/Microsoft.NET.ILLink.Tasks.props",
         "build/Microsoft.NET.ILLink.targets",
-        "microsoft.net.illink.tasks.8.0.19.nupkg.sha512",
+        "microsoft.net.illink.tasks.8.0.16.nupkg.sha512",
         "microsoft.net.illink.tasks.nuspec",
         "tools/net472/ILLink.Tasks.dll",
         "tools/net472/ILLink.Tasks.dll.config",
@@ -73,23 +73,28 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "Microsoft.NET.ILLink.Tasks >= 8.0.19"
+      "Microsoft.NET.ILLink.Tasks >= 8.0.16"
     ]
   },
   "packageFolders": {
-    "/home/runner/.nuget/packages/": {}
+    "C:\\Users\\Virta\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/runner/work/fapptap/fapptap/src-tauri/binaries/worker/worker.csproj",
+      "projectUniqueName": "C:\\Files\\Projects\\fapptap\\src-tauri\\binaries\\worker\\worker.csproj",
       "projectName": "worker",
-      "projectPath": "/home/runner/work/fapptap/fapptap/src-tauri/binaries/worker/worker.csproj",
-      "packagesPath": "/home/runner/.nuget/packages/",
-      "outputPath": "/home/runner/work/fapptap/fapptap/src-tauri/binaries/worker/obj/",
+      "projectPath": "C:\\Files\\Projects\\fapptap\\src-tauri\\binaries\\worker\\worker.csproj",
+      "packagesPath": "C:\\Users\\Virta\\.nuget\\packages\\",
+      "outputPath": "C:\\Files\\Projects\\fapptap\\src-tauri\\binaries\\worker\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/home/runner/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\Virta\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -107,7 +112,13 @@
         "warnAsError": [
           "NU1605"
         ]
-      }
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -116,7 +127,7 @@
           "Microsoft.NET.ILLink.Tasks": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[8.0.19, )",
+            "version": "[8.0.16, )",
             "autoReferenced": true
           }
         },
@@ -133,16 +144,32 @@
         "warn": true,
         "downloadDependencies": [
           {
-            "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
-            "version": "[8.0.19, 8.0.19]"
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.16, 8.0.16]"
           },
           {
-            "name": "Microsoft.NETCore.App.Host.linux-x64",
-            "version": "[8.0.19, 8.0.19]"
+            "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+            "version": "[8.0.16, 8.0.16]"
           },
           {
-            "name": "Microsoft.NETCore.App.Runtime.linux-x64",
-            "version": "[8.0.19, 8.0.19]"
+            "name": "Microsoft.NETCore.App.Host.win-x64",
+            "version": "[8.0.16, 8.0.16]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[8.0.16, 8.0.16]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Runtime.win-x64",
+            "version": "[8.0.16, 8.0.16]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Ref",
+            "version": "[8.0.16, 8.0.16]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+            "version": "[8.0.16, 8.0.16]"
           }
         ],
         "frameworkReferences": {
@@ -150,11 +177,11 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.119/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
       }
     },
     "runtimes": {
-      "linux-x64": {
+      "win-x64": {
         "#import": []
       }
     }
