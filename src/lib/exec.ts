@@ -17,11 +17,11 @@ export async function pythonVersion(): Promise<string | null> {
   if (!isTauriAvailable()) {
     return null; // Not available in browser
   }
-  
+
   try {
     const command = Command.create("python", ["--version"]);
     const output = await command.execute();
-    
+
     if (output.code === 0) {
       return output.stdout.trim();
     }
@@ -42,11 +42,11 @@ export async function ffmpegVersion(): Promise<CommandResult> {
   try {
     const command = Command.sidecar("binaries/ffmpeg", ["-version"]);
     const result = await command.execute();
-    
+
     return {
       code: result.code ?? -1,
       stdout: result.stdout,
-      stderr: result.stderr
+      stderr: result.stderr,
     };
   } catch (error) {
     throw new Error(`Failed to get FFmpeg version: ${error}`);
@@ -64,11 +64,11 @@ export async function ffprobeVersion(): Promise<CommandResult> {
   try {
     const command = Command.sidecar("binaries/ffprobe", ["-version"]);
     const result = await command.execute();
-    
+
     return {
       code: result.code ?? -1,
       stdout: result.stdout,
-      stderr: result.stderr
+      stderr: result.stderr,
     };
   } catch (error) {
     throw new Error(`Failed to get FFprobe version: ${error}`);
@@ -78,13 +78,16 @@ export async function ffprobeVersion(): Promise<CommandResult> {
 /**
  * Run the Python worker with specified arguments using sidecar binary
  */
-export async function runWorker(stage: string, args: Record<string, string | boolean> = {}): Promise<CommandResult> {
+export async function runWorker(
+  stage: string,
+  args: Record<string, string | boolean> = {}
+): Promise<CommandResult> {
   if (!isTauriAvailable()) {
     throw new Error("Worker execution is only available in desktop mode");
   }
 
   const workerArgs = [stage];
-  
+
   // Add arguments
   for (const [key, value] of Object.entries(args)) {
     if (value === true) {
@@ -100,10 +103,10 @@ export async function runWorker(stage: string, args: Record<string, string | boo
 
   const command = Command.sidecar("binaries/worker", workerArgs);
   const result = await command.execute();
-  
+
   return {
     code: result.code ?? -1,
     stdout: result.stdout,
-    stderr: result.stderr
+    stderr: result.stderr,
   };
 }

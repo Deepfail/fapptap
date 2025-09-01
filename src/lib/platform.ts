@@ -10,7 +10,8 @@ declare global {
 }
 
 // Check if we're running in Tauri (desktop) or browser
-export const IS_DESKTOP = typeof window !== "undefined" && window.__TAURI__ !== undefined;
+export const IS_DESKTOP =
+  typeof window !== "undefined" && window.__TAURI__ !== undefined;
 
 // Check if Tauri APIs are available
 export function isTauriAvailable(): boolean {
