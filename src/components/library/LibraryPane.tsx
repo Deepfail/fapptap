@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readDir } from "@tauri-apps/plugin-fs";
 import { toMediaSrc } from "@/lib/mediaUrl";
@@ -120,7 +120,21 @@ export default function LibraryPane({
 }
 
 function ClipTile({ clip, onClick }: { clip: Clip; onClick?: () => void }) {
-  const src = useMemo(() => toMediaSrc(clip.path), [clip.path]);
+  const [src, setSrc] = useState<string>("");
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const resolved = await toMediaSrc(clip.path);
+        if (!cancelled) setSrc(resolved);
+      } catch {
+        if (!cancelled) setSrc("");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [clip.path]);
 
   return (
     <button

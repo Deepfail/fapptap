@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
   Play,
   Pause,
@@ -29,10 +29,26 @@ export default function PreviewPane() {
   const currentFile = currentClipId
     ? mediaFiles.find((f) => f.id === currentClipId)
     : null;
-  const videoSrc = useMemo(
-    () => (currentFile ? toMediaSrc(currentFile.path) : undefined),
-    [currentFile]
-  );
+  // Resolved media source (async because toMediaSrc is now Promise-based)
+  const [videoSrc, setVideoSrc] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    let cancelled = false;
+    if (!currentFile) {
+      setVideoSrc(undefined);
+      return;
+    }
+    (async () => {
+      try {
+        const src = await toMediaSrc(currentFile.path);
+        if (!cancelled) setVideoSrc(src || undefined);
+      } catch {
+        if (!cancelled) setVideoSrc(undefined);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [currentFile]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
