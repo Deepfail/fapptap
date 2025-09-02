@@ -23,8 +23,8 @@
     "targets": "all",
     "externalBin": [
       "binaries/worker",
-      "binaries/ffmpeg.exe",
-      "binaries/ffprobe.exe"
+      "binaries/ffmpeg",
+      "binaries/ffprobe"
     ],
     "icon": [
       "icons/32x32.png",

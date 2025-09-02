@@ -40,7 +40,7 @@ export async function ffmpegVersion(): Promise<CommandResult> {
   }
 
   try {
-  const command = Command.sidecar("binaries/ffmpeg.exe", ["-version"]);
+  const command = Command.sidecar("binaries/ffmpeg", ["-version"]);
     const result = await command.execute();
     if (result.code !== 0) {
       console.error("FFmpeg sidecar non-zero exit", result);
@@ -65,7 +65,7 @@ export async function ffprobeVersion(): Promise<CommandResult> {
   }
 
   try {
-  const command = Command.sidecar("binaries/ffprobe.exe", ["-version"]);
+  const command = Command.sidecar("binaries/ffprobe", ["-version"]);
     const result = await command.execute();
     if (result.code !== 0) {
       console.error("FFprobe sidecar non-zero exit", result);
