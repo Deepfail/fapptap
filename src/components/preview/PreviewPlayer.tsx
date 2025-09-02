@@ -262,6 +262,7 @@ export default function PreviewPlayer({
       try {
         const resolved = await toMediaSrc(srcPath);
         if (token !== srcTokenRef.current) return; // stale
+        console.debug("PreviewPlayer resolved src", { original: srcPath, resolved });
         setResolvedSrc(resolved);
       } catch (e: any) {
         if (token !== srcTokenRef.current) return;
@@ -273,6 +274,23 @@ export default function PreviewPlayer({
       }
     })();
   }, [srcPath, tauriReadyTick, onError]);
+
+  // If the video errors with an asset localhost refusal, attempt one retry after slight delay.
+  const retriedRef = useRef(false);
+  useEffect(() => {
+    if (!error || retriedRef.current) return;
+    if (/connection refused/i.test(error)) {
+      retriedRef.current = true;
+      setTimeout(async () => {
+        try {
+          const forced = await toMediaSrc(srcPath || "");
+          console.debug("Retrying video source after error", { forced });
+          setResolvedSrc( forced );
+          setError(null);
+        } catch {}
+      }, 400);
+    }
+  }, [error, srcPath]);
 
   return (
     <div

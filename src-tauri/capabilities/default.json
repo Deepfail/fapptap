@@ -17,7 +17,8 @@
         { "path": "$DOCUMENT" }, { "path": "$DOCUMENT/**/*" },
         { "path": "$DOWNLOAD" }, { "path": "$DOWNLOAD/**/*" },
         { "path": "$VIDEO" }, { "path": "$VIDEO/**/*" },
-        { "path": "$PICTURE" }, { "path": "$PICTURE/**/*" }
+        { "path": "$PICTURE" }, { "path": "$PICTURE/**/*" },
+        { "path": "C:/Users/Virta/Dropbox" }, { "path": "C:/Users/Virta/Dropbox/**/*" }
       ]
     },
     {
@@ -28,7 +29,8 @@
         { "path": "$DOCUMENT/*" }, { "path": "$DOCUMENT/**/*" },
         { "path": "$DOWNLOAD/*" }, { "path": "$DOWNLOAD/**/*" },
         { "path": "$VIDEO/*" }, { "path": "$VIDEO/**/*" },
-        { "path": "$PICTURE/*" }, { "path": "$PICTURE/**/*" }
+        { "path": "$PICTURE/*" }, { "path": "$PICTURE/**/*" },
+        { "path": "C:/Users/Virta/Dropbox/*" }, { "path": "C:/Users/Virta/Dropbox/**/*" }
       ]
     },
 
