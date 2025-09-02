@@ -48,16 +48,16 @@
       "identifier": "shell:allow-execute",
       "allow": [
         { "name": "binaries/worker", "sidecar": true, "args": true },
-        { "name": "binaries/ffmpeg", "sidecar": true, "args": true },
-        { "name": "binaries/ffprobe", "sidecar": true, "args": true }
+  { "name": "binaries/ffmpeg.exe", "sidecar": true, "args": true },
+  { "name": "binaries/ffprobe.exe", "sidecar": true, "args": true }
       ]
     },
     {
       "identifier": "shell:allow-spawn",
       "allow": [
         { "name": "binaries/worker", "sidecar": true, "args": true },
-        { "name": "binaries/ffmpeg", "sidecar": true, "args": true },
-        { "name": "binaries/ffprobe", "sidecar": true, "args": true }
+  { "name": "binaries/ffmpeg.exe", "sidecar": true, "args": true },
+  { "name": "binaries/ffprobe.exe", "sidecar": true, "args": true }
       ]
     }
   ]

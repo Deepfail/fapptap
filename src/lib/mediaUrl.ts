@@ -45,7 +45,13 @@ export async function toMediaSrc(pathOrUrl: string): Promise<string> {
     const convert = await ensureConvertFileSrc();
     try {
       const out = convert(pathOrUrl);
-      if (out !== pathOrUrl) return out;
+      if (out !== pathOrUrl) {
+        // Quick heuristic: if it is an asset: URL, keep it; otherwise return.
+        if (out.startsWith("asset:")) {
+          return out;
+        }
+        return out;
+      }
     } catch { /* ignore */ }
     // Diagnostic: we expected to convert but still returning raw path (likely early before Tauri ready)
     if (shouldConvert) {
