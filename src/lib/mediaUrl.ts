@@ -89,3 +89,13 @@ export function isMediaFile(pathOrUrl: string): boolean {
   const lowerPath = pathOrUrl.toLowerCase();
   return [...videoExtensions, ...audioExtensions].some(ext => lowerPath.endsWith(ext));
 }
+
+/**
+ * Convert a file path to a file:// URL for fallback
+ */
+export function toFileUrl(path: string): string {
+  if (!path) return "";
+  // Normalize backslashes to forward slashes and create file:// URL
+  const normalized = path.replace(/\\/g, "/");
+  return `file://${normalized}`;
+}
