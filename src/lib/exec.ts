@@ -43,10 +43,14 @@ export async function ffmpegVersion(): Promise<CommandResult> {
   const command = Command.sidecar("binaries/ffmpeg", ["-version"]);
     const result = await command.execute();
     if (result.code !== 0) {
+      const lines = result.stderr.split(/\r?\n/);
       console.error("FFmpeg sidecar non-zero exit", {
         code: result.code,
-        stderrHead: result.stderr.split(/\r?\n/).slice(0,4),
+        firstLines: lines.slice(0,8),
+        totalLines: lines.length
       });
+    } else if (!/^ffmpeg version /i.test(result.stdout)) {
+      console.warn("FFmpeg output did not match expected version signature", result.stdout.split(/\r?\n/)[0]);
     }
     return {
       code: result.code ?? -1,
@@ -71,10 +75,14 @@ export async function ffprobeVersion(): Promise<CommandResult> {
   const command = Command.sidecar("binaries/ffprobe", ["-version"]);
     const result = await command.execute();
     if (result.code !== 0) {
+      const lines = result.stderr.split(/\r?\n/);
       console.error("FFprobe sidecar non-zero exit", {
         code: result.code,
-        stderrHead: result.stderr.split(/\r?\n/).slice(0,4),
+        firstLines: lines.slice(0,8),
+        totalLines: lines.length
       });
+    } else if (!/^ffprobe version /i.test(result.stdout)) {
+      console.warn("FFprobe output did not match expected version signature", result.stdout.split(/\r?\n/)[0]);
     }
     return {
       code: result.code ?? -1,

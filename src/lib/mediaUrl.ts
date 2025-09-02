@@ -40,12 +40,17 @@ export async function toMediaSrc(pathOrUrl: string): Promise<string> {
   if (!pathOrUrl) return "";
   if (/^(?:https?:|blob:|data:|asset:)/i.test(pathOrUrl)) return pathOrUrl;
 
-  const shouldConvert = isAbsoluteFsPath(pathOrUrl);
+  let raw = pathOrUrl;
+  // Normalize Windows backslashes early for consistency with Tauri path expectations
+  if (/^[A-Za-z]:\\/.test(raw)) {
+    raw = raw.replace(/\\/g, "/");
+  }
+  const shouldConvert = isAbsoluteFsPath(raw);
   if (shouldConvert) {
     const convert = await ensureConvertFileSrc();
     try {
-      const out = convert(pathOrUrl);
-      if (out !== pathOrUrl) {
+      const out = convert(raw);
+      if (out !== raw) {
         // Quick heuristic: if it is an asset: URL, keep it; otherwise return.
         if (out.startsWith("asset:")) {
           return out;
@@ -56,10 +61,10 @@ export async function toMediaSrc(pathOrUrl: string): Promise<string> {
     // Diagnostic: we expected to convert but still returning raw path (likely early before Tauri ready)
     if (shouldConvert) {
       // eslint-disable-next-line no-console
-      console.debug("mediaUrl: convertFileSrc unavailable yet, returning raw path", pathOrUrl);
+      console.debug("mediaUrl: convertFileSrc unavailable yet, returning raw path", raw);
     }
   }
-  return pathOrUrl;
+  return raw;
 }
 
 // Re-convert previously raw absolute paths once desktop becomes available
