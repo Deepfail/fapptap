@@ -46,6 +46,7 @@ export default function App() {
             <PreviewPlayer
               srcPath={currentClip}
               muted
+              autoHideMs={5000}
               // later: publish t to a transport/timeline store
               onTime={() => {}}
             />

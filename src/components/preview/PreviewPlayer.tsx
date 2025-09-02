@@ -73,11 +73,11 @@ export default function PreviewPlayer({
 
   // ---- helpers ----
   const scheduleHide = useCallback(() => {
-    // Disabled for debugging: if (!showOverlay || autoHideMs <= 0) return;
-    // if (hideTimeout.current) clearTimeout(hideTimeout.current);
-    // hideTimeout.current = setTimeout(() => {
-    //   if (playing) setShowControls(false);
-    // }, autoHideMs);
+    if (!showOverlay || autoHideMs <= 0) return;
+    if (hideTimeout.current) clearTimeout(hideTimeout.current);
+    hideTimeout.current = setTimeout(() => {
+      if (playing) setShowControls(false);
+    }, autoHideMs);
   }, [playing, showOverlay, autoHideMs]);
 
   const revealControls = useCallback(() => {

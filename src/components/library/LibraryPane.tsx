@@ -6,7 +6,9 @@ import { onDesktopAvailable } from "@/lib/platform";
 import { useMediaStore } from "@/state/mediaStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Music } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Music, Play } from "lucide-react";
 
 const VIDEO_EXT = new Set(["mp4", "mov", "mkv", "webm", "avi", "m4v"]);
 
@@ -31,6 +33,7 @@ export default function LibraryPane({
   const [clips, setClips] = useState<Clip[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [inlinePlayback, setInlinePlayback] = useState(false);
 
   const {
     setClipsDir,
@@ -142,6 +145,19 @@ export default function LibraryPane({
             {selectedClipIds.size} clips selected
           </div>
         )}
+
+        {/* Inline playback toggle */}
+        <div className="flex items-center gap-2">
+          <Switch
+            id="inline-playback"
+            checked={inlinePlayback}
+            onCheckedChange={setInlinePlayback}
+          />
+          <Label htmlFor="inline-playback" className="text-xs text-neutral-300">
+            <Play className="h-3 w-3 inline mr-1" />
+            Inline playback
+          </Label>
+        </div>
       </div>
 
       {/* content */}
@@ -170,6 +186,7 @@ export default function LibraryPane({
               isSelected={selectedClipIds.has(c.path)}
               onToggleSelect={() => toggleClipSelection(c.path)}
               onPreview={() => onSelectClip?.(c.path)}
+              enableInlinePlayback={inlinePlayback}
             />
           ))}
         </div>
@@ -183,13 +200,16 @@ function ClipTile({
   isSelected,
   onToggleSelect,
   onPreview,
+  enableInlinePlayback = false,
 }: {
   clip: Clip;
   isSelected: boolean;
   onToggleSelect: () => void;
   onPreview: () => void;
+  enableInlinePlayback?: boolean;
 }) {
   const [src, setSrc] = useState<string>("");
+  const [playing, setPlaying] = useState<boolean>(false);
   const [tauriReadyTick, setTauriReadyTick] = useState(0);
   useEffect(() => {
     const off = onDesktopAvailable(() => setTauriReadyTick((t) => t + 1));
@@ -228,29 +248,64 @@ function ClipTile({
         {isSelected ? "✓" : ""}
       </button>
 
-      {/* Preview button */}
-      <button
-        onClick={onPreview}
-        className="group/preview relative w-full focus:outline-none focus:ring-2 focus:ring-amber-500"
-      >
-        {/* Minimal preview: load metadata only; we're not playing here */}
-        {src ? (
-          <video
-            src={src}
-            preload="metadata"
-            muted
-            playsInline
-            className="w-full aspect-video object-cover bg-black"
-          />
-        ) : (
-          <div className="w-full aspect-video grid place-items-center text-neutral-500 text-xs">
-            no preview
+      {/* Preview button/video */}
+      {enableInlinePlayback ? (
+        // Inline playable video
+        <div className="relative w-full">
+          {src ? (
+            <video
+              src={src}
+              preload="metadata"
+              muted={!playing}
+              playsInline
+              className="w-full aspect-video object-cover bg-black"
+              controls={playing}
+              onClick={(e) => {
+                e.stopPropagation();
+                const video = e.target as HTMLVideoElement;
+                if (video.paused) {
+                  video.play();
+                  setPlaying(true);
+                } else {
+                  video.pause();
+                  setPlaying(false);
+                }
+              }}
+            />
+          ) : (
+            <div className="w-full aspect-video grid place-items-center text-neutral-500 text-xs bg-black">
+              Loading...
+            </div>
+          )}
+          <div className="absolute bottom-0 left-0 right-0 text-left text-xs px-2 py-1 bg-gradient-to-t from-black/80 to-transparent">
+            <span className="text-neutral-200 truncate block">{clip.name}</span>
           </div>
-        )}
-        <div className="absolute bottom-0 left-0 right-0 text-left text-xs px-2 py-1 bg-neutral-950/80">
-          <span className="text-neutral-200 truncate block">{clip.name}</span>
         </div>
-      </button>
+      ) : (
+        // Preview button (original behavior)
+        <button
+          onClick={onPreview}
+          className="group/preview relative w-full focus:outline-none focus:ring-2 focus:ring-amber-500"
+        >
+          {/* Minimal preview: load metadata only; we're not playing here */}
+          {src ? (
+            <video
+              src={src}
+              preload="metadata"
+              muted
+              playsInline
+              className="w-full aspect-video object-cover bg-black"
+            />
+          ) : (
+            <div className="w-full aspect-video grid place-items-center text-neutral-500 text-xs">
+              no preview
+            </div>
+          )}
+          <div className="absolute bottom-0 left-0 right-0 text-left text-xs px-2 py-1 bg-neutral-950/80">
+            <span className="text-neutral-200 truncate block">{clip.name}</span>
+          </div>
+        </button>
+      )}
     </div>
   );
 }
