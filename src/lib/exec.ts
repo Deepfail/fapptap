@@ -1,5 +1,7 @@
 /**
- * Execution utilities for running ex    const command = Command.sidec    const command = Command.sidecar("binaries/ffprobebin", ["-version"]);r("binaries/ffmpegbin", ["-version"]);ernal commands via Tauri
+ * Execution utilities for running external commands via Tauri
+ * 
+ * Reference: TAURI_V2_COMPREHENSIVE_KNOWLEDGE_BASE.md - Sidecar Binary Configuration
  */
 import { Command } from "@tauri-apps/plugin-shell";
 import { isTauriAvailable } from "./platform";

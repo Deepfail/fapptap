@@ -1,5 +1,7 @@
 /**
  * Media URL handling for both Tauri and browser environments
+ * 
+ * Reference: TAURI_V2_COMPREHENSIVE_KNOWLEDGE_BASE.md - Media URL Conversion Pattern
  */
 import { onDesktopAvailable } from "./platform";
 
