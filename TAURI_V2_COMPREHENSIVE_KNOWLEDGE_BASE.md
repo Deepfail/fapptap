@@ -401,7 +401,42 @@ Based on official Tauri migration code, key permission changes:
 - WebView runtime: `webviewFixedRuntimePath` → `webviewInstallMode.type: "fixedRuntime"`
 - Media framework: `appimage.bundleMediaFramework` for audio/video support
 
+## Migration Checklist
+
+- [ ] Enable assetProtocol with `"enable": true`
+- [ ] Configure sidecar binaries with exact naming
+- [ ] Add all required permissions to capabilities
+- [ ] Update Command.create() to Command.sidecar()
+- [ ] Use convertFileSrc() for all file paths
+- [ ] Add platform detection for browser fallbacks
+- [ ] Update CSP to include asset: protocol
+- [ ] Test both dev and build modes
+- [ ] Verify binary permissions and naming
+- [ ] Clean cargo cache after binary changes (`cargo clean --manifest-path src-tauri/Cargo.toml`)
+
 ## Error Patterns and Solutions
+
+### Critical Troubleshooting Patterns
+
+#### 1. Binary Naming Convention
+- Binaries must match exact naming: `{name}-{target-triple}.exe`
+- Example: `ffmpegbin-x86_64-pc-windows-msvc.exe`
+- **Never**: Use generic names like `ffmpeg.exe`
+
+#### 2. Cache Invalidation
+- After changing binaries: `cargo clean --manifest-path src-tauri/Cargo.toml`
+- Tauri caches sidecar binaries aggressively
+- **Always**: Force clean rebuild after binary changes
+
+#### 3. URL Generation Issues
+- **Problem**: `http://asset.localhost/` URLs
+- **Solution**: Enable assetProtocol with `"enable": true`
+- **Verification**: URLs should be `asset://localhost/`
+
+#### 4. Permission Debugging
+- Use granular permissions (fs:allow-read, fs:allow-exists)
+- **Critical**: Include both file and directory permissions
+- Test with minimal scope first, then expand
 
 ### Common Issues and Fixes
 
@@ -470,6 +505,67 @@ console.log('File exists:', exists);
 - **Use .gitignore**: Exclude large binaries (`*.exe` over 100MB)
 - **Clean History**: Use `git filter-branch` to remove large files from history
 - **Force Push**: Required after history cleanup to update remote
+
+## Working Configuration Templates
+
+### Minimal Tauri Configuration
+**tauri.conf.json**:
+```json
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "app": {
+    "withGlobalTauri": true,
+    "security": {
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["$HOME/**/*"]
+      }
+    }
+  },
+  "bundle": {
+    "externalBin": ["binaries/toolname"]
+  }
+}
+```
+
+**capabilities/default.json**:
+```json
+{
+  "permissions": [
+    "core:default",
+    "fs:default",
+    "shell:allow-execute",
+    {
+      "identifier": "shell:allow-execute", 
+      "allow": [
+        { "name": "binaries/toolname", "sidecar": true, "args": true }
+      ]
+    }
+  ]
+}
+```
+
+### Development vs Production Configuration
+
+**Dev Server Configuration**:
+```json
+{
+  "build": {
+    "beforeDevCommand": "npm run dev -- --port=1422 --strictPort",
+    "devUrl": "http://localhost:1422"
+  }
+}
+```
+
+**Build Configuration**:
+```json
+{
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  }
+}
+```
 
 ## Performance and Optimization
 
