@@ -40,18 +40,21 @@ export async function ffmpegVersion(): Promise<CommandResult> {
   }
 
   try {
-  const command = Command.sidecar("binaries/ffmpegbin", ["-version"]);
+    const command = Command.sidecar("binaries/ffmpegbin", ["-version"]);
     const result = await command.execute();
     if (result.code !== 0) {
       const lines = result.stderr.split(/\r?\n/);
       console.error("FFmpeg sidecar non-zero exit", {
         code: result.code,
-        firstLines: lines.slice(0,8),
-        totalLines: lines.length
+        firstLines: lines.slice(0, 8),
+        totalLines: lines.length,
       });
       console.log("FFmpeg stderr:", result.stderr);
     } else if (!/^ffmpeg version /i.test(result.stdout)) {
-      console.warn("FFmpeg output did not match expected version signature", result.stdout.split(/\r?\n/)[0]);
+      console.warn(
+        "FFmpeg output did not match expected version signature",
+        result.stdout.split(/\r?\n/)[0]
+      );
     }
     return {
       code: result.code ?? -1,
@@ -73,18 +76,21 @@ export async function ffprobeVersion(): Promise<CommandResult> {
   }
 
   try {
-  const command = Command.sidecar("binaries/ffprobebin", ["-version"]);
+    const command = Command.sidecar("binaries/ffprobebin", ["-version"]);
     const result = await command.execute();
     if (result.code !== 0) {
       const lines = result.stderr.split(/\r?\n/);
       console.error("FFprobe sidecar non-zero exit", {
         code: result.code,
-        firstLines: lines.slice(0,8),
-        totalLines: lines.length
+        firstLines: lines.slice(0, 8),
+        totalLines: lines.length,
       });
       console.log("FFprobe stderr:", result.stderr);
     } else if (!/^ffprobe version /i.test(result.stdout)) {
-      console.warn("FFprobe output did not match expected version signature", result.stdout.split(/\r?\n/)[0]);
+      console.warn(
+        "FFprobe output did not match expected version signature",
+        result.stdout.split(/\r?\n/)[0]
+      );
     }
     return {
       code: result.code ?? -1,

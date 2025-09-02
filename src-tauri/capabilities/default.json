@@ -7,34 +7,46 @@
     "core:default",
     "dialog:default",
 
-    
     "fs:default",
     {
       "identifier": "fs:scope",
       "allow": [
-        { "path": "$HOME" }, { "path": "$HOME/**/*" },
-        { "path": "$DESKTOP" }, { "path": "$DESKTOP/**/*" },
-        { "path": "$DOCUMENT" }, { "path": "$DOCUMENT/**/*" },
-        { "path": "$DOWNLOAD" }, { "path": "$DOWNLOAD/**/*" },
-        { "path": "$VIDEO" }, { "path": "$VIDEO/**/*" },
-        { "path": "$PICTURE" }, { "path": "$PICTURE/**/*" },
-        { "path": "C:/Users/Virta/Dropbox" }, { "path": "C:/Users/Virta/Dropbox/**/*" }
+        { "path": "$HOME" },
+        { "path": "$HOME/**/*" },
+        { "path": "$DESKTOP" },
+        { "path": "$DESKTOP/**/*" },
+        { "path": "$DOCUMENT" },
+        { "path": "$DOCUMENT/**/*" },
+        { "path": "$DOWNLOAD" },
+        { "path": "$DOWNLOAD/**/*" },
+        { "path": "$VIDEO" },
+        { "path": "$VIDEO/**/*" },
+        { "path": "$PICTURE" },
+        { "path": "$PICTURE/**/*" },
+        { "path": "C:/Users/Virta/Dropbox" },
+        { "path": "C:/Users/Virta/Dropbox/**/*" }
       ]
     },
     {
       "identifier": "fs:allow-exists",
       "allow": [
-        { "path": "$HOME/*" }, { "path": "$HOME/**/*" },
-        { "path": "$DESKTOP/*" }, { "path": "$DESKTOP/**/*" },
-        { "path": "$DOCUMENT/*" }, { "path": "$DOCUMENT/**/*" },
-        { "path": "$DOWNLOAD/*" }, { "path": "$DOWNLOAD/**/*" },
-        { "path": "$VIDEO/*" }, { "path": "$VIDEO/**/*" },
-        { "path": "$PICTURE/*" }, { "path": "$PICTURE/**/*" },
-        { "path": "C:/Users/Virta/Dropbox/*" }, { "path": "C:/Users/Virta/Dropbox/**/*" }
+        { "path": "$HOME/*" },
+        { "path": "$HOME/**/*" },
+        { "path": "$DESKTOP/*" },
+        { "path": "$DESKTOP/**/*" },
+        { "path": "$DOCUMENT/*" },
+        { "path": "$DOCUMENT/**/*" },
+        { "path": "$DOWNLOAD/*" },
+        { "path": "$DOWNLOAD/**/*" },
+        { "path": "$VIDEO/*" },
+        { "path": "$VIDEO/**/*" },
+        { "path": "$PICTURE/*" },
+        { "path": "$PICTURE/**/*" },
+        { "path": "C:/Users/Virta/Dropbox/*" },
+        { "path": "C:/Users/Virta/Dropbox/**/*" }
       ]
     },
 
-    
     "store:default",
     "store:allow-load",
     "store:allow-save",
@@ -43,7 +55,6 @@
     "store:allow-values",
     "store:allow-entries",
 
-    
     "shell:default",
     "shell:allow-open",
     {

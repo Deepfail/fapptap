@@ -5,12 +5,26 @@ def emit(stage, progress=None, **kw):
     msg = {"stage": stage, **({} if progress is None else {"progress": progress}), **kw}
     print(json.dumps(msg), flush=True)
 
-def run_beats(song):
-    emit("beats", progress=0.0, message="Loading audio and analyzing beats...")
+def run_beats(song, engine="advanced"):
+    emit("beats", progress=0.0, message=f"Loading audio and analyzing beats (engine: {engine})...")
     try:
-        # Import and use the advanced beat detection
-        from beats_adv import compute_advanced_beats
-        beats_data = compute_advanced_beats(song, debug=True)
+        if engine == "basic":
+            # Use basic beat detection
+            import librosa
+            y, sr = librosa.load(song, sr=None, mono=True)
+            tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, units='frames')
+            beat_times = librosa.frames_to_time(beat_frames, sr=sr)
+            
+            beats_data = {
+                "audio": song.replace("\\", "/"),
+                "sr": int(sr),
+                "tempo_global": float(tempo),
+                "beats": [{"time": float(t)} for t in beat_times]
+            }
+        else:
+            # Use advanced beat detection (default)
+            from beats_adv import compute_advanced_beats
+            beats_data = compute_advanced_beats(song, debug=True)
         
         # Save the results
         from pathlib import Path
@@ -19,7 +33,7 @@ def run_beats(song):
         with open(output_path, 'w') as f:
             json.dump(beats_data, f, indent=2)
         
-        emit("beats", progress=1.0, message="Advanced beat detection completed", 
+        emit("beats", progress=1.0, message=f"{engine.title()} beat detection completed", 
              beats_count=len(beats_data.get("beats", [])),
              tempo=beats_data.get("tempo_global", 0))
     except Exception as e:
@@ -121,9 +135,10 @@ if __name__ == "__main__":
     ap.add_argument("--song", default="")
     ap.add_argument("--clips", default="")
     ap.add_argument("--proxy", action="store_true")
+    ap.add_argument("--engine", default="advanced", choices=["basic", "advanced"])
     args = ap.parse_args()
 
-    if args.stage == "beats":   run_beats(args.song)
+    if args.stage == "beats":   run_beats(args.song, args.engine)
     if args.stage == "shots":   run_shots(args.clips)
     if args.stage == "cutlist": run_cutlist(args.song, args.clips)
     if args.stage == "render":  run_render(proxy=args.proxy)

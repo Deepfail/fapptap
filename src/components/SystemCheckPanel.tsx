@@ -34,7 +34,9 @@ export const SystemCheckPanel = () => {
     newChecks.push({
       name: "Tauri Runtime",
       status: desktopNow ? "ok" : "warning",
-      message: desktopNow ? "Desktop runtime available" : "Browser mode - limited features",
+      message: desktopNow
+        ? "Desktop runtime available"
+        : "Browser mode - limited features",
     });
 
     // Check local storage
@@ -98,7 +100,7 @@ export const SystemCheckPanel = () => {
         : "HTTP - some APIs may be limited",
     });
 
-  if (desktopNow) {
+    if (desktopNow) {
       // Desktop-specific checks
       try {
         // Check file system access using a guaranteed allowed path (HOME directory scope)
@@ -137,7 +139,9 @@ export const SystemCheckPanel = () => {
           message:
             result.code === 0
               ? "Worker responsive"
-              : `Exit ${result.code}: ${(result.stderr || result.stdout).split(/\r?\n/)[0]}`,
+              : `Exit ${result.code}: ${
+                  (result.stderr || result.stdout).split(/\r?\n/)[0]
+                }`,
           action: {
             label: "Test",
             onClick: async () => {
@@ -168,7 +172,10 @@ export const SystemCheckPanel = () => {
         newChecks.push({
           name: "FFmpeg",
           status: result.code === 0 ? "ok" : "warning",
-          message: result.code === 0 ? verLine : `Exit ${result.code}: ${result.stderr.split(/\r?\n/)[0]}`,
+          message:
+            result.code === 0
+              ? verLine
+              : `Exit ${result.code}: ${result.stderr.split(/\r?\n/)[0]}`,
           action: {
             label: "Test",
             onClick: async () => {
@@ -197,7 +204,10 @@ export const SystemCheckPanel = () => {
         newChecks.push({
           name: "FFprobe",
           status: result.code === 0 ? "ok" : "warning",
-          message: result.code === 0 ? verLine : `Exit ${result.code}: ${result.stderr.split(/\r?\n/)[0]}`,
+          message:
+            result.code === 0
+              ? verLine
+              : `Exit ${result.code}: ${result.stderr.split(/\r?\n/)[0]}`,
           action: {
             label: "Test",
             onClick: async () => {

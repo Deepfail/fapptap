@@ -7,9 +7,7 @@ import { onDesktopAvailable } from "./platform";
 let convertFileSrcFn: ((path: string) => string) | null = null;
 let triedImport = false;
 
-async function ensureConvertFileSrc(): Promise<
-  (path: string) => string
-> {
+async function ensureConvertFileSrc(): Promise<(path: string) => string> {
   if (convertFileSrcFn) return convertFileSrcFn;
   if (!triedImport) {
     triedImport = true;
@@ -57,11 +55,16 @@ export async function toMediaSrc(pathOrUrl: string): Promise<string> {
         }
         return out;
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     // Diagnostic: we expected to convert but still returning raw path (likely early before Tauri ready)
     if (shouldConvert) {
       // eslint-disable-next-line no-console
-      console.debug("mediaUrl: convertFileSrc unavailable yet, returning raw path", raw);
+      console.debug(
+        "mediaUrl: convertFileSrc unavailable yet, returning raw path",
+        raw
+      );
     }
   }
   return raw;
@@ -82,12 +85,31 @@ onDesktopAvailable(async () => {
  */
 export function isMediaFile(pathOrUrl: string): boolean {
   if (!pathOrUrl) return false;
-  
-  const videoExtensions = [".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".m4v"];
-  const audioExtensions = [".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a"];
-  
+
+  const videoExtensions = [
+    ".mp4",
+    ".avi",
+    ".mkv",
+    ".mov",
+    ".wmv",
+    ".flv",
+    ".webm",
+    ".m4v",
+  ];
+  const audioExtensions = [
+    ".mp3",
+    ".wav",
+    ".flac",
+    ".aac",
+    ".ogg",
+    ".wma",
+    ".m4a",
+  ];
+
   const lowerPath = pathOrUrl.toLowerCase();
-  return [...videoExtensions, ...audioExtensions].some(ext => lowerPath.endsWith(ext));
+  return [...videoExtensions, ...audioExtensions].some((ext) =>
+    lowerPath.endsWith(ext)
+  );
 }
 
 /**

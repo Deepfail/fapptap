@@ -3,6 +3,10 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { readDir } from "@tauri-apps/plugin-fs";
 import { toMediaSrc } from "@/lib/mediaUrl";
 import { onDesktopAvailable } from "@/lib/platform";
+import { useMediaStore } from "@/state/mediaStore";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Music } from "lucide-react";
 
 const VIDEO_EXT = new Set(["mp4", "mov", "mkv", "webm", "avi", "m4v"]);
 
@@ -28,13 +32,37 @@ export default function LibraryPane({
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  const {
+    setClipsDir,
+    setSongPath,
+    songPath,
+    selectedClipIds,
+    toggleClipSelection,
+  } = useMediaStore();
+
   const chooseDir = useCallback(async () => {
     const picked = await open({ directory: true, multiple: false });
     if (typeof picked === "string" && picked.length) {
       setDir(picked);
       onDirChange?.(picked);
+      setClipsDir(picked);
     }
-  }, [onDirChange]);
+  }, [onDirChange, setClipsDir]);
+
+  const loadAudioFile = useCallback(async () => {
+    const picked = await open({
+      multiple: false,
+      filters: [
+        {
+          name: "Audio Files",
+          extensions: ["mp3", "wav", "flac", "aac", "ogg", "m4a"],
+        },
+      ],
+    });
+    if (typeof picked === "string" && picked.length) {
+      setSongPath(picked);
+    }
+  }, [setSongPath]);
 
   useEffect(() => {
     if (!dir) {
@@ -49,7 +77,7 @@ export default function LibraryPane({
 
         const entries = await readDir(dir);
 
-        const files: Clip[] = entries
+        const allFiles = entries
           .filter((e) => !!e.name) // ignore weird entries
           .map((e) => {
             const name = e.name;
@@ -57,11 +85,15 @@ export default function LibraryPane({
             // Construct full path from directory and entry name
             const path = `${dir}/${name}`;
             return { path, name, ext };
-          })
+          });
+
+        const videoFiles = allFiles
           .filter((f) => VIDEO_EXT.has(f.ext))
           .sort((a, b) => a.name.localeCompare(b.name));
 
-        if (!cancelled) setClips(files);
+        if (!cancelled) {
+          setClips(videoFiles);
+        }
       } catch (e: any) {
         if (!cancelled) setErr(e?.message || String(e));
       } finally {
@@ -76,16 +108,40 @@ export default function LibraryPane({
   return (
     <div className="h-full flex flex-col">
       {/* header */}
-      <div className="flex items-center gap-2 mb-2">
-        <button
-          className="px-3 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-sm"
-          onClick={chooseDir}
-        >
-          {dir ? "Change Folder" : "Choose Folder"}
-        </button>
-        <div className="text-xs text-neutral-400 truncate">
-          {dir || "No folder selected"}
+      <div className="space-y-2 mb-2">
+        <div className="flex items-center gap-2">
+          <Button size="sm" onClick={chooseDir}>
+            {dir ? "Change Folder" : "Choose Folder"}
+          </Button>
+          <div className="text-xs text-neutral-400 truncate flex-1">
+            {dir || "No folder selected"}
+          </div>
         </div>
+
+        {/* Audio file selection */}
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={loadAudioFile}
+            className="flex items-center gap-1"
+          >
+            <Music className="h-3 w-3" />
+            Load Audio
+          </Button>
+          {songPath && (
+            <Badge variant="secondary" className="text-xs">
+              {songPath.split("/").pop()?.split("\\").pop() || "Audio loaded"}
+            </Badge>
+          )}
+        </div>
+
+        {/* Selection status */}
+        {selectedClipIds.size > 0 && (
+          <div className="text-xs text-green-400">
+            {selectedClipIds.size} clips selected
+          </div>
+        )}
       </div>
 
       {/* content */}
@@ -111,7 +167,9 @@ export default function LibraryPane({
             <ClipTile
               key={c.path}
               clip={c}
-              onClick={() => onSelectClip?.(c.path)}
+              isSelected={selectedClipIds.has(c.path)}
+              onToggleSelect={() => toggleClipSelection(c.path)}
+              onPreview={() => onSelectClip?.(c.path)}
             />
           ))}
         </div>
@@ -120,11 +178,21 @@ export default function LibraryPane({
   );
 }
 
-function ClipTile({ clip, onClick }: { clip: Clip; onClick?: () => void }) {
+function ClipTile({
+  clip,
+  isSelected,
+  onToggleSelect,
+  onPreview,
+}: {
+  clip: Clip;
+  isSelected: boolean;
+  onToggleSelect: () => void;
+  onPreview: () => void;
+}) {
   const [src, setSrc] = useState<string>("");
   const [tauriReadyTick, setTauriReadyTick] = useState(0);
   useEffect(() => {
-    const off = onDesktopAvailable(() => setTauriReadyTick(t => t + 1));
+    const off = onDesktopAvailable(() => setTauriReadyTick((t) => t + 1));
     return off;
   }, []);
 
@@ -144,28 +212,45 @@ function ClipTile({ clip, onClick }: { clip: Clip; onClick?: () => void }) {
   }, [clip.path, tauriReadyTick]);
 
   return (
-    <button
-      onClick={onClick}
-      className="group relative rounded-md overflow-hidden bg-neutral-900 border border-neutral-800 hover:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-amber-500"
+    <div
+      className={`group relative rounded-md overflow-hidden bg-neutral-900 border transition-colors ${
+        isSelected
+          ? "border-blue-500 bg-blue-500/10"
+          : "border-neutral-800 hover:border-neutral-700"
+      }`}
       title={clip.name}
     >
-      {/* Minimal preview: load metadata only; we’re not playing here */}
-      {src ? (
-        <video
-          src={src}
-          preload="metadata"
-          muted
-          playsInline
-          className="w-full aspect-video object-cover bg-black"
-        />
-      ) : (
-        <div className="w-full aspect-video grid place-items-center text-neutral-500 text-xs">
-          no preview
+      {/* Selection overlay */}
+      <button
+        onClick={onToggleSelect}
+        className="absolute top-2 left-2 z-10 w-5 h-5 rounded bg-black/50 border border-white/20 flex items-center justify-center text-white text-xs hover:bg-black/70"
+      >
+        {isSelected ? "✓" : ""}
+      </button>
+
+      {/* Preview button */}
+      <button
+        onClick={onPreview}
+        className="group/preview relative w-full focus:outline-none focus:ring-2 focus:ring-amber-500"
+      >
+        {/* Minimal preview: load metadata only; we're not playing here */}
+        {src ? (
+          <video
+            src={src}
+            preload="metadata"
+            muted
+            playsInline
+            className="w-full aspect-video object-cover bg-black"
+          />
+        ) : (
+          <div className="w-full aspect-video grid place-items-center text-neutral-500 text-xs">
+            no preview
+          </div>
+        )}
+        <div className="absolute bottom-0 left-0 right-0 text-left text-xs px-2 py-1 bg-neutral-950/80">
+          <span className="text-neutral-200 truncate block">{clip.name}</span>
         </div>
-      )}
-      <div className="absolute bottom-0 left-0 right-0 text-left text-xs px-2 py-1 bg-neutral-950/80">
-        <span className="text-neutral-200 truncate block">{clip.name}</span>
-      </div>
-    </button>
+      </button>
+    </div>
   );
 }

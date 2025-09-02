@@ -25,7 +25,7 @@ import {
   Monitor,
 } from "lucide-react";
 import { useMediaStore } from "../state/mediaStore";
-import { PythonWorker } from "../lib/worker";
+import { PythonWorker, WorkerMessage } from "../lib/worker";
 import { SystemCheckPanel } from "./SystemCheckPanel";
 import { toast } from "sonner";
 
@@ -97,22 +97,20 @@ export function ActionsPane() {
     try {
       updateJob(jobId, { status: "running", progress: 0 });
 
-      await worker.runStage(
-        stage,
-        {
-          song: songPath,
-          clips: clipsDir,
-          proxy: stage === "render",
-          engine: prefs.engine,
-        },
-        (message) => {
-          // Handle progress updates from worker
-          updateJob(jobId, {
-            progress: message.progress ?? 0,
-            message: message.message || `${stage} in progress...`,
-          });
-        }
-      );
+      // Set up event handler for progress updates
+      worker.on("progress", (message: WorkerMessage) => {
+        updateJob(jobId, {
+          progress: message.progress ?? 0,
+          message: message.message || `${stage} in progress...`,
+        });
+      });
+
+      await worker.runStage(stage, {
+        song: songPath,
+        clips: clipsDir,
+        proxy: stage === "render",
+        engine: prefs.engine,
+      });
 
       updateJob(jobId, {
         status: "completed",
@@ -138,11 +136,19 @@ export function ActionsPane() {
   const cancelJob = async (jobId: string) => {
     try {
       await worker.cancel();
-      updateJob(jobId, { status: "error", error: "Cancelled by user", endTime: Date.now() });
+      updateJob(jobId, {
+        status: "error",
+        error: "Cancelled by user",
+        endTime: Date.now(),
+      });
       toast.info("Job cancelled");
     } catch (error) {
       console.warn("Failed to cancel job:", error);
-      updateJob(jobId, { status: "error", error: "Cancelled by user", endTime: Date.now() });
+      updateJob(jobId, {
+        status: "error",
+        error: "Cancelled by user",
+        endTime: Date.now(),
+      });
       toast.info("Job cancelled");
     }
   };

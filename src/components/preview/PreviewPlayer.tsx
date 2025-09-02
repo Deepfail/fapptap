@@ -73,11 +73,11 @@ export default function PreviewPlayer({
 
   // ---- helpers ----
   const scheduleHide = useCallback(() => {
-    if (!showOverlay || autoHideMs <= 0) return;
-    if (hideTimeout.current) clearTimeout(hideTimeout.current);
-    hideTimeout.current = setTimeout(() => {
-      if (playing) setShowControls(false);
-    }, autoHideMs);
+    // Disabled for debugging: if (!showOverlay || autoHideMs <= 0) return;
+    // if (hideTimeout.current) clearTimeout(hideTimeout.current);
+    // hideTimeout.current = setTimeout(() => {
+    //   if (playing) setShowControls(false);
+    // }, autoHideMs);
   }, [playing, showOverlay, autoHideMs]);
 
   const revealControls = useCallback(() => {
@@ -112,15 +112,28 @@ export default function PreviewPlayer({
     const mediaErr = (videoRef.current as any)?.error;
     if (mediaErr) {
       switch (mediaErr.code) {
-        case mediaErr.MEDIA_ERR_ABORTED: msg = "Media load aborted"; break;
-        case mediaErr.MEDIA_ERR_NETWORK: msg = "Network error while fetching media"; break;
-        case mediaErr.MEDIA_ERR_DECODE: msg = "Decode error: unsupported codec or corrupt file"; break;
-        case mediaErr.MEDIA_ERR_SRC_NOT_SUPPORTED: msg = "Source not supported or permission denied"; break;
-        default: msg = "Unknown media error";
+        case mediaErr.MEDIA_ERR_ABORTED:
+          msg = "Media load aborted";
+          break;
+        case mediaErr.MEDIA_ERR_NETWORK:
+          msg = "Network error while fetching media";
+          break;
+        case mediaErr.MEDIA_ERR_DECODE:
+          msg = "Decode error: unsupported codec or corrupt file";
+          break;
+        case mediaErr.MEDIA_ERR_SRC_NOT_SUPPORTED:
+          msg = "Source not supported or permission denied";
+          break;
+        default:
+          msg = "Unknown media error";
       }
     }
     // Fallback to file:// if asset: failed with connection refused
-    if (msg.includes("Network error") && resolvedSrc.startsWith("asset:") && srcPath) {
+    if (
+      msg.includes("Network error") &&
+      resolvedSrc.startsWith("asset:") &&
+      srcPath
+    ) {
       const fileUrl = toFileUrl(srcPath);
       console.debug("Falling back to file:// URL", fileUrl);
       setResolvedSrc(fileUrl);
@@ -142,7 +155,9 @@ export default function PreviewPlayer({
       raf = requestAnimationFrame(tick);
     };
     if (playing) raf = requestAnimationFrame(tick);
-    return () => { if (raf !== null) cancelAnimationFrame(raf); };
+    return () => {
+      if (raf !== null) cancelAnimationFrame(raf);
+    };
   }, [playing, onTime]);
 
   const play = useCallback(async () => {
@@ -167,21 +182,29 @@ export default function PreviewPlayer({
     playing ? pause() : play();
   }, [playing, play, pause]);
 
-  const seekTo = useCallback((t: number) => {
-    const v = videoRef.current;
-    if (!v || !Number.isFinite(duration)) return;
-    const clamped = Math.max(0, Math.min(t, duration || 0));
-    v.currentTime = clamped;
-    setCurrent(clamped);
-    onTime?.(clamped);
-  }, [duration, onTime]);
+  const seekTo = useCallback(
+    (t: number) => {
+      const v = videoRef.current;
+      if (!v || !Number.isFinite(duration)) return;
+      const clamped = Math.max(0, Math.min(t, duration || 0));
+      v.currentTime = clamped;
+      setCurrent(clamped);
+      onTime?.(clamped);
+    },
+    [duration, onTime]
+  );
 
-  const nudge = useCallback((delta: number) => seekTo(current + delta), [current, seekTo]);
+  const nudge = useCallback(
+    (delta: number) => seekTo(current + delta),
+    [current, seekTo]
+  );
 
   // Volume persistence (localStorage for now; could move to store prefs)
   useEffect(() => {
     if (videoRef.current) videoRef.current.volume = volume;
-    try { localStorage.setItem("fapptap-volume", String(volume)); } catch {}
+    try {
+      localStorage.setItem("fapptap-volume", String(volume));
+    } catch {}
   }, [volume]);
 
   useEffect(() => {
@@ -241,12 +264,17 @@ export default function PreviewPlayer({
   }, [enableShortcuts, togglePlay, nudge, seekTo, duration]);
 
   // cleanup timers
-  useEffect(() => () => { if (hideTimeout.current) clearTimeout(hideTimeout.current); }, []);
+  useEffect(
+    () => () => {
+      if (hideTimeout.current) clearTimeout(hideTimeout.current);
+    },
+    []
+  );
 
   // Resolve source (async) when path changes
   const [tauriReadyTick, setTauriReadyTick] = useState(0);
   useEffect(() => {
-    const off = onDesktopAvailable(() => setTauriReadyTick(t => t + 1));
+    const off = onDesktopAvailable(() => setTauriReadyTick((t) => t + 1));
     return off;
   }, []);
 
@@ -269,7 +297,10 @@ export default function PreviewPlayer({
       try {
         const resolved = await toMediaSrc(srcPath);
         if (token !== srcTokenRef.current) return; // stale
-        console.debug("PreviewPlayer resolved src", { original: srcPath, resolved });
+        console.debug("PreviewPlayer resolved src", {
+          original: srcPath,
+          resolved,
+        });
         setResolvedSrc(resolved);
       } catch (e: any) {
         if (token !== srcTokenRef.current) return;
@@ -292,7 +323,7 @@ export default function PreviewPlayer({
         try {
           const forced = await toMediaSrc(srcPath || "");
           console.debug("Retrying video source after error", { forced });
-          setResolvedSrc( forced );
+          setResolvedSrc(forced);
           setError(null);
         } catch {}
       }, 400);
@@ -328,7 +359,9 @@ export default function PreviewPlayer({
             preload="metadata"
           />
         ) : resolving ? (
-          <div className="grid place-items-center w-full h-full text-sm text-neutral-400">Resolving media path...</div>
+          <div className="grid place-items-center w-full h-full text-sm text-neutral-400">
+            Resolving media path...
+          </div>
         ) : (
           <div className="grid place-items-center w-full h-full text-sm text-neutral-400">
             Select a clip to preview.
@@ -358,7 +391,11 @@ export default function PreviewPlayer({
                 className="rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm pointer-events-auto"
                 onClick={togglePlay}
               >
-                {playing ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
+                {playing ? (
+                  <Pause className="h-8 w-8" />
+                ) : (
+                  <Play className="h-8 w-8" />
+                )}
               </Button>
             </div>
 
@@ -377,7 +414,11 @@ export default function PreviewPlayer({
                     <SkipBack className="h-4 w-4" />
                   </Button>
                   <Button size="sm" variant="ghost" onClick={togglePlay}>
-                    {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    {playing ? (
+                      <Pause className="h-4 w-4" />
+                    ) : (
+                      <Play className="h-4 w-4" />
+                    )}
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => nudge(+10)}>
                     <SkipForward className="h-4 w-4" />
@@ -397,22 +438,30 @@ export default function PreviewPlayer({
                   <span>
                     {formatTime(current)} / {formatTime(duration)}
                   </span>
-                  <Button size="sm" variant="ghost" onClick={async () => {
-                    const v = videoRef.current;
-                    if (!v) return;
-                    if (IS_DESKTOP) {
-                      try {
-                        const { getCurrentWindow } = await import("@tauri-apps/api/window");
-                        const win = getCurrentWindow();
-                        const maximized = await win.isMaximized();
-                        maximized ? await win.unmaximize() : await win.maximize();
-                      } catch {}
-                    } else if (document.fullscreenElement) {
-                      await document.exitFullscreen().catch(()=>{});
-                    } else {
-                      await v.requestFullscreen?.().catch(()=>{});
-                    }
-                  }}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={async () => {
+                      const v = videoRef.current;
+                      if (!v) return;
+                      if (IS_DESKTOP) {
+                        try {
+                          const { getCurrentWindow } = await import(
+                            "@tauri-apps/api/window"
+                          );
+                          const win = getCurrentWindow();
+                          const maximized = await win.isMaximized();
+                          maximized
+                            ? await win.unmaximize()
+                            : await win.maximize();
+                        } catch {}
+                      } else if (document.fullscreenElement) {
+                        await document.exitFullscreen().catch(() => {});
+                      } else {
+                        await v.requestFullscreen?.().catch(() => {});
+                      }
+                    }}
+                  >
                     <Maximize2 className="h-4 w-4" />
                   </Button>
                 </div>

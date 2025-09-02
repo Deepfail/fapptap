@@ -64,7 +64,7 @@ export const Thumbnail = ({
 
     try {
       const { Command } = await import("@tauri-apps/plugin-shell");
-      const { exists } = await import("@tauri-apps/plugin-fs");
+      const { exists, mkdir } = await import("@tauri-apps/plugin-fs");
 
       // Create cache directory if it doesn't exist
       const cacheDir = "cache/thumbnails";
@@ -75,8 +75,15 @@ export const Thumbnail = ({
         return;
       }
 
-      // Generate thumbnail using ffmpeg
-      const command = Command.create("ffmpeg", [
+      // Ensure cache directory exists
+      try {
+        await mkdir(cacheDir, { recursive: true });
+      } catch (e) {
+        // Directory might already exist
+      }
+
+      // Generate thumbnail using ffmpeg sidecar
+      const command = Command.sidecar("binaries/ffmpegbin", [
         "-i",
         videoPath,
         "-ss",
