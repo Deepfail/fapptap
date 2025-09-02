@@ -23,6 +23,8 @@ import {
   XCircle,
   Clock,
   Monitor,
+  Zap,
+  Edit3,
 } from "lucide-react";
 import { useMediaStore } from "../state/mediaStore";
 import { PythonWorker, WorkerMessage } from "../lib/worker";
@@ -71,6 +73,7 @@ export function ActionsPane() {
 
   const [worker] = useState(() => new PythonWorker());
   const [showSystemCheck, setShowSystemCheck] = useState(false);
+  const [isRunningFullWorkflow, setIsRunningFullWorkflow] = useState(false);
 
   const hasRequiredInputs = songPath && clipsDir && selectedClipIds.size > 0;
 
@@ -133,6 +136,54 @@ export function ActionsPane() {
     }
   };
 
+  const runFullWorkflow = async () => {
+    if (!hasRequiredInputs) {
+      toast.error(
+        "Please select a song, clips directory, and at least one clip"
+      );
+      return;
+    }
+
+    setIsRunningFullWorkflow(true);
+    const stages = ["beats", "shots", "cutlist", "render"];
+    
+    try {
+      for (const stage of stages) {
+        // Check if stage already completed
+        const existingJob = jobs.find(
+          (j) => j.type === stage && j.status === "completed"
+        );
+        
+        if (!existingJob) {
+          await runStage(stage);
+          
+          // Wait for completion before moving to next stage
+          await new Promise<void>((resolve, reject) => {
+            const checkInterval = setInterval(() => {
+              const currentJob = jobs.find(
+                (j) => j.type === stage && j.status !== "pending" && j.status !== "running"
+              );
+              
+              if (currentJob?.status === "completed") {
+                clearInterval(checkInterval);
+                resolve();
+              } else if (currentJob?.status === "error") {
+                clearInterval(checkInterval);
+                reject(new Error(currentJob.error || `${stage} failed`));
+              }
+            }, 500);
+          });
+        }
+      }
+      
+      toast.success("Video creation completed! 🎉");
+    } catch (error: any) {
+      toast.error(`Workflow failed: ${error.message}`);
+    } finally {
+      setIsRunningFullWorkflow(false);
+    }
+  };
+
   const cancelJob = async (jobId: string) => {
     try {
       await worker.cancel();
@@ -168,7 +219,10 @@ export function ActionsPane() {
           <div>
             <h2 className="text-lg font-semibold">Actions</h2>
             <p className="text-sm text-slate-400 mt-1">
-              Analyze and render your project
+              {prefs.engine === "basic" 
+                ? "One-click video creation"
+                : "Manual control over each step"
+              }
             </p>
           </div>
           <Button
@@ -217,85 +271,168 @@ export function ActionsPane() {
         </div>
       </div>
 
-      {/* Analysis Stages */}
-      <div className="flex-1 overflow-auto p-4 space-y-4">
-        {Object.entries(stageConfigs).map(([stage, config]) => {
-          const job = getJobStatus(stage);
-          const Icon = config.icon;
+      {/* Basic vs Advanced Mode Content */}
+      {prefs.engine === "basic" ? (
+        // BASIC MODE: Single "Create Video" Button
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="text-center space-y-6 max-w-md">
+            <div className="space-y-3">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <Zap className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold">Create Video</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Automatically analyze beats, detect shots, generate cuts, and render your video. 
+                Everything happens in one click!
+              </p>
+            </div>
 
-          return (
-            <Card key={stage} className="border-slate-700">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`p-2 rounded-lg bg-gradient-to-r ${config.color}`}
-                    >
-                      <Icon className="h-4 w-4 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium">{config.title}</h3>
-                        <Badge
-                          variant={
-                            job.status === "completed"
-                              ? "default"
-                              : job.status === "running"
-                              ? "secondary"
-                              : job.status === "error"
-                              ? "destructive"
-                              : "outline"
-                          }
-                        >
-                          {job.status}
-                        </Badge>
+            <Button
+              size="lg"
+              className="w-full h-12 text-base bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+              onClick={runFullWorkflow}
+              disabled={!hasRequiredInputs || isRunningFullWorkflow}
+            >
+              {isRunningFullWorkflow ? (
+                <>
+                  <div className="h-4 w-4 border border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Creating Video...
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4 mr-2" />
+                  Create Video
+                </>
+              )}
+            </Button>
+
+            {!hasRequiredInputs && (
+              <p className="text-xs text-red-400">
+                Please select audio, clips folder, and at least one video clip to continue
+              </p>
+            )}
+
+            {/* Progress indicator for basic mode */}
+            {isRunningFullWorkflow && (
+              <div className="space-y-2">
+                <div className="text-xs text-slate-400 text-left">
+                  Progress: {Object.keys(stageConfigs).map(stage => {
+                    const job = jobs.find(j => j.type === stage);
+                    return (
+                      <div key={stage} className="flex justify-between">
+                        <span>{stageConfigs[stage as keyof typeof stageConfigs].title}</span>
+                        <span className={
+                          job?.status === "completed" ? "text-green-400" :
+                          job?.status === "running" ? "text-blue-400" :
+                          job?.status === "error" ? "text-red-400" :
+                          "text-slate-500"
+                        }>
+                          {job?.status === "completed" ? "✓" :
+                           job?.status === "running" ? "..." :
+                           job?.status === "error" ? "✗" :
+                           "⋯"}
+                        </span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-1">
-                        {config.description}
-                      </p>
-                    </div>
-                  </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        // ADVANCED MODE: Individual Stage Controls
+        <div className="flex-1 overflow-auto p-4 space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Edit3 className="h-4 w-4 text-slate-400" />
+            <span className="text-sm text-slate-400">
+              Run individual analysis steps and edit results
+            </span>
+          </div>
 
-                  <div className="flex items-center gap-2">
-                    {job.status === "running" && (
+          {Object.entries(stageConfigs).map(([stage, config]) => {
+            const job = getJobStatus(stage);
+            const Icon = config.icon;
+
+            return (
+              <Card key={stage} className="border-slate-700">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`p-2 rounded-lg bg-gradient-to-r ${config.color}`}
+                      >
+                        <Icon className="h-4 w-4 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium">{config.title}</h3>
+                          <Badge
+                            variant={
+                              job.status === "completed"
+                                ? "default"
+                                : job.status === "running"
+                                ? "secondary"
+                                : job.status === "error"
+                                ? "destructive"
+                                : "outline"
+                            }
+                          >
+                            {job.status}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-slate-400 mt-1">
+                          {config.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {job.status === "running" && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => cancelJob(job.id!)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         size="sm"
-                        variant="ghost"
-                        onClick={() => cancelJob(job.id!)}
+                        onClick={() => runStage(stage)}
+                        disabled={!hasRequiredInputs || job.status === "running"}
                       >
-                        <X className="h-4 w-4" />
+                        {job.status === "completed" ? "Re-run" : "Run"}
                       </Button>
-                    )}
-                    <Button
-                      size="sm"
-                      onClick={() => runStage(stage)}
-                      disabled={!hasRequiredInputs || job.status === "running"}
-                    >
-                      Run
-                    </Button>
+                      {job.status === "completed" && (
+                        <Button size="sm" variant="outline">
+                          Edit
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {job.status === "running" && (
-                  <div className="space-y-2">
-                    <Progress value={job.progress * 100} className="h-2" />
-                    <p className="text-xs text-slate-400">
-                      {job.message ||
-                        `Progress: ${(job.progress * 100).toFixed(1)}%`}
-                    </p>
-                  </div>
-                )}
+                  {job.status === "running" && (
+                    <div className="space-y-2">
+                      <Progress value={job.progress * 100} className="h-2" />
+                      <p className="text-xs text-slate-400">
+                        {job.message ||
+                          `Progress: ${(job.progress * 100).toFixed(1)}%`}
+                      </p>
+                    </div>
+                  )}
 
-                {job.status === "error" && job.error && (
-                  <div className="mt-2 p-2 bg-red-900/20 border border-red-900/30 rounded text-xs text-red-400">
-                    {job.error}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                  {job.status === "error" && job.error && (
+                    <div className="mt-2 p-2 bg-red-900/20 border border-red-900/30 rounded text-xs text-red-400">
+                      {job.error}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
       {/* Settings */}
       <div className="border-t border-slate-700 p-4 space-y-4">
@@ -314,7 +451,7 @@ export function ActionsPane() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label htmlFor="engine" className="text-sm">
-              Engine
+              Mode
             </Label>
             <Select
               value={prefs.engine}
@@ -322,12 +459,22 @@ export function ActionsPane() {
                 updatePrefs({ engine: value })
               }
             >
-              <SelectTrigger className="w-24">
+              <SelectTrigger className="w-28">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="basic">Basic</SelectItem>
-                <SelectItem value="advanced">Advanced</SelectItem>
+                <SelectItem value="basic">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-3 w-3" />
+                    Basic
+                  </div>
+                </SelectItem>
+                <SelectItem value="advanced">
+                  <div className="flex items-center gap-2">
+                    <Edit3 className="h-3 w-3" />
+                    Advanced
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "engine": "advanced",
-  "tempo_global": 126.04801829268293,
+  "tempo_global": 120.18531976744185,
   "beats": [],
   "strength": [],
   "tempo_curve": {
@@ -9,19 +9,19 @@
       0.0
     ],
     "bpm": [
-      126.04801829268293
+      120.18531976744185
     ]
   },
   "debug": {
     "sr": 44100,
-    "duration": 184.97306122448978,
-    "onset_env_peak": 14.266231536865234,
-    "onset_env_mean": 0.920815646648407,
+    "duration": 171.93795918367346,
+    "onset_env_peak": 18.73314094543457,
+    "onset_env_mean": 0.8383300304412842,
     "preprocessing": {
-      "hpss_percussive_peak": 0.6631025075912476,
-      "hpss_percussive_rms": 0.06198172643780708,
-      "transient_peak": 0.5520638823509216,
-      "transient_rms": 0.03186361491680145
+      "hpss_percussive_peak": 0.5935953855514526,
+      "hpss_percussive_rms": 0.06558038294315338,
+      "transient_peak": 0.42556607723236084,
+      "transient_rms": 0.03189220651984215
     }
   }
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readDir } from "@tauri-apps/plugin-fs";
 import { toMediaSrc } from "@/lib/mediaUrl";
@@ -34,6 +34,7 @@ export default function LibraryPane({
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [inlinePlayback, setInlinePlayback] = useState(false);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
 
   const {
     setClipsDir,
@@ -114,7 +115,7 @@ export default function LibraryPane({
       <div className="space-y-2 mb-2">
         <div className="flex items-center gap-2">
           <Button size="sm" onClick={chooseDir}>
-            {dir ? "Change Folder" : "Choose Folder"}
+            {dir ? "Change Videos" : "Load Videos"}
           </Button>
           <div className="text-xs text-neutral-400 truncate flex-1">
             {dir || "No folder selected"}
@@ -187,6 +188,14 @@ export default function LibraryPane({
               onToggleSelect={() => toggleClipSelection(c.path)}
               onPreview={() => onSelectClip?.(c.path)}
               enableInlinePlayback={inlinePlayback}
+              isPlaying={currentlyPlaying === c.path}
+              onPlayStateChange={(playing) => {
+                if (playing) {
+                  setCurrentlyPlaying(c.path);
+                } else if (currentlyPlaying === c.path) {
+                  setCurrentlyPlaying(null);
+                }
+              }}
             />
           ))}
         </div>
@@ -201,16 +210,33 @@ function ClipTile({
   onToggleSelect,
   onPreview,
   enableInlinePlayback = false,
+  isPlaying = false,
+  onPlayStateChange,
 }: {
   clip: Clip;
   isSelected: boolean;
   onToggleSelect: () => void;
   onPreview: () => void;
   enableInlinePlayback?: boolean;
+  isPlaying?: boolean;
+  onPlayStateChange?: (playing: boolean) => void;
 }) {
   const [src, setSrc] = useState<string>("");
-  const [playing, setPlaying] = useState<boolean>(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [tauriReadyTick, setTauriReadyTick] = useState(0);
+  
+  // Effect to handle video playback state
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isPlaying && enableInlinePlayback) {
+        videoRef.current.play();
+      } else {
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+      }
+    }
+  }, [isPlaying, enableInlinePlayback]);
+
   useEffect(() => {
     const off = onDesktopAvailable(() => setTauriReadyTick((t) => t + 1));
     return off;
@@ -254,22 +280,17 @@ function ClipTile({
         <div className="relative w-full">
           {src ? (
             <video
+              ref={videoRef}
               src={src}
               preload="metadata"
-              muted={!playing}
+              muted={!isPlaying}
               playsInline
+              loop
               className="w-full aspect-video object-cover bg-black"
-              controls={playing}
+              controls={false}
               onClick={(e) => {
                 e.stopPropagation();
-                const video = e.target as HTMLVideoElement;
-                if (video.paused) {
-                  video.play();
-                  setPlaying(true);
-                } else {
-                  video.pause();
-                  setPlaying(false);
-                }
+                onPlayStateChange?.(!isPlaying);
               }}
             />
           ) : (
@@ -280,6 +301,12 @@ function ClipTile({
           <div className="absolute bottom-0 left-0 right-0 text-left text-xs px-2 py-1 bg-gradient-to-t from-black/80 to-transparent">
             <span className="text-neutral-200 truncate block">{clip.name}</span>
           </div>
+          {/* Play indicator */}
+          {isPlaying && (
+            <div className="absolute top-2 right-2 w-6 h-6 bg-black bg-opacity-60 rounded-full flex items-center justify-center">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+            </div>
+          )}
         </div>
       ) : (
         // Preview button (original behavior)
