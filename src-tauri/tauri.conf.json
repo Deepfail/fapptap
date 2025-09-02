@@ -15,11 +15,12 @@
       { "title": "fapptap-ui", "width": 1280, "height": 800, "resizable": true }
     ],
     "security": {
-      "csp": "default-src 'self' ipc: http://ipc.localhost ws:; img-src 'self' asset: http://asset.localhost blob: data:; media-src 'self' asset: http://asset.localhost blob: data:; connect-src 'self' http://localhost:1422 ws://localhost:1422 ipc:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'",
+      "csp": "default-src 'self' ipc: http://ipc.localhost ws:; img-src 'self' asset: http://asset.localhost blob: data:; media-src 'self' asset: http://asset.localhost blob: data: file:; connect-src 'self' http://localhost:1422 ws://localhost:1422 ipc:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'",
       "assetProtocol": {
         "scope": [
           "C:/Users/Virta/Dropbox/**/*",
-          "$HOME/**/*"
+          "$HOME/**/*",
+          "C:/**/*"
         ]
       }
     }

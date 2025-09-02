@@ -49,6 +49,7 @@ export async function ffmpegVersion(): Promise<CommandResult> {
         firstLines: lines.slice(0,8),
         totalLines: lines.length
       });
+      console.log("FFmpeg stderr:", result.stderr);
     } else if (!/^ffmpeg version /i.test(result.stdout)) {
       console.warn("FFmpeg output did not match expected version signature", result.stdout.split(/\r?\n/)[0]);
     }
@@ -81,6 +82,7 @@ export async function ffprobeVersion(): Promise<CommandResult> {
         firstLines: lines.slice(0,8),
         totalLines: lines.length
       });
+      console.log("FFprobe stderr:", result.stderr);
     } else if (!/^ffprobe version /i.test(result.stdout)) {
       console.warn("FFprobe output did not match expected version signature", result.stdout.split(/\r?\n/)[0]);
     }

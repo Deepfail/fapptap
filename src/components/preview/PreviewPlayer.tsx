@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { toMediaSrc, isMediaFile } from "@/lib/mediaUrl";
+import { toMediaSrc, isMediaFile, toFileUrl } from "@/lib/mediaUrl";
 import { IS_DESKTOP, onDesktopAvailable } from "@/lib/platform";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -119,11 +119,18 @@ export default function PreviewPlayer({
         default: msg = "Unknown media error";
       }
     }
+    // Fallback to file:// if asset: failed with connection refused
+    if (msg.includes("Network error") && resolvedSrc.startsWith("asset:") && srcPath) {
+      const fileUrl = toFileUrl(srcPath);
+      console.debug("Falling back to file:// URL", fileUrl);
+      setResolvedSrc(fileUrl);
+      return; // Don't set error yet, try file://
+    }
     setError(msg);
     setPlaying(false);
     onError?.(msg);
     setShowControls(true);
-  }, [onError]);
+  }, [onError, resolvedSrc, srcPath]);
 
   // rAF time updates (only when playing)
   useEffect(() => {
