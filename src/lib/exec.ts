@@ -1,5 +1,5 @@
 /**
- * Execution utilities for running external commands via Tauri
+ * Execution utilities for running ex    const command = Command.sidec    const command = Command.sidecar("binaries/ffprobebin", ["-version"]);r("binaries/ffmpegbin", ["-version"]);ernal commands via Tauri
  */
 import { Command } from "@tauri-apps/plugin-shell";
 import { isTauriAvailable } from "./platform";
@@ -40,7 +40,7 @@ export async function ffmpegVersion(): Promise<CommandResult> {
   }
 
   try {
-  const command = Command.sidecar("binaries/ffmpeg", ["-version"]);
+  const command = Command.sidecar("binaries/ffmpegbin", ["-version"]);
     const result = await command.execute();
     if (result.code !== 0) {
       const lines = result.stderr.split(/\r?\n/);
@@ -73,7 +73,7 @@ export async function ffprobeVersion(): Promise<CommandResult> {
   }
 
   try {
-  const command = Command.sidecar("binaries/ffprobe", ["-version"]);
+  const command = Command.sidecar("binaries/ffprobebin", ["-version"]);
     const result = await command.execute();
     if (result.code !== 0) {
       const lines = result.stderr.split(/\r?\n/);
