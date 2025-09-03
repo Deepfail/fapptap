@@ -1,33 +1,23 @@
 import { useState } from 'react';
-import { useEditor } from '../state/editorStore';
+import { useEditor, Effect, Transform } from '../state/editorStore';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 
-interface Transform {
-  x: number;
-  y: number;
-  scaleX: number;
-  scaleY: number;
-  rotation: number;
-  opacity: number;
-}
-
-interface Effect {
-  id: string;
-  type: 'transform' | 'filter';
-  enabled: boolean;
-  transform?: Transform;
-}
-
 export const EffectsInspector = () => {
-  const { selectedTimelineItemId, timeline } = useEditor();
-  const [effects, setEffects] = useState<Record<string, Effect[]>>({});
+  const { 
+    selectedTimelineItemId, 
+    timeline, 
+    updateTimelineItemEffects, 
+    getTimelineItemEffects 
+  } = useEditor();
+  
+  const [, forceUpdate] = useState({});
   
   const selectedItem = timeline.find(item => item.id === selectedTimelineItemId);
-  const itemEffects = selectedItem ? effects[selectedItem.id] || [] : [];
+  const itemEffects = selectedItem ? getTimelineItemEffects(selectedItem.id) : [];
   
   const getTransformEffect = (): Transform => {
     const transformEffect = itemEffects.find(e => e.type === 'transform');
@@ -44,43 +34,36 @@ export const EffectsInspector = () => {
   const updateTransform = (updates: Partial<Transform>) => {
     if (!selectedItem) return;
     
-    setEffects(prev => {
-      const itemEffects = prev[selectedItem.id] || [];
-      const transformIndex = itemEffects.findIndex(e => e.type === 'transform');
-      
-      if (transformIndex >= 0) {
-        // Update existing transform
-        const updatedEffects = [...itemEffects];
-        updatedEffects[transformIndex] = {
-          ...updatedEffects[transformIndex],
-          transform: {
-            ...getTransformEffect(),
-            ...updates
-          }
-        };
-        
-        return {
-          ...prev,
-          [selectedItem.id]: updatedEffects
-        };
-      } else {
-        // Create new transform effect
-        const newEffect: Effect = {
-          id: `transform-${Date.now()}`,
-          type: 'transform',
-          enabled: true,
-          transform: {
-            ...getTransformEffect(),
-            ...updates
-          }
-        };
-        
-        return {
-          ...prev,
-          [selectedItem.id]: [...itemEffects, newEffect]
-        };
-      }
-    });
+    const currentEffects = getTimelineItemEffects(selectedItem.id);
+    const transformIndex = currentEffects.findIndex(e => e.type === 'transform');
+    
+    let updatedEffects;
+    if (transformIndex >= 0) {
+      // Update existing transform
+      updatedEffects = [...currentEffects];
+      updatedEffects[transformIndex] = {
+        ...updatedEffects[transformIndex],
+        transform: {
+          ...getTransformEffect(),
+          ...updates
+        }
+      };
+    } else {
+      // Create new transform effect
+      const newEffect: Effect = {
+        id: `transform-${Date.now()}`,
+        type: 'transform',
+        enabled: true,
+        transform: {
+          ...getTransformEffect(),
+          ...updates
+        }
+      };
+      updatedEffects = [...currentEffects, newEffect];
+    }
+    
+    updateTimelineItemEffects(selectedItem.id, updatedEffects);
+    forceUpdate({});
   };
 
   const resetTransform = () => {
@@ -97,10 +80,21 @@ export const EffectsInspector = () => {
   const removeEffect = (effectId: string) => {
     if (!selectedItem) return;
     
-    setEffects(prev => ({
-      ...prev,
-      [selectedItem.id]: (prev[selectedItem.id] || []).filter(e => e.id !== effectId)
-    }));
+    const currentEffects = getTimelineItemEffects(selectedItem.id);
+    const updatedEffects = currentEffects.filter(e => e.id !== effectId);
+    updateTimelineItemEffects(selectedItem.id, updatedEffects);
+    forceUpdate({});
+  };
+
+  const toggleEffect = (effectId: string, enabled: boolean) => {
+    if (!selectedItem) return;
+    
+    const currentEffects = getTimelineItemEffects(selectedItem.id);
+    const updatedEffects = currentEffects.map(eff =>
+      eff.id === effectId ? { ...eff, enabled } : eff
+    );
+    updateTimelineItemEffects(selectedItem.id, updatedEffects);
+    forceUpdate({});
   };
 
   const currentTransform = getTransformEffect();
@@ -241,14 +235,7 @@ export const EffectsInspector = () => {
                     <input
                       type="checkbox"
                       checked={effect.enabled}
-                      onChange={(e) => {
-                        setEffects(prev => ({
-                          ...prev,
-                          [selectedItem.id]: (prev[selectedItem.id] || []).map(eff =>
-                            eff.id === effect.id ? { ...eff, enabled: e.target.checked } : eff
-                          )
-                        }));
-                      }}
+                      onChange={(e) => toggleEffect(effect.id, e.target.checked)}
                       className="w-3 h-3"
                     />
                     <span className="text-xs capitalize">{effect.type}</span>

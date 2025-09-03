@@ -8,12 +8,29 @@ export interface ClipInfo {
   thumbnail?: string;
 }
 
+export interface Transform {
+  x: number;
+  y: number;
+  scaleX: number;
+  scaleY: number;
+  rotation: number;
+  opacity: number;
+}
+
+export interface Effect {
+  id: string;
+  type: 'transform' | 'filter';
+  enabled: boolean;
+  transform?: Transform;
+}
+
 export interface TimelineItem {
   id: string;
   clipId: string;
   start: number; // seconds on timeline
   in: number; // seconds into clip
   out: number; // seconds into clip
+  effects?: Effect[]; // effects applied to this timeline item
 }
 
 export interface EditorState {
@@ -37,6 +54,9 @@ export interface EditorState {
   deleteTimelineItem: (id: string) => void;
   rippleMode: boolean;
   setRippleMode: (enabled: boolean) => void;
+  // Effects management
+  updateTimelineItemEffects: (id: string, effects: Effect[]) => void;
+  getTimelineItemEffects: (id: string) => Effect[];
 }
 
 const EditorContext = createContext<EditorState | null>(null);
@@ -233,6 +253,23 @@ export const EditorProvider = ({
     setPlayhead(s);
   };
 
+  const updateTimelineItemEffects = (id: string, effects: Effect[]) => {
+    saveSnapshot();
+    
+    setTimeline((t) => 
+      t.map(item => 
+        item.id === id 
+          ? { ...item, effects: [...effects] }
+          : item
+      )
+    );
+  };
+
+  const getTimelineItemEffects = (id: string): Effect[] => {
+    const item = timeline.find(t => t.id === id);
+    return item?.effects || [];
+  };
+
   // Load mock clips in browser dev from public/mock/clips.json
   React.useEffect(() => {
     if (clips.length === 0) {
@@ -271,6 +308,8 @@ export const EditorProvider = ({
         deleteTimelineItem,
         rippleMode,
         setRippleMode,
+        updateTimelineItemEffects,
+        getTimelineItemEffects,
       }}
     >
       {children}
