@@ -145,4 +145,44 @@ Copilot + MCP → Reference KB → Update patterns → Validate changes → Docu
 # Command Palette: "Copilot MCP: Validate Configuration"
 ```
 
+## 💡 How to Install and Configure New MCP Servers
+
+Installing a new MCP server for GitHub Copilot is a two-step process:
+1.  **Install the Server Package**: Get the server's command-line tool onto your system (usually with `npm`).
+2.  **Configure in VS Code**: Tell GitHub Copilot how to run that server by adding it to your `.vscode/settings.json`.
+
+### **Example: Installing a `super-shell-mcp` Server**
+
+#### **Step 1: Install the Server Package**
+Open your terminal and install the package globally using `npm`.
+
+```powershell
+npm install -g super-shell-mcp
+```
+
+#### **Step 2: Configure the Server in VS Code**
+Open your project's `.vscode/settings.json` and add a new entry to the `github.copilot.mcp.servers` object.
+
+```jsonc
+// .vscode/settings.json
+{
+  // ... other settings ...
+
+  "github.copilot.mcp.servers": {
+    // ... existing servers ...
+
+    // Add your new server here
+    "super-shell": {
+      "command": "npx",
+      "args": ["super-shell-mcp"]
+    }
+  }
+}
+```
+
+#### **Step 3: Restart and Verify**
+**Restart VS Code** to apply the changes. You can then check Copilot's MCP settings panel to see if your new server is listed.
+
+---
+
 **KB Reference**: Technical Architecture - MCP integration enhances AI-assisted development workflows for Tauri v2 video processing applications.
