@@ -4,7 +4,7 @@
  * Tauri injects `window.__TAURI__`. We provide a lazily updated flag and
  * a subscription API so components can react when the desktop runtime
  * becomes available after initial load.
- * 
+ *
  * Reference: TAURI_V2_COMPREHENSIVE_KNOWLEDGE_BASE.md - Platform Detection Pattern
  */
 

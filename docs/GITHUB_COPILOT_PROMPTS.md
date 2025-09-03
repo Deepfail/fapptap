@@ -9,7 +9,7 @@ TAURI V2 KNOWLEDGE BASE REQUIREMENTS:
 
 When working on Tauri v2 projects:
 1. ALWAYS check for TAURI_V2_COMPREHENSIVE_KNOWLEDGE_BASE.md first
-2. Reference specific KB sections: "KB Reference: [section name]"  
+2. Reference specific KB sections: "KB Reference: [section name]"
 3. Update KB with discoveries: "KB Updated: [section] - [new learning]"
 4. Use only proven patterns from knowledge base
 5. For sidecar binaries: exact naming with platform suffixes

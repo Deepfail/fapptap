@@ -1,6 +1,6 @@
 /**
  * Execution utilities for running external commands via Tauri
- * 
+ *
  * Reference: TAURI_V2_COMPREHENSIVE_KNOWLEDGE_BASE.md - Sidecar Binary Configuration
  */
 import { Command } from "@tauri-apps/plugin-shell";

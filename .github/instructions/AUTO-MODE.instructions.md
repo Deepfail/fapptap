@@ -1,4 +1,4 @@
-```instructionsProject context / what I'm building
+````instructionsProject context / what I'm building
 
 Project context / what I'm building
 
@@ -56,7 +56,7 @@ If a step fails, attempt up to 3 auto-fixes (install missing dep, regen config, 
 
 Prefer one-shot commands (e.g., vitest run, jest --ci --watchAll=false).
 
-Tauri v2 Requirements (MANDATORY): 
+Tauri v2 Requirements (MANDATORY):
 
 - FIRST: Check TAURI_V2_COMPREHENSIVE_KNOWLEDGE_BASE.md before implementing any Tauri solutionUse npm scripts. If a script is missing, propose the smallest addition.
 
@@ -143,3 +143,4 @@ MANDATORY: Include "KB Reference: [section]" or "KB Updated: [section] - [what w
 
 
 ```Knowledge base: Include "KB Updated:" in summaries if Tauri v2 knowledge base was modified.
+````

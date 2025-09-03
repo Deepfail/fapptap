@@ -224,7 +224,7 @@ function ClipTile({
   const [src, setSrc] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [tauriReadyTick, setTauriReadyTick] = useState(0);
-  
+
   // Effect to handle video playback state
   useEffect(() => {
     if (videoRef.current) {

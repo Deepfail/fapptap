@@ -1,22 +1,27 @@
 # Knowledge Base Maintenance Instructions
 
 ## Purpose
+
 This document ensures the Tauri v2 Comprehensive Knowledge Base (`TAURI_V2_COMPREHENSIVE_KNOWLEDGE_BASE.md`) remains the single source of truth for all Tauri v2 patterns, troubleshooting, and best practices.
 
 ## For AI Assistants/Agents
 
 ### MANDATORY REFERENCE PROTOCOL
+
 **ALWAYS** reference `TAURI_V2_COMPREHENSIVE_KNOWLEDGE_BASE.md` when:
+
 - Troubleshooting Tauri v2 issues
 - Configuring sidecar binaries
-- Setting up permissions/capabilities  
+- Setting up permissions/capabilities
 - Debugging asset protocol problems
 - Implementing platform detection
 - Working with media files/URLs
 - Any Tauri v2 development task
 
 ### UPDATE TRIGGER CONDITIONS
+
 Update the knowledge base **immediately** when you discover:
+
 - ✅ New Tauri v2 configuration patterns that work
 - ✅ Solutions to previously unknown errors
 - ✅ Better practices or optimizations
@@ -27,6 +32,7 @@ Update the knowledge base **immediately** when you discover:
 - ✅ Security considerations
 
 ### UPDATE PROCESS
+
 1. **Reference First**: Always check existing knowledge base before implementing solutions
 2. **Document New Learnings**: Add any new discoveries to the appropriate section
 3. **Update Examples**: Ensure code examples reflect current working patterns
@@ -36,31 +42,37 @@ Update the knowledge base **immediately** when you discover:
 ### KNOWLEDGE BASE SECTIONS TO MAINTAIN
 
 #### Critical Configurations
+
 - Asset protocol setup
-- Sidecar binary configuration  
+- Sidecar binary configuration
 - Permission/capability patterns
 - Platform detection methods
 
 #### Troubleshooting Patterns
+
 - Error messages and solutions
 - Binary naming conventions
 - Cache invalidation procedures
 - URL generation issues
 
 #### Code Patterns
+
 - Dynamic plugin imports
 - Media URL conversion
 - Platform-specific implementations
 - Error handling strategies
 
 #### Build/Deploy Workflows
+
 - Development vs production differences
 - Binary inclusion processes
 - Performance optimizations
 - Testing strategies
 
 ### VALIDATION CHECKLIST
+
 Before any Tauri v2 work, verify the knowledge base includes:
+
 - [ ] Current working configurations
 - [ ] Latest troubleshooting solutions
 - [ ] Updated code examples
@@ -70,31 +82,39 @@ Before any Tauri v2 work, verify the knowledge base includes:
 ## For Human Developers
 
 ### Regular Maintenance Schedule
+
 - **Weekly**: Review for outdated information
 - **Monthly**: Check against latest Tauri releases
 - **Per Issue**: Update when solving new problems
 - **Per Feature**: Document new patterns discovered
 
 ### Quality Standards
+
 - All code examples must be tested and working
 - Error solutions must include root cause analysis
 - Configuration examples must be complete and minimal
 - Cross-references between related topics
 
 ### Update Format
-```markdown
+
+````markdown
 ## [Section Name] - Updated [Date]
 
 ### [Specific Learning/Issue]
+
 **Problem**: [Description]
 **Solution**: [Working solution]
-**Code Example**: 
+**Code Example**:
+
 ```language
 [working code]
 ```
+````
+
 **Verification**: [How to confirm it works]
 **Related**: [Links to related sections]
-```
+
+````
 
 ## Automation Helpers
 
@@ -117,9 +137,10 @@ Create pre-commit hooks that:
 export const isTauri = (): boolean => {
   return typeof import.meta.env.TAURI_ENV_PLATFORM !== 'undefined';
 };
-```
+````
 
 ### In Commit Messages
+
 ```
 🔧 Fix asset protocol scope issue
 
@@ -131,7 +152,9 @@ Reference: Knowledge Base Section "Asset Protocol Configuration"
 ```
 
 ### In Pull Requests
+
 Include knowledge base updates as part of any Tauri v2 changes:
+
 - Link to relevant knowledge base sections
 - Document any new patterns discovered
 - Update examples if implementation differs
@@ -139,12 +162,14 @@ Include knowledge base updates as part of any Tauri v2 changes:
 ## Success Metrics
 
 ### Knowledge Base Health
+
 - **Accuracy**: All examples work with current Tauri version
 - **Completeness**: Covers all major use cases and issues
 - **Currency**: Updated within 1 week of any Tauri-related changes
 - **Discoverability**: Well-organized with clear section headers
 
 ### Usage Indicators
+
 - AI assistants reference it before implementing solutions
 - Human developers consult it for troubleshooting
 - New team members use it as onboarding reference
@@ -153,6 +178,7 @@ Include knowledge base updates as part of any Tauri v2 changes:
 ## Emergency Recovery
 
 ### If Knowledge Base Becomes Outdated
+
 1. **Audit Current State**: Compare with working codebase
 2. **Identify Gaps**: Note missing or incorrect information
 3. **Batch Update**: Systematically update all sections
@@ -160,7 +186,9 @@ Include knowledge base updates as part of any Tauri v2 changes:
 5. **Cross-Reference**: Ensure internal links work
 
 ### If Knowledge Base Is Lost
+
 The knowledge base can be reconstructed from:
+
 - Working tauri.conf.json and capabilities files
 - Functional TypeScript code patterns
 - Git commit history with KB updates
@@ -169,16 +197,19 @@ The knowledge base can be reconstructed from:
 ## Implementation Priority
 
 ### Phase 1: Immediate (High Priority)
+
 - [ ] Add knowledge base reference to all Tauri-related code comments
 - [ ] Update .github/instructions/AUTO-MODE.instructions.md to require KB reference
 - [ ] Create commit message template that prompts for KB updates
 
-### Phase 2: Short-term (Medium Priority)  
+### Phase 2: Short-term (Medium Priority)
+
 - [ ] Add knowledge base validation to CI/CD pipeline
 - [ ] Create automated checks for outdated examples
 - [ ] Implement knowledge base section linking in code
 
 ### Phase 3: Long-term (Enhancement)
+
 - [ ] Git hooks for automatic KB maintenance
 - [ ] Integration with documentation generation
 - [ ] External validation against Tauri releases

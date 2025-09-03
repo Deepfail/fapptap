@@ -146,24 +146,27 @@ export function ActionsPane() {
 
     setIsRunningFullWorkflow(true);
     const stages = ["beats", "shots", "cutlist", "render"];
-    
+
     try {
       for (const stage of stages) {
         // Check if stage already completed
         const existingJob = jobs.find(
           (j) => j.type === stage && j.status === "completed"
         );
-        
+
         if (!existingJob) {
           await runStage(stage);
-          
+
           // Wait for completion before moving to next stage
           await new Promise<void>((resolve, reject) => {
             const checkInterval = setInterval(() => {
               const currentJob = jobs.find(
-                (j) => j.type === stage && j.status !== "pending" && j.status !== "running"
+                (j) =>
+                  j.type === stage &&
+                  j.status !== "pending" &&
+                  j.status !== "running"
               );
-              
+
               if (currentJob?.status === "completed") {
                 clearInterval(checkInterval);
                 resolve();
@@ -175,7 +178,7 @@ export function ActionsPane() {
           });
         }
       }
-      
+
       toast.success("Video creation completed! 🎉");
     } catch (error: any) {
       toast.error(`Workflow failed: ${error.message}`);
@@ -219,10 +222,9 @@ export function ActionsPane() {
           <div>
             <h2 className="text-lg font-semibold">Actions</h2>
             <p className="text-sm text-slate-400 mt-1">
-              {prefs.engine === "basic" 
+              {prefs.engine === "basic"
                 ? "One-click video creation"
-                : "Manual control over each step"
-              }
+                : "Manual control over each step"}
             </p>
           </div>
           <Button
@@ -282,8 +284,8 @@ export function ActionsPane() {
               </div>
               <h3 className="text-xl font-semibold">Create Video</h3>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Automatically analyze beats, detect shots, generate cuts, and render your video. 
-                Everything happens in one click!
+                Automatically analyze beats, detect shots, generate cuts, and
+                render your video. Everything happens in one click!
               </p>
             </div>
 
@@ -308,7 +310,8 @@ export function ActionsPane() {
 
             {!hasRequiredInputs && (
               <p className="text-xs text-red-400">
-                Please select audio, clips folder, and at least one video clip to continue
+                Please select audio, clips folder, and at least one video clip
+                to continue
               </p>
             )}
 
@@ -316,21 +319,35 @@ export function ActionsPane() {
             {isRunningFullWorkflow && (
               <div className="space-y-2">
                 <div className="text-xs text-slate-400 text-left">
-                  Progress: {Object.keys(stageConfigs).map(stage => {
-                    const job = jobs.find(j => j.type === stage);
+                  Progress:{" "}
+                  {Object.keys(stageConfigs).map((stage) => {
+                    const job = jobs.find((j) => j.type === stage);
                     return (
                       <div key={stage} className="flex justify-between">
-                        <span>{stageConfigs[stage as keyof typeof stageConfigs].title}</span>
-                        <span className={
-                          job?.status === "completed" ? "text-green-400" :
-                          job?.status === "running" ? "text-blue-400" :
-                          job?.status === "error" ? "text-red-400" :
-                          "text-slate-500"
-                        }>
-                          {job?.status === "completed" ? "✓" :
-                           job?.status === "running" ? "..." :
-                           job?.status === "error" ? "✗" :
-                           "⋯"}
+                        <span>
+                          {
+                            stageConfigs[stage as keyof typeof stageConfigs]
+                              .title
+                          }
+                        </span>
+                        <span
+                          className={
+                            job?.status === "completed"
+                              ? "text-green-400"
+                              : job?.status === "running"
+                              ? "text-blue-400"
+                              : job?.status === "error"
+                              ? "text-red-400"
+                              : "text-slate-500"
+                          }
+                        >
+                          {job?.status === "completed"
+                            ? "✓"
+                            : job?.status === "running"
+                            ? "..."
+                            : job?.status === "error"
+                            ? "✗"
+                            : "⋯"}
                         </span>
                       </div>
                     );
@@ -400,7 +417,9 @@ export function ActionsPane() {
                       <Button
                         size="sm"
                         onClick={() => runStage(stage)}
-                        disabled={!hasRequiredInputs || job.status === "running"}
+                        disabled={
+                          !hasRequiredInputs || job.status === "running"
+                        }
                       >
                         {job.status === "completed" ? "Re-run" : "Run"}
                       </Button>
