@@ -11,6 +11,28 @@ You are working on a Tauri v2 project where CONSISTENCY and KNOWLEDGE PRESERVATI
 1. **READ** `TAURI_V2_COMPREHENSIVE_KNOWLEDGE_BASE.md` first
 2. **REFERENCE** the specific sections you used
 3. **UPDATE** the knowledge base if you discover anything new
+4. **USE MCP TOOLS** when relevant for enhanced development capabilities
+
+### MCP TOOLS INTEGRATION (MANDATORY USAGE)
+
+**Available MCP servers for enhanced development:**
+
+- 🗂️ **filesystem**: File operations, media management, project structure analysis
+- 🗃️ **sqlite**: Query analysis.db cache, metadata storage operations
+- 🧠 **memory**: Remember project context across sessions, store patterns
+- 🤔 **sequential-thinking**: Complex problem decomposition and planning
+- 🌐 **puppeteer**: UI testing, browser automation, web scraping
+- ⚡ **shell**: Build scripts, FFmpeg operations, Git commands, system tasks
+
+**When to use MCP tools:**
+- File operations → Use filesystem server
+- Database queries → Use sqlite server for analysis cache
+- Complex problems → Use sequential-thinking for step-by-step solutions
+- Need context → Use memory server to store/retrieve patterns
+- Testing UI → Use puppeteer for automated testing
+- System tasks → Use shell server for terminal operations
+
+**Example integration**: "Use filesystem to analyze media_samples directory" or "Use memory to remember FFmpeg configuration patterns"
 
 ### REQUIRED IN EVERY TAURI RESPONSE
 

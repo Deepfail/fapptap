@@ -8,6 +8,27 @@ TAURI V2 MANDATORY WORKFLOW:
 2. REFERENCE: Include "KB Reference: [section]" showing what you consulted
 3. UPDATE: Include "KB Updated: [section] - [new learning]" for discoveries
 4. PATTERNS: Use only proven configurations from knowledge base
+5. MCP TOOLS: Use available MCP servers for enhanced development capabilities
+
+MCP TOOLS INTEGRATION:
+
+ALWAYS use these MCP servers when relevant to the task:
+- 🗂️ filesystem: For file operations, media management, project structure analysis
+- 🗃️ sqlite: For querying analysis.db cache, metadata storage
+- 🧠 memory: For remembering project context across sessions
+- 🤔 sequential-thinking: For complex problem decomposition and planning
+- 🌐 puppeteer: For UI testing, browser automation, web scraping
+- ⚡ shell: For build scripts, FFmpeg operations, Git commands, system tasks
+
+When to use MCP tools:
+- File operations → Use filesystem server for enhanced file management
+- Database queries → Use sqlite server for analysis cache operations  
+- Complex problems → Use sequential-thinking for step-by-step problem solving
+- Need context → Use memory server to store/retrieve project patterns
+- Testing UI → Use puppeteer for automated browser testing
+- System tasks → Use shell server for terminal operations
+
+Example usage: "Use filesystem to analyze media_samples directory structure" or "Use memory to remember our FFmpeg configuration patterns"
 
 CRITICAL CONFIGURATIONS:
 
