@@ -61,11 +61,13 @@ def run_beats(song, engine="advanced"):
 
 def run_shots(clips_dir):
     emit("shots", progress=0.0)
-    # ... your scenedetect code ...
-    # For now, simulate the process
     try:
-        # Call the existing detect_shots.py script
-        result = subprocess.run([sys.executable, "analysis/detect_shots.py", clips_dir], 
+        # Call the existing detect_shots.py script with correct arguments
+        output_path = "cache/shots.json"
+        from pathlib import Path
+        Path("cache").mkdir(exist_ok=True)
+        
+        result = subprocess.run([sys.executable, "analysis/detect_shots.py", clips_dir, output_path], 
                               capture_output=True, text=True, check=True)
         emit("shots", progress=1.0, message="Shot detection completed")
     except subprocess.CalledProcessError as e:
@@ -73,10 +75,16 @@ def run_shots(clips_dir):
 
 def run_cutlist(song, clips_dir):
     emit("cutlist", progress=0.0)
-    # call your build_cutlist.py entry point (local times already)
-    # example:
     try:
-        result = subprocess.run([sys.executable, "analysis/build_cutlist.py", song, clips_dir], 
+        # Call the existing build_cutlist.py script with correct arguments
+        beats_json = "cache/beats.json"
+        shots_json = "cache/shots.json"
+        output_path = "cache/cutlist.json"
+        from pathlib import Path
+        Path("cache").mkdir(exist_ok=True)
+        
+        result = subprocess.run([sys.executable, "analysis/build_cutlist.py", 
+                               beats_json, shots_json, song, output_path, clips_dir], 
                               capture_output=True, text=True, check=True)
         emit("cutlist", progress=1.0, message="Cutlist generation completed")
     except subprocess.CalledProcessError as e:
