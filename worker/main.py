@@ -36,7 +36,7 @@ def run_beats(song, engine="advanced"):
             beats_data = {
                 "audio": song.replace("\\", "/"),
                 "sr": int(sr),
-                "tempo_global": float(tempo),
+                "tempo_global": float(tempo.item()) if hasattr(tempo, 'item') else float(tempo),
                 "beats": [{"time": float(t)} for t in beat_times]
             }
         else:
