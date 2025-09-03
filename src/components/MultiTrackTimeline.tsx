@@ -109,7 +109,7 @@ export const MultiTrackTimeline = () => {
     setDragTrackId(trackId);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>, trackId: string) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, _trackId: string) => {
     e.preventDefault();
     let clipId = e.dataTransfer.getData("text/clip-id");
     if (!clipId) {
