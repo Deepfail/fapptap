@@ -5,6 +5,8 @@ import { MultiTrackTimeline } from '@/components/MultiTrackTimeline';
 import { EffectsInspector } from '@/components/EffectsInspector';
 import { TransitionsInspector } from '@/components/TransitionsInspector';
 import { CuttingTools } from '@/components/CuttingTools';
+import { SpeedRampEditor } from '@/components/SpeedRampEditor';
+import { BeatSyncTools } from '@/components/BeatSyncTools';
 import { Button } from '@/components/ui/button';
 
 interface EditorLayoutProps {
@@ -95,11 +97,29 @@ export const EditorLayout = ({ currentClip }: EditorLayoutProps) => {
                 >
                   Transitions
                 </Button>
+                <Button
+                  size="sm"
+                  variant={inspectorTab === 'speed' ? "default" : "outline"}
+                  onClick={() => setInspectorTab('speed')}
+                  className="text-xs"
+                >
+                  Speed
+                </Button>
+                <Button
+                  size="sm"
+                  variant={inspectorTab === 'beatsync' ? "default" : "outline"}
+                  onClick={() => setInspectorTab('beatsync')}
+                  className="text-xs"
+                >
+                  Beat Sync
+                </Button>
               </div>
               
               <div className="flex-1 min-h-0">
                 {inspectorTab === 'effects' && <EffectsInspector />}
                 {inspectorTab === 'transitions' && <TransitionsInspector />}
+                {inspectorTab === 'speed' && <SpeedRampEditor />}
+                {inspectorTab === 'beatsync' && <BeatSyncTools />}
               </div>
             </div>
           </div>

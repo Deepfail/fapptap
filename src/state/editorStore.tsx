@@ -17,11 +17,24 @@ export interface Transform {
   opacity: number;
 }
 
+export interface SpeedKeyframe {
+  time: number; // time relative to clip start (0-1)
+  speed: number; // speed multiplier (0.1 - 3.0)
+  beatAnchor?: number; // optional beat to anchor to
+}
+
+export interface SpeedRamp {
+  id: string;
+  keyframes: SpeedKeyframe[];
+  enabled: boolean;
+}
+
 export interface Effect {
   id: string;
-  type: 'transform' | 'filter';
+  type: 'transform' | 'filter' | 'speed';
   enabled: boolean;
   transform?: Transform;
+  speedRamp?: SpeedRamp;
 }
 
 export interface TimelineItem {
@@ -57,6 +70,9 @@ export interface EditorState {
   // Effects management
   updateTimelineItemEffects: (id: string, effects: Effect[]) => void;
   getTimelineItemEffects: (id: string) => Effect[];
+  // Bulk timeline operations
+  updateTimelineItems: (items: TimelineItem[]) => void;
+  replaceTimelineItem: (id: string, newItems: TimelineItem[]) => void;
 }
 
 const EditorContext = createContext<EditorState | null>(null);
@@ -270,6 +286,18 @@ export const EditorProvider = ({
     return item?.effects || [];
   };
 
+  const updateTimelineItems = (items: TimelineItem[]) => {
+    saveSnapshot();
+    setTimeline(items);
+  };
+
+  const replaceTimelineItem = (id: string, newItems: TimelineItem[]) => {
+    saveSnapshot();
+    setTimeline(currentTimeline => 
+      currentTimeline.filter(item => item.id !== id).concat(newItems)
+    );
+  };
+
   // Load mock clips in browser dev from public/mock/clips.json
   React.useEffect(() => {
     if (clips.length === 0) {
@@ -310,6 +338,8 @@ export const EditorProvider = ({
         setRippleMode,
         updateTimelineItemEffects,
         getTimelineItemEffects,
+        updateTimelineItems,
+        replaceTimelineItem,
       }}
     >
       {children}
