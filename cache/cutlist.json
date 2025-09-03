@@ -1,0 +1,2167 @@
+{
+  "version": 1,
+  "fps": 60,
+  "width": 1920,
+  "height": 1080,
+  "audio": "C:/Users/Virta/Dropbox/Music/Audials Music/AWOLNATION & Elohim - Candy Pop (Elohim Remix)_2.mp3",
+  "events": [
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 0.0,
+      "out": 0.441,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 0.0,
+      "out": 0.43,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 0.0,
+      "out": 0.488,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 0.0,
+      "out": 0.453,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.0,
+      "out": 0.43,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 0.0,
+      "out": 0.441,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 0.0,
+      "out": 0.453,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 0.0,
+      "out": 0.476,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 0.0,
+      "out": 0.476,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 0.0,
+      "out": 0.453,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 0.0,
+      "out": 0.476,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 0.0,
+      "out": 0.476,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 0.441,
+      "out": 0.906,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 0.43,
+      "out": 0.848,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 0.488,
+      "out": 0.952,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 0.464,
+      "out": 0.929,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 0.453,
+      "out": 0.894,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 0.464,
+      "out": 0.906,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.43,
+      "out": 0.94,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 0.441,
+      "out": 0.848,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 0.464,
+      "out": 0.975,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 0.453,
+      "out": 0.917,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 0.464,
+      "out": 0.929,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 0.464,
+      "out": 0.906,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 0.476,
+      "out": 0.94,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 0.476,
+      "out": 0.94,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 0.453,
+      "out": 0.894,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 0.464,
+      "out": 0.917,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 0.464,
+      "out": 0.952,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 0.464,
+      "out": 0.952,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 0.476,
+      "out": 0.929,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 0.476,
+      "out": 0.94,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 0.906,
+      "out": 1.382,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 0.848,
+      "out": 1.3,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 0.952,
+      "out": 1.405,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 0.929,
+      "out": 1.463,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 0.894,
+      "out": 1.37,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 0.906,
+      "out": 1.382,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.94,
+      "out": 1.37,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 0.848,
+      "out": 1.277,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 0.975,
+      "out": 1.474,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 0.917,
+      "out": 1.37,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 0.929,
+      "out": 1.405,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 0.906,
+      "out": 1.393,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 0.94,
+      "out": 1.428,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 0.94,
+      "out": 1.37,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 0.894,
+      "out": 1.382,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 0.917,
+      "out": 1.382,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 0.952,
+      "out": 1.416,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 0.952,
+      "out": 1.405,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 0.929,
+      "out": 1.382,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 0.94,
+      "out": 1.382,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 1.382,
+      "out": 1.892,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 1.3,
+      "out": 1.753,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 1.405,
+      "out": 1.881,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 1.463,
+      "out": 1.904,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 1.37,
+      "out": 1.834,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 1.382,
+      "out": 1.846,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 1.37,
+      "out": 1.834,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 1.277,
+      "out": 1.73,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 1.474,
+      "out": 1.939,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 1.37,
+      "out": 1.834,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 1.405,
+      "out": 1.869,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 1.393,
+      "out": 1.858,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 1.428,
+      "out": 1.881,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 1.37,
+      "out": 1.834,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 1.382,
+      "out": 1.846,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 1.382,
+      "out": 1.846,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 1.416,
+      "out": 1.869,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 1.405,
+      "out": 1.869,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 1.382,
+      "out": 1.846,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 1.382,
+      "out": 1.846,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 1.892,
+      "out": 2.357,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 1.753,
+      "out": 2.206,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 1.881,
+      "out": 2.345,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 1.904,
+      "out": 2.368,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 1.834,
+      "out": 2.299,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 1.846,
+      "out": 2.299,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 1.73,
+      "out": 2.194,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 1.939,
+      "out": 2.403,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 1.834,
+      "out": 2.287,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 1.869,
+      "out": 2.334,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 1.858,
+      "out": 2.322,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 1.881,
+      "out": 2.345,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 1.834,
+      "out": 2.287,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 1.846,
+      "out": 2.31,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 1.846,
+      "out": 2.31,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 1.869,
+      "out": 2.322,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 1.869,
+      "out": 2.287,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 1.846,
+      "out": 2.357,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 1.846,
+      "out": 2.299,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 2.357,
+      "out": 2.833,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 2.206,
+      "out": 2.647,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 2.345,
+      "out": 2.786,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 2.368,
+      "out": 2.868,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 2.299,
+      "out": 2.74,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 2.299,
+      "out": 2.775,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.464,
+      "out": 0.871,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 2.194,
+      "out": 2.694,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 2.403,
+      "out": 2.891,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 2.287,
+      "out": 2.74,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 2.334,
+      "out": 2.798,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 2.322,
+      "out": 2.786,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 2.345,
+      "out": 2.798,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 2.287,
+      "out": 2.752,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 2.31,
+      "out": 2.775,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 2.31,
+      "out": 2.763,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 2.322,
+      "out": 2.786,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 2.287,
+      "out": 2.752,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 2.357,
+      "out": 2.821,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 2.299,
+      "out": 2.763,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 2.833,
+      "out": 3.286,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 2.647,
+      "out": 3.111,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 2.786,
+      "out": 3.251,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 2.868,
+      "out": 3.332,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 2.74,
+      "out": 3.204,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 2.775,
+      "out": 3.239,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.871,
+      "out": 1.324,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 2.891,
+      "out": 3.344,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 2.74,
+      "out": 3.216,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 2.798,
+      "out": 3.251,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 2.786,
+      "out": 3.251,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 2.798,
+      "out": 3.251,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 2.752,
+      "out": 3.216,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 2.775,
+      "out": 3.239,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 2.763,
+      "out": 3.228,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 2.786,
+      "out": 3.251,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 2.752,
+      "out": 3.204,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 2.821,
+      "out": 3.286,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 2.763,
+      "out": 3.228,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 3.286,
+      "out": 3.75,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 3.111,
+      "out": 3.576,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 3.251,
+      "out": 3.704,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 3.332,
+      "out": 3.796,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 3.204,
+      "out": 3.669,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 3.239,
+      "out": 3.692,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 1.324,
+      "out": 1.788,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 0.464,
+      "out": 0.929,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 3.344,
+      "out": 3.808,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 3.216,
+      "out": 3.68,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 3.251,
+      "out": 3.738,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 3.251,
+      "out": 3.704,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 3.251,
+      "out": 3.692,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 3.216,
+      "out": 3.727,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 3.239,
+      "out": 3.646,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 3.228,
+      "out": 3.646,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 3.251,
+      "out": 3.738,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 3.204,
+      "out": 3.68,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 3.286,
+      "out": 3.738,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 3.228,
+      "out": 3.669,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 3.75,
+      "out": 4.238,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 3.576,
+      "out": 4.04,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 3.704,
+      "out": 4.168,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 3.796,
+      "out": 4.272,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 3.669,
+      "out": 4.122,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 3.692,
+      "out": 4.145,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.0,
+      "out": 0.499,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 0.929,
+      "out": 1.358,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 3.808,
+      "out": 4.272,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 3.68,
+      "out": 4.191,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 3.738,
+      "out": 4.156,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 3.704,
+      "out": 4.145,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 3.692,
+      "out": 4.156,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 3.727,
+      "out": 4.191,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 3.646,
+      "out": 4.098,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 3.646,
+      "out": 4.11,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 3.738,
+      "out": 4.214,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 3.68,
+      "out": 4.168,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 3.738,
+      "out": 4.18,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 3.669,
+      "out": 4.122,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 4.238,
+      "out": 4.702,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 4.04,
+      "out": 4.505,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 4.168,
+      "out": 4.632,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 0.0,
+      "out": 0.453,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 4.145,
+      "out": 4.609,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.499,
+      "out": 0.952,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 1.358,
+      "out": 1.823,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 4.272,
+      "out": 4.737,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 4.191,
+      "out": 4.656,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 4.156,
+      "out": 4.621,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 4.145,
+      "out": 4.598,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 4.156,
+      "out": 4.621,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 4.191,
+      "out": 4.656,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 4.098,
+      "out": 4.563,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 4.11,
+      "out": 4.563,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 4.214,
+      "out": 4.679,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 4.168,
+      "out": 4.632,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 4.18,
+      "out": 4.644,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 4.122,
+      "out": 4.574,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 4.505,
+      "out": 5.042,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 0.0,
+      "out": 0.453,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 0.453,
+      "out": 0.917,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 0.464,
+      "out": 0.917,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.952,
+      "out": 1.382,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 1.823,
+      "out": 2.31,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 4.621,
+      "out": 5.042,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 0.0,
+      "out": 0.499,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 0.0,
+      "out": 0.418,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 0.0,
+      "out": 0.499,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 4.563,
+      "out": 5.027,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 4.679,
+      "out": 5.132,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 4.632,
+      "out": 5.108,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 4.644,
+      "out": 5.097,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 4.574,
+      "out": 4.992,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 0.464,
+      "out": 0.975,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 0.453,
+      "out": 0.917,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 0.917,
+      "out": 1.37,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 0.917,
+      "out": 1.382,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 0.464,
+      "out": 0.929,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 1.382,
+      "out": 1.834,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 2.31,
+      "out": 2.775,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 0.464,
+      "out": 0.929,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 0.464,
+      "out": 0.929,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 0.499,
+      "out": 0.952,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 0.464,
+      "out": 0.929,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 0.418,
+      "out": 0.882,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 0.499,
+      "out": 0.964,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 5.027,
+      "out": 5.48,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 5.132,
+      "out": 5.596,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 5.108,
+      "out": 5.573,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 5.097,
+      "out": 5.561,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 4.992,
+      "out": 5.445,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 0.975,
+      "out": 1.44,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 0.464,
+      "out": 0.929,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 0.917,
+      "out": 1.382,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 1.37,
+      "out": 1.823,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 1.382,
+      "out": 1.846,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 0.929,
+      "out": 1.393,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 0.0,
+      "out": 0.453,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 0.929,
+      "out": 1.393,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 0.929,
+      "out": 1.393,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 0.464,
+      "out": 0.929,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 0.952,
+      "out": 1.405,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 0.929,
+      "out": 1.393,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 0.882,
+      "out": 1.347,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 0.964,
+      "out": 1.428,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 5.48,
+      "out": 5.933,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 5.596,
+      "out": 6.06,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 5.573,
+      "out": 6.037,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 5.561,
+      "out": 6.014,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 5.445,
+      "out": 5.909,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 1.44,
+      "out": 1.904,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 0.929,
+      "out": 1.393,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 1.382,
+      "out": 1.834,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 1.823,
+      "out": 2.287,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 1.846,
+      "out": 2.31,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 1.393,
+      "out": 1.858,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.464,
+      "out": 0.917,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 0.453,
+      "out": 0.917,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 1.393,
+      "out": 1.858,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 1.393,
+      "out": 1.846,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 0.929,
+      "out": 1.393,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 1.405,
+      "out": 1.869,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 1.393,
+      "out": 1.858,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 1.347,
+      "out": 1.8,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 1.428,
+      "out": 1.904,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 5.933,
+      "out": 6.385,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 6.06,
+      "out": 6.525,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 6.037,
+      "out": 6.502,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 6.014,
+      "out": 6.467,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 0.0,
+      "out": 0.464,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 1.904,
+      "out": 2.368,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 1.393,
+      "out": 1.858,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 1.834,
+      "out": 2.287,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 2.287,
+      "out": 2.752,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 2.31,
+      "out": 2.775,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 1.858,
+      "out": 2.31,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.917,
+      "out": 1.382,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 0.917,
+      "out": 1.382,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 1.858,
+      "out": 2.322,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 1.846,
+      "out": 2.299,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 1.393,
+      "out": 1.869,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 1.869,
+      "out": 2.322,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 1.858,
+      "out": 2.322,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 1.8,
+      "out": 2.252,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 1.904,
+      "out": 2.38,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 6.385,
+      "out": 6.838,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 6.525,
+      "out": 6.989,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 6.502,
+      "out": 6.966,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 6.467,
+      "out": 6.931,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 0.464,
+      "out": 0.929,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 2.368,
+      "out": 2.821,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 1.858,
+      "out": 2.322,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 2.287,
+      "out": 2.752,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 2.752,
+      "out": 3.204,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 2.775,
+      "out": 3.239,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 2.31,
+      "out": 2.775,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 1.382,
+      "out": 1.846,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 1.382,
+      "out": 1.834,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 2.322,
+      "out": 2.786,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 2.299,
+      "out": 2.763,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 1.869,
+      "out": 2.334,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 2.322,
+      "out": 2.775,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1504_0.mp4",
+      "in": 2.322,
+      "out": 2.786,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_882_0.mp4",
+      "in": 2.252,
+      "out": 2.717,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250821_Image_to_Video_A_sweet_se_5870_0.mp4",
+      "in": 2.38,
+      "out": 2.844,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e09\u5973\u62b1.mp4",
+      "in": 6.838,
+      "out": 7.303,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e732.mp4",
+      "in": 6.989,
+      "out": 7.454,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u4e73_\u65b0_\u88c1\u9996\u5716.mp4",
+      "in": 6.966,
+      "out": 7.419,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5929\u4f7f\u7814\u793e.mp4",
+      "in": 6.931,
+      "out": 7.396,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/\u5ba2\u5ef3\u8d85\u5de8\u4e73\u81a0.mp4",
+      "in": 0.929,
+      "out": 1.382,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/51142c22-d103-46e9-a680-13093e42f45b.mp4",
+      "in": 2.821,
+      "out": 3.286,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294641.mp4",
+      "in": 2.322,
+      "out": 2.786,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/95294647.mp4",
+      "in": 2.752,
+      "out": 3.216,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00177.mp4",
+      "in": 3.204,
+      "out": 3.657,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_00189.mp4",
+      "in": 3.239,
+      "out": 3.704,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00012.mp4",
+      "in": 2.775,
+      "out": 3.216,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00023.mp4",
+      "in": 0.0,
+      "out": 0.453,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00159.mp4",
+      "in": 1.834,
+      "out": 2.287,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/I2V_RIFE_00223.mp4",
+      "in": 2.786,
+      "out": 3.274,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1044_0.mp4",
+      "in": 2.763,
+      "out": 3.228,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1498_0.mp4",
+      "in": 2.334,
+      "out": 2.798,
+      "effects": []
+    },
+    {
+      "src": "C:/Users/Virta/Dropbox/Server Loading/not_uploaded/WAN/authors/TW_waifus/kling_20250820_Image_to_Video_A_sweet_se_1499_0.mp4",
+      "in": 2.775,
+      "out": 3.216,
+      "effects": []
+    }
+  ]
+}

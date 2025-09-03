@@ -54,7 +54,17 @@ def nearest_shot_edge(t, shots):
 
 def main(beats_json, shots_json, audio_path, out_json):
     beats = load_json(beats_json)
-    beat_times = [float(t) for t in beats["beats_sec"]]
+    
+    # Handle different beats.json formats
+    if "beats_sec" in beats:
+        # Legacy format: flat array of times
+        beat_times = [float(t) for t in beats["beats_sec"]]
+    elif "beats" in beats and isinstance(beats["beats"], list) and beats["beats"]:
+        # New format: array of objects with "time" key
+        beat_times = [float(beat["time"]) for beat in beats["beats"]]
+    else:
+        beat_times = []
+    
     if not beat_times:
         raise SystemExit("No beats found.")
 

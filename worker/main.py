@@ -127,13 +127,15 @@ def run_render(proxy=True, ffmpeg_path="ffmpeg", duration_s=None):
         except:
             duration_s = 30.0  # Default fallback
     
-    # Build ffmpeg command with progress reporting
-    cmd = f'{ffmpeg_path} -y -hide_banner -nostats -progress pipe:1 -i "{input_file}" -c:v h264 -crf 23 -c:a aac -t 10 "{out_path}"'
+    # Build ffmpeg command with progress reporting and ensure even dimensions
+    # Use scale filter to ensure width and height are divisible by 2 for H.264 compatibility
+    cmd = f'{ffmpeg_path} -y -hide_banner -nostats -progress pipe:1 -i "{input_file}" -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v h264 -crf 23 -c:a aac -t 10 "{out_path}"'
     
     emit("render", progress=0.0, msg=f"Starting {render_type} render", input=input_file, duration=duration_s)
     
     try:
-        p = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, universal_newlines=True)
+        cmd_args = shlex.split(cmd)
+        p = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, universal_newlines=True)
         
         if not p.stdout:
             emit("render", progress=0.0, error="Failed to capture stdout from ffmpeg process")
@@ -172,7 +174,11 @@ def run_render(proxy=True, ffmpeg_path="ffmpeg", duration_s=None):
         if code == 0:
             emit("render", progress=1.0, message=f"{render_type.capitalize()} render completed successfully", output=out_path)
         else:
-            emit("render", progress=0.0, error=f"Render failed with exit code {code}")
+            # Capture any remaining stderr
+            stderr_output = ""
+            if p.stderr:
+                stderr_output = p.stderr.read()
+            emit("render", progress=0.0, error=f"Render failed with exit code {code}. stderr: {stderr_output}")
             
     except FileNotFoundError:
         emit("render", progress=0.0, error=f"FFmpeg not found at path: {ffmpeg_path}")
