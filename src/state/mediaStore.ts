@@ -134,6 +134,9 @@ export const useMediaStore = create<MediaStore>()(
     setClipsDir: (dir: string) => {
       set({ clipsDir: dir });
       get().updatePrefs({ clipsDir: dir });
+      
+      // Clear media files and completed jobs when directory changes
+      set({ mediaFiles: [], jobs: [] });
     },
 
     setSongPath: (path: string) => {

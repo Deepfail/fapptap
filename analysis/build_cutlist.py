@@ -274,7 +274,7 @@ def apply_cutting_mode(beat_times, cutting_mode="medium", audio_path=None):
         
         return new_beat_times
 
-def main(beats_json, shots_json, audio_path, out_json, skip_shots=False):
+def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ratio=None, cutting_mode=None, skip_shots=False):
     beats = load_json(beats_json)
     
     # Handle different beats.json formats
@@ -294,14 +294,18 @@ def main(beats_json, shots_json, audio_path, out_json, skip_shots=False):
     if not beat_times:
         raise SystemExit("No beats found.")
 
-    # ---- Get cutting mode from argv[7] or default to medium ----
-    cutting_mode = sys.argv[7] if len(sys.argv) > 7 else "medium"
+    # ---- Get cutting mode from parameter or default to medium ----
+    if cutting_mode is None:
+        cutting_mode = "medium"
     
     # Apply cutting mode to adjust beat timing FIRST
     beat_times = apply_cutting_mode(beat_times, cutting_mode, audio_path)
 
-    # ---- Get aspect ratio preset from argv[6] or default to wide ----
-    aspect_preset = sys.argv[6] if len(sys.argv) > 6 else "wide"
+    # ---- Get aspect ratio preset from parameter or default to wide ----
+    if aspect_ratio is None:
+        aspect_preset = "wide"
+    else:
+        aspect_preset = aspect_ratio
     if aspect_preset not in ASPECT_RATIO_PRESETS:
         print(f"Warning: Unknown aspect ratio '{aspect_preset}', defaulting to 'wide'")
         aspect_preset = "wide"
@@ -322,8 +326,11 @@ def main(beats_json, shots_json, audio_path, out_json, skip_shots=False):
     beat_times = beat_times[::BEAT_STRIDE]
     print(f"After beat stride: {len(beat_times)} beats remaining")
 
-    # ---- Get clips dir from argv[5] or default to media_samples/ ----
-    clips_dir = Path(sys.argv[5]).resolve() if len(sys.argv) > 5 else Path("media_samples").resolve()
+    # ---- Get clips dir from parameter or default to media_samples/ ----
+    if clips_dir is None:
+        clips_dir = Path("media_samples").resolve()
+    else:
+        clips_dir = Path(clips_dir).resolve()
 
     # ---- Load & normalize shots_map (if provided and not skipped) ----
     shots_map = {}
@@ -477,12 +484,16 @@ def main(beats_json, shots_json, audio_path, out_json, skip_shots=False):
             cursor[src] = 0.0
 
 
+    # Calculate total duration from events
+    total_duration = sum((event["out"] - event["in"]) for event in events)
+    
     out = {
         "version": 1,
         "fps": FPS,
         "width": WIDTH,
         "height": HEIGHT,
         "audio": beats["audio"],
+        "total_duration": round(total_duration, 3),
         "events": events
     }
     os.makedirs(Path(out_json).parent, exist_ok=True)
@@ -504,9 +515,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # For backward compatibility, also check sys.argv for positional arguments
-    if len(sys.argv) >= 5 and not any(arg.startswith('-') for arg in sys.argv[1:]):
-        # Old-style positional arguments
-        main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], skip_shots=False)
+    if len(sys.argv) >= 6 and not any(arg.startswith('-') for arg in sys.argv[1:]):
+        # Old-style positional arguments - parse them properly
+        beats_json = sys.argv[2]
+        shots_json = sys.argv[3] 
+        audio_path = sys.argv[4]
+        out_json = sys.argv[5]
+        clips_dir = sys.argv[6] if len(sys.argv) > 6 else None
+        aspect_ratio = sys.argv[7] if len(sys.argv) > 7 else None  
+        cutting_mode = sys.argv[8] if len(sys.argv) > 8 else None
+        skip_shots = "--skip-shots" in sys.argv
+        
+        main(beats_json, shots_json, audio_path, out_json, clips_dir, aspect_ratio, cutting_mode, skip_shots)
     else:
         # New argparse style
-        main(args.beats_json, args.shots_json, args.audio_path, args.out_json, skip_shots=args.skip_shots)
+        main(args.beats_json, args.shots_json, args.audio_path, args.out_json, 
+             args.clips_dir, args.aspect_ratio, args.cutting_mode, args.skip_shots)
