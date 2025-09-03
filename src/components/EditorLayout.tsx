@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PreviewPlayer } from '@/components/preview';
 import { Timeline } from '@/components/Timeline';
+import { MultiTrackTimeline } from '@/components/MultiTrackTimeline';
 import { EffectsInspector } from '@/components/EffectsInspector';
 import { TransitionsInspector } from '@/components/TransitionsInspector';
 import { CuttingTools } from '@/components/CuttingTools';
@@ -12,6 +13,7 @@ interface EditorLayoutProps {
 
 export const EditorLayout = ({ currentClip }: EditorLayoutProps) => {
   const [showTimeline, setShowTimeline] = useState(true);
+  const [multiTrackMode, setMultiTrackMode] = useState(false);
   const [inspectorTab, setInspectorTab] = useState('effects');
 
   return (
@@ -30,21 +32,38 @@ export const EditorLayout = ({ currentClip }: EditorLayoutProps) => {
       </div>
 
       {/* Timeline Toggle */}
-      <div className="px-3 py-1 border-t border-slate-700 bg-slate-800/50">
-        <Button
-          size="sm"
-          variant={showTimeline ? "default" : "outline"}
-          onClick={() => setShowTimeline(!showTimeline)}
-          className="text-xs"
-        >
-          {showTimeline ? 'Hide Timeline' : 'Show Timeline'}
-        </Button>
+      <div className="px-3 py-1 border-t border-slate-700 bg-slate-800/50 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant={showTimeline ? "default" : "outline"}
+            onClick={() => setShowTimeline(!showTimeline)}
+            className="text-xs"
+          >
+            {showTimeline ? 'Hide Timeline' : 'Show Timeline'}
+          </Button>
+          
+          {showTimeline && (
+            <Button
+              size="sm"
+              variant={multiTrackMode ? "default" : "outline"}
+              onClick={() => setMultiTrackMode(!multiTrackMode)}
+              className="text-xs"
+            >
+              {multiTrackMode ? 'Simple Timeline' : 'Multi-Track'}
+            </Button>
+          )}
+        </div>
+        
+        <div className="text-xs text-muted-foreground">
+          {multiTrackMode ? 'Multi-track timeline with video, audio, and effects layers' : 'Single timeline view'}
+        </div>
       </div>
 
       {/* Timeline Area */}
       {showTimeline && (
-        <div className="h-48 border-t border-slate-700 bg-slate-800/30 p-3">
-          <Timeline />
+        <div className={`border-t border-slate-700 bg-slate-800/30 p-3 ${multiTrackMode ? 'h-80' : 'h-48'}`}>
+          {multiTrackMode ? <MultiTrackTimeline /> : <Timeline />}
         </div>
       )}
 
