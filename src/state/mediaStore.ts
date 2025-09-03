@@ -39,7 +39,8 @@ export interface PrefsState {
   selectedClipIds: Set<string>;
   engine: "basic" | "advanced";
   preset: "landscape" | "portrait" | "square";
-  cuttingMode: "slow" | "medium" | "fast" | "ultra_fast" | "random";
+  cuttingMode: "slow" | "medium" | "fast" | "ultra_fast" | "random" | "auto";
+  enableShotDetection: boolean;
   snapToBeat: boolean;
   pixelsPerSecond: number;
   theme: "dark" | "light";
@@ -112,6 +113,7 @@ const defaultPrefs: PrefsState = {
   engine: "basic",
   preset: "landscape",
   cuttingMode: "medium",
+  enableShotDetection: true,
   snapToBeat: true,
   pixelsPerSecond: 50,
   theme: "dark",
@@ -348,6 +350,9 @@ useMediaStore.subscribe(
         a.clipsDir === b.clipsDir &&
         a.songPath === b.songPath &&
         a.engine === b.engine &&
+        a.preset === b.preset &&
+        a.cuttingMode === b.cuttingMode &&
+        a.enableShotDetection === b.enableShotDetection &&
         a.snapToBeat === b.snapToBeat &&
         a.pixelsPerSecond === b.pixelsPerSecond &&
         a.theme === b.theme &&

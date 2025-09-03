@@ -1,4 +1,4 @@
-import sys, os, json, glob, statistics, subprocess, random
+import sys, os, json, glob, statistics, subprocess, random, argparse
 from pathlib import Path
 from collections import defaultdict
 
@@ -23,7 +23,8 @@ CUTTING_MODES = {
     "medium": {"multiplier": 1.0, "description": "Standard tempo, every beat"},
     "fast": {"multiplier": 0.5, "description": "Fast cuts, half beat interval"},
     "ultra_fast": {"multiplier": 0.25, "description": "Ultra fast cuts, quarter beat"},
-    "random": {"multiplier": "random", "description": "Random cut intervals"}
+    "random": {"multiplier": "random", "description": "Random cut intervals"},
+    "auto": {"multiplier": "ai", "description": "AI-driven cuts based on music energy and dynamics"}
 }
 
 def list_videos(clips_dir: Path):
@@ -90,7 +91,131 @@ def nearest_shot_edge(t, shots):
     dist, snapped, shot = best
     return (snapped if dist <= SNAP_TOL else t), shot
 
-def apply_cutting_mode(beat_times, cutting_mode="medium"):
+def apply_auto_cutting_mode(beat_times, audio_path):
+    """Apply AI/Auto cutting mode based on music energy and dynamics"""
+    try:
+        import librosa
+        import numpy as np
+        
+        print(f"Auto/AI mode: Analyzing music energy from {audio_path}")
+        
+        # Load audio for analysis
+        y, sr = librosa.load(audio_path, sr=22050, mono=True)
+        
+        # Calculate spectral features for energy analysis
+        spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
+        rms_energy = librosa.feature.rms(y=y)[0]
+        zero_crossing_rate = librosa.feature.zero_crossing_rate(y)[0]
+        
+        # Calculate tempo and beat strength
+        tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
+        beat_strength = librosa.onset.onset_strength(y=y, sr=sr)
+        
+        # Convert beat times to frame indices for analysis
+        beat_frames_input = librosa.time_to_frames(beat_times, sr=sr)
+        
+        # Analyze energy at each beat
+        energy_scores = []
+        for i, frame in enumerate(beat_frames_input):
+            if frame < len(rms_energy):
+                # Combine multiple energy features
+                energy = rms_energy[frame]
+                centroid = spectral_centroid[frame] if frame < len(spectral_centroid) else 0
+                zcr = zero_crossing_rate[frame] if frame < len(zero_crossing_rate) else 0
+                
+                # Normalize and combine features (0-1 scale)
+                energy_norm = min(energy * 10, 1.0)  # RMS energy
+                centroid_norm = min(centroid / 4000, 1.0)  # Spectral brightness
+                zcr_norm = min(zcr * 2, 1.0)  # Percussiveness
+                
+                # Combined energy score
+                combined_score = (energy_norm * 0.5 + centroid_norm * 0.3 + zcr_norm * 0.2)
+                energy_scores.append(combined_score)
+            else:
+                energy_scores.append(0.5)  # Default energy
+        
+        # Determine cutting rate based on energy patterns
+        median_energy = np.median(energy_scores) if energy_scores else 0.5
+        energy_variance = np.var(energy_scores) if energy_scores else 0.1
+        
+        print(f"Auto mode analysis: median_energy={median_energy:.3f}, variance={energy_variance:.3f}")
+        
+        # Adaptive cutting strategy based on energy characteristics
+        if median_energy > 0.7 and energy_variance > 0.1:
+            # High energy with variation - fast cuts
+            multiplier = 0.5
+            strategy = "fast (high energy, dynamic)"
+        elif median_energy > 0.6:
+            # High energy - medium-fast cuts
+            multiplier = 0.75
+            strategy = "medium-fast (high energy)"
+        elif energy_variance > 0.15:
+            # High variance - adapt to energy peaks
+            strategy = "energy-adaptive (dynamic)"
+            return apply_energy_adaptive_cuts(beat_times, energy_scores)
+        elif median_energy < 0.3:
+            # Low energy - slower cuts
+            multiplier = 1.5
+            strategy = "slow (low energy)"
+        else:
+            # Medium energy - standard cuts
+            multiplier = 1.0
+            strategy = "medium (balanced)"
+        
+        print(f"Auto mode strategy: {strategy} (multiplier={multiplier})")
+        
+        # Apply the determined multiplier
+        if len(beat_times) < 2:
+            return beat_times
+        
+        new_beat_times = [beat_times[0]]
+        intervals = [b - a for a, b in zip(beat_times, beat_times[1:])]
+        
+        current_time = beat_times[0]
+        for interval in intervals:
+            adjusted_interval = interval * multiplier
+            current_time += adjusted_interval
+            new_beat_times.append(current_time)
+        
+        return new_beat_times
+        
+    except Exception as e:
+        print(f"Auto mode failed: {e}, falling back to medium mode")
+        # Fallback to medium mode
+        return beat_times
+
+def apply_energy_adaptive_cuts(beat_times, energy_scores):
+    """Apply energy-adaptive cutting that varies with music dynamics"""
+    import numpy as np
+    
+    if len(beat_times) != len(energy_scores) or len(beat_times) < 2:
+        return beat_times
+    
+    new_beat_times = [beat_times[0]]
+    current_time = beat_times[0]
+    
+    for i in range(len(beat_times) - 1):
+        interval = beat_times[i + 1] - beat_times[i]
+        energy = energy_scores[i]
+        
+        # High energy = faster cuts (smaller multiplier)
+        # Low energy = slower cuts (larger multiplier)
+        if energy > 0.7:
+            multiplier = 0.5  # Fast cuts for high energy
+        elif energy > 0.5:
+            multiplier = 0.75  # Medium-fast cuts
+        elif energy > 0.3:
+            multiplier = 1.0  # Standard cuts
+        else:
+            multiplier = 1.5  # Slower cuts for low energy
+        
+        adjusted_interval = interval * multiplier
+        current_time += adjusted_interval
+        new_beat_times.append(current_time)
+    
+    return new_beat_times
+
+def apply_cutting_mode(beat_times, cutting_mode="medium", audio_path=None):
     """Apply cutting mode to beat times to adjust cutting rate"""
     import random
     
@@ -124,6 +249,10 @@ def apply_cutting_mode(beat_times, cutting_mode="medium"):
         
         return new_beat_times
     
+    elif cutting_mode == "auto":
+        # AI/Auto mode: energy-driven cutting rate adaptation
+        return apply_auto_cutting_mode(beat_times, audio_path)
+    
     else:
         # Regular modes: adjust beat intervals by multiplier
         multiplier = mode_config["multiplier"]
@@ -145,7 +274,7 @@ def apply_cutting_mode(beat_times, cutting_mode="medium"):
         
         return new_beat_times
 
-def main(beats_json, shots_json, audio_path, out_json):
+def main(beats_json, shots_json, audio_path, out_json, skip_shots=False):
     beats = load_json(beats_json)
     
     # Handle different beats.json formats
@@ -169,7 +298,7 @@ def main(beats_json, shots_json, audio_path, out_json):
     cutting_mode = sys.argv[7] if len(sys.argv) > 7 else "medium"
     
     # Apply cutting mode to adjust beat timing FIRST
-    beat_times = apply_cutting_mode(beat_times, cutting_mode)
+    beat_times = apply_cutting_mode(beat_times, cutting_mode, audio_path)
 
     # ---- Get aspect ratio preset from argv[6] or default to wide ----
     aspect_preset = sys.argv[6] if len(sys.argv) > 6 else "wide"
@@ -196,9 +325,9 @@ def main(beats_json, shots_json, audio_path, out_json):
     # ---- Get clips dir from argv[5] or default to media_samples/ ----
     clips_dir = Path(sys.argv[5]).resolve() if len(sys.argv) > 5 else Path("media_samples").resolve()
 
-    # ---- Load & normalize shots_map (if provided) ----
+    # ---- Load & normalize shots_map (if provided and not skipped) ----
     shots_map = {}
-    if Path(shots_json).exists():
+    if not skip_shots and Path(shots_json).exists():
         raw = load_json(shots_json)
         # Normalize keys to absolute forward-slashed paths and sort shot lists by start
         for k, v in raw.items():
@@ -215,6 +344,11 @@ def main(beats_json, shots_json, audio_path, out_json):
             # Add filename-only key for fallback matching
             filename_key = Path(k).name
             shots_map[filename_key] = shots_data
+    
+    if skip_shots:
+        print("Shot detection disabled - using time-based cutting only")
+    elif not shots_map:
+        print("No shots data available - using time-based cutting only")
 
     # ---- List videos from selected clips_dir ----
     pattern = str(clips_dir / "*.*")
@@ -236,12 +370,17 @@ def main(beats_json, shots_json, audio_path, out_json):
             # Handle Unicode characters in filenames gracefully
             print(f"  {v.encode('ascii', 'replace').decode('ascii')}")
     
-    print(f"Shots map has {len(shots_map)} entries:")
-    for k in shots_map.keys():
-        try:
-            print(f"  '{k}'")
-        except UnicodeEncodeError:
-            print(f"  '{k.encode('ascii', 'replace').decode('ascii')}'")
+    if not skip_shots and shots_map:
+        print(f"Shots map has {len(shots_map)} entries:")
+        for k in shots_map.keys():
+            try:
+                print(f"  '{k}'")
+            except UnicodeEncodeError:
+                print(f"  '{k.encode('ascii', 'replace').decode('ascii')}'")
+    elif skip_shots:
+        print("Shot detection disabled - skipping shots map")
+    else:
+        print("No shots data available")
 
     # Precompute durations for each clip from cache/database
     durations = {src: get_duration_from_cache(src) for src in videos}
@@ -291,18 +430,21 @@ def main(beats_json, shots_json, audio_path, out_json):
             if end - start < MIN_DUR:
                 continue  # clip too short for this segment size
 
-        # Optional: snap to that clip's shot edges
-        shots = shots_map.get(src, [])
-        if not shots:
-            # Try alternative path matching strategies
-            rel_path = str(Path(src).relative_to(Path.cwd())).replace("\\", "/")
-            shots = shots_map.get(rel_path, [])
-        if not shots:
-            # Try filename-only matching
-            filename = Path(src).name
-            shots = shots_map.get(filename, [])
+        # Optional: snap to that clip's shot edges (only if shots are enabled)
+        shots = []
+        if not skip_shots:
+            shots = shots_map.get(src, [])
+            if not shots:
+                # Try alternative path matching strategies
+                rel_path = str(Path(src).relative_to(Path.cwd())).replace("\\", "/")
+                shots = shots_map.get(rel_path, [])
+            if not shots:
+                # Try filename-only matching
+                filename = Path(src).name
+                shots = shots_map.get(filename, [])
+        
         def snap_edge(t):
-            if not shots: return t
+            if not shots or skip_shots: return t
             best = t; best_d = SNAP_TOL + 1
             for sh in shots:
                 for edge in (sh["start"], sh["end"]):
@@ -349,4 +491,22 @@ def main(beats_json, shots_json, audio_path, out_json):
     print(f"Wrote {out_json} with {len(events)} events.")
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    parser = argparse.ArgumentParser(description="Generate cutlist from beats and shots")
+    parser.add_argument("beats_json", help="Path to beats JSON file")
+    parser.add_argument("shots_json", help="Path to shots JSON file")
+    parser.add_argument("audio_path", help="Path to audio file")
+    parser.add_argument("out_json", help="Output cutlist JSON file")
+    parser.add_argument("clips_dir", nargs="?", default="media_samples", help="Directory containing video clips")
+    parser.add_argument("aspect_ratio", nargs="?", default="wide", help="Aspect ratio preset")
+    parser.add_argument("cutting_mode", nargs="?", default="medium", help="Cutting mode")
+    parser.add_argument("--skip-shots", action="store_true", help="Skip shot detection and use time-based cutting only")
+    
+    args = parser.parse_args()
+    
+    # For backward compatibility, also check sys.argv for positional arguments
+    if len(sys.argv) >= 5 and not any(arg.startswith('-') for arg in sys.argv[1:]):
+        # Old-style positional arguments
+        main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], skip_shots=False)
+    else:
+        # New argparse style
+        main(args.beats_json, args.shots_json, args.audio_path, args.out_json, skip_shots=args.skip_shots)

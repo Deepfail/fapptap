@@ -109,36 +109,72 @@ export class PythonWorker {
 
       // Handle stdout for progress messages (JSONL format)
       this.currentCommand.stdout.on("data", (data: any) => {
-        const lines = data.split("\n").filter((line: string) => line.trim());
+        try {
+          // Use TextDecoder for browser compatibility (no Buffer API)
+          const decoder = new TextDecoder("utf-8", { fatal: false });
+          let text: string;
 
-        for (const line of lines) {
-          try {
-            const message = JSON.parse(line) as WorkerMessage;
-            console.log(`Worker message:`, message);
-
-            // Emit specific stage events
-            this.emit(message.stage, message);
-            this.emit("message", message);
-
-            // Handle progress updates
-            if (message.progress !== undefined) {
-              this.emit("progress", message);
-            }
-
-            // Handle errors
-            if (message.error) {
-              this.emit("error", message);
-            }
-          } catch (e) {
-            // Not JSON, treat as regular output
-            console.log(`Worker output: ${line}`);
+          if (data instanceof Uint8Array) {
+            text = decoder.decode(data);
+          } else if (typeof data === "string") {
+            text = data;
+          } else {
+            // Try to convert to string safely
+            text = String(data);
           }
+
+          const lines = text.split("\n").filter((line: string) => line.trim());
+
+          for (const line of lines) {
+            try {
+              const message = JSON.parse(line) as WorkerMessage;
+              console.log(`Worker message:`, message);
+
+              // Emit specific stage events
+              this.emit(message.stage, message);
+              this.emit("message", message);
+
+              // Handle progress updates
+              if (message.progress !== undefined) {
+                this.emit("progress", message);
+              }
+
+              // Handle errors
+              if (message.error) {
+                this.emit("error", message);
+              }
+            } catch (e) {
+              // Not JSON, treat as regular output
+              console.log(`Worker output: ${line}`);
+            }
+          }
+        } catch (e) {
+          // Handle UTF-8 decode errors gracefully
+          console.warn(`Worker stdout decode error:`, e);
         }
       });
 
       // Handle stderr
       this.currentCommand.stderr.on("data", (data: any) => {
-        console.warn(`Worker stderr: ${data}`);
+        try {
+          // Use TextDecoder for browser compatibility (no Buffer API)
+          const decoder = new TextDecoder("utf-8", { fatal: false });
+          let text: string;
+
+          if (data instanceof Uint8Array) {
+            text = decoder.decode(data);
+          } else if (typeof data === "string") {
+            text = data;
+          } else {
+            // Try to convert to string safely
+            text = String(data);
+          }
+
+          console.warn(`Worker stderr: ${text}`);
+        } catch (e) {
+          // Handle UTF-8 decode errors gracefully
+          console.warn(`Worker stderr decode error:`, e);
+        }
       });
 
       // Start the command

@@ -60,20 +60,30 @@ def run_beats(song, engine="advanced"):
             tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, units='frames')
             beat_times = librosa.frames_to_time(beat_frames, sr=sr)
             
-            # Convert tempo to scalar - try direct conversion first
+            # Convert tempo to scalar with proper safety checks
             tempo_scalar = 120.0  # Default fallback
             try:
-                if hasattr(tempo, 'item') and callable(getattr(tempo, 'item', None)):
-                    # Handle numpy scalar/array
-                    tempo_scalar = tempo.item()
+                # Handle different types safely
+                if hasattr(tempo, 'item'):
+                    # Try to use item() method if available
+                    item_method = getattr(tempo, 'item', None)
+                    if callable(item_method):
+                        try:
+                            result = item_method()
+                            tempo_scalar = float(result)  # type: ignore
+                        except (ValueError, TypeError):
+                            tempo_scalar = float(tempo)
+                    else:
+                        tempo_scalar = float(tempo)
                 elif isinstance(tempo, (list, tuple)) and len(tempo) > 0:
-                    # Handle list/tuple, take first element
+                    # It's a list or tuple
                     tempo_scalar = float(tempo[0])
                 else:
-                    # Handle regular number
+                    # It's a regular number
                     tempo_scalar = float(tempo)
-            except:
-                pass  # Use default
+            except (ValueError, TypeError, AttributeError):
+                # Use fallback on any conversion error
+                tempo_scalar = 120.0
             
             beats_data = {
                 "audio": song.replace("\\", "/"),
@@ -104,18 +114,19 @@ def run_beats(song, engine="advanced"):
 def run_shots(clips_dir):
     emit("shots", progress=0.0)
     try:
-        # Call the existing detect_shots.py script with correct arguments
+        # Use fast shot detection instead of slow PySceneDetect
         output_path = "cache/shots.json"
         from pathlib import Path
         Path("cache").mkdir(exist_ok=True)
         
-        result = subprocess.run([sys.executable, "analysis/detect_shots.py", clips_dir, output_path], 
+        emit("shots", progress=0.5, message="Running fast shot detection...")
+        result = subprocess.run([sys.executable, "analysis/detect_shots_fast.py", clips_dir, output_path, "2.0"], 
                               capture_output=True, text=True, check=True)
-        emit("shots", progress=1.0, message="Shot detection completed")
+        emit("shots", progress=1.0, message="Fast shot detection completed")
     except subprocess.CalledProcessError as e:
         emit("shots", progress=0.0, error=f"Shot detection failed: {e.stderr}")
 
-def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium"):
+def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium", enable_shot_detection=True):
     emit("cutlist", progress=0.0)
     try:
         # Call the existing build_cutlist.py script with correct arguments
@@ -125,12 +136,28 @@ def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium"):
         from pathlib import Path
         Path("cache").mkdir(exist_ok=True)
         
-        result = subprocess.run([sys.executable, "analysis/build_cutlist.py", 
-                               beats_json, shots_json, song, output_path, clips_dir, preset, cutting_mode], 
-                              capture_output=True, text=True, check=True)
+        # Delete old cutlist to prevent using stale data if generation fails
+        cutlist_path = Path(output_path)
+        if cutlist_path.exists():
+            cutlist_path.unlink()
+        
+        # Build arguments for build_cutlist.py, passing the shot detection flag
+        args = [sys.executable, "analysis/build_cutlist.py", 
+                beats_json, shots_json, song, output_path, clips_dir, preset, cutting_mode]
+        
+        # Add the skip-shots flag if shot detection is disabled
+        if not enable_shot_detection:
+            args.append("--skip-shots")
+        
+        result = subprocess.run(args, capture_output=True, text=True, check=True)
         emit("cutlist", progress=1.0, message="Cutlist generation completed")
     except subprocess.CalledProcessError as e:
         emit("cutlist", progress=0.0, error=f"Cutlist generation failed: {e.stderr}")
+        # Also emit stdout for debugging
+        if e.stdout:
+            print(f"Cutlist stdout: {e.stdout}")
+        if e.stderr:
+            print(f"Cutlist stderr: {e.stderr}")
 
 def parse_progress_line(line):
     """Parse ffmpeg progress line in key=value format"""
@@ -151,16 +178,19 @@ def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape"
     print(f"Debug: Using FFmpeg path: {ffmpeg_path}", file=sys.stderr, flush=True)
     render_type = "proxy" if proxy else "final"
     
-    # Select cutlist based on preset
-    cutlist_files = {
-        "landscape": "cache/cutlist.json",
-        "portrait": "render/cutlist_portrait.json", 
-        "square": "render/cutlist_square.json"
-    }
-    
-    cutlist_path = cutlist_files.get(preset, "cache/cutlist.json")
-    out_path = f"render/{preset}_{render_type}.mp4"
+    # All presets use the same cutlist file generated by the workflow
+    cutlist_path = "cache/cutlist.json"
+    out_path = f"render/fapptap_{render_type}.mp4"
     Path("render").mkdir(exist_ok=True)
+    
+    # Delete existing output file to ensure clean render
+    try:
+        if Path(out_path).exists():
+            Path(out_path).unlink()
+            print(f"Debug: Deleted existing output file: {out_path}", file=sys.stderr, flush=True)
+    except Exception as e:
+        print(f"Debug: Could not delete existing output file: {e}", file=sys.stderr, flush=True)
+    
     if not Path(cutlist_path).exists():
         emit("render", progress=0.0, error="No cutlist found. Please generate cutlist first.")
         return
@@ -276,7 +306,7 @@ def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape"
         success = render_batch_direct(events, cmd_args, total_duration_s, render_type, out_path, ffmpeg_path)
     else:
         # Large number of clips - process in batches and concatenate
-        success = render_with_batching(events, ffmpeg_path, proxy, render_type, out_path, audio_input_index, target_width, target_height, target_fps)
+        success = render_with_batching(events, ffmpeg_path, proxy, render_type, out_path, audio_path, target_width, target_height, target_fps)
     
     if not success:
         return  # Error already emitted
@@ -347,7 +377,7 @@ def render_batch_direct(events, cmd_args, total_duration_s, render_type, out_pat
         return False
 
 
-def render_with_batching(events, ffmpeg_path, proxy, render_type, final_out_path, audio_input_index, target_width, target_height, target_fps):
+def render_with_batching(events, ffmpeg_path, proxy, render_type, final_out_path, audio_path, target_width, target_height, target_fps):
     """Render large number of clips using batching and concatenation"""
     import tempfile
     import subprocess
@@ -372,20 +402,7 @@ def render_with_batching(events, ffmpeg_path, proxy, render_type, final_out_path
                 input_args = []
                 filter_parts = []
                 
-                # Add audio input if available for first batch only
-                if batch_idx == 0 and audio_input_index >= 0:
-                    # Get audio path from first event
-                    audio_path = None
-                    # Try to find audio file in cache
-                    for audio_file in ["cache/audio.mp3", "cache/audio.wav"]:
-                        if Path(audio_file).exists():
-                            audio_path = audio_file
-                            break
-                    
-                    if audio_path:
-                        input_args.extend(["-i", audio_path])
-                
-                # Process video events for this batch
+                # Process video events for this batch (no audio at batch level)
                 for i, event in enumerate(batch_events):
                     src_path = event["src"]
                     in_time = event["in"]
@@ -408,14 +425,15 @@ def render_with_batching(events, ffmpeg_path, proxy, render_type, final_out_path
                 if not filter_parts:
                     continue
                 
-                # Concatenate video streams
+                # Concatenate video streams (video only)
                 video_concat = "".join([f"[v{i}]" for i in range(len(filter_parts))]) + f"concat=n={len(filter_parts)}:v=1:a=0[outv]"
                 filter_parts.append(video_concat)
                 filter_complex = ";".join(filter_parts)
                 
-                # Build batch command
+                # Build batch command (video only)
                 batch_cmd = [ffmpeg_path, "-y", "-hide_banner"] + input_args
                 batch_cmd.extend(["-filter_complex", filter_complex, "-map", "[outv]"])
+                batch_cmd.extend(["-an"])  # No audio in batch files
                 
                 # Video encoding
                 if proxy:
@@ -439,12 +457,42 @@ def render_with_batching(events, ffmpeg_path, proxy, render_type, final_out_path
             
             # Concatenate all batch files
             if len(batch_files) == 1:
-                # Only one batch, just copy it
-                shutil.copy2(batch_files[0], final_out_path)
-                emit("render", progress=1.0, message=f"{render_type.capitalize()} render completed successfully", output=final_out_path)
-                return True
+                # Only one batch - add audio properly if available
+                if audio_path and Path(audio_path).exists():
+                    # Calculate total video duration from cutlist
+                    total_duration = 0
+                    for event in events:
+                        duration = event["out"] - event["in"]
+                        if duration > 0:
+                            total_duration += duration
+                    
+                    # Re-encode with looped audio to match video duration
+                    audio_cmd = [
+                        ffmpeg_path, "-y", 
+                        "-i", batch_files[0],  # Video input
+                        "-stream_loop", "-1", "-i", audio_path,  # Looped audio
+                        "-c:v", "copy", 
+                        "-c:a", "aac", "-b:a", "128k",
+                        "-map", "0:v", "-map", "1:a",
+                        "-t", str(total_duration),  # Limit to video duration
+                        "-shortest",  # Stop when shortest stream ends
+                        final_out_path
+                    ]
+                    
+                    result = subprocess.run(audio_cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
+                    if result.returncode == 0:
+                        emit("render", progress=1.0, message=f"{render_type.capitalize()} render completed successfully", output=final_out_path)
+                        return True
+                    else:
+                        emit("render", progress=0.0, error=f"Audio sync failed: {result.stderr}")
+                        return False
+                else:
+                    # No audio, just copy the batch file
+                    shutil.copy2(batch_files[0], final_out_path)
+                    emit("render", progress=1.0, message=f"{render_type.capitalize()} render completed successfully", output=final_out_path)
+                    return True
             else:
-                # Multiple batches - concatenate them
+                # Multiple batches - concatenate them with proper audio handling
                 emit("render", progress=0.85, msg="Concatenating final output...")
                 
                 concat_list_path = os.path.join(temp_dir, "concat_list.txt")
@@ -452,10 +500,32 @@ def render_with_batching(events, ffmpeg_path, proxy, render_type, final_out_path
                     for batch_file in batch_files:
                         f.write(f"file '{batch_file}'\n")
                 
+                # Calculate total video duration from cutlist
+                total_duration = 0
+                for event in events:
+                    duration = event["out"] - event["in"]
+                    if duration > 0:
+                        total_duration += duration
+                
                 concat_cmd = [
                     ffmpeg_path, "-y", "-f", "concat", "-safe", "0", 
-                    "-i", concat_list_path, "-c", "copy", final_out_path
+                    "-i", concat_list_path
                 ]
+                
+                # Add audio input if available and loop it to match video duration
+                if audio_path and Path(audio_path).exists():
+                    concat_cmd.extend(["-stream_loop", "-1", "-i", audio_path])
+                    concat_cmd.extend([
+                        "-c:v", "copy", 
+                        "-c:a", "aac", "-b:a", "128k",
+                        "-map", "0:v", "-map", "1:a",
+                        "-t", str(total_duration),  # Limit to video duration
+                        "-shortest"  # Stop when shortest stream ends
+                    ])
+                else:
+                    concat_cmd.extend(["-c", "copy"])
+                
+                concat_cmd.append(final_out_path)
                 
                 result = subprocess.run(concat_cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
                 if result.returncode == 0:
@@ -476,14 +546,15 @@ if __name__ == "__main__":
     ap.add_argument("--clips", default="")
     ap.add_argument("--proxy", action="store_true")
     ap.add_argument("--preset", default="landscape", choices=["landscape", "portrait", "square"])
-    ap.add_argument("--cutting_mode", default="medium", choices=["slow", "medium", "fast", "ultra_fast", "random"])
+    ap.add_argument("--cutting_mode", default="medium", choices=["slow", "medium", "fast", "ultra_fast", "random", "auto"])
     ap.add_argument("--engine", default="advanced", choices=["basic", "advanced"])
+    ap.add_argument("--enable_shot_detection", action="store_true", help="Enable shot detection for cutlist generation")
     args = ap.parse_args()
 
     # Debug: Show all arguments received
     import sys
     print(f"Debug: Worker called with arguments: {sys.argv}", file=sys.stderr, flush=True)
-    print(f"Debug: Parsed args - stage: {args.stage}, song: '{args.song}', clips: '{args.clips}', engine: {args.engine}, preset: {args.preset}", file=sys.stderr, flush=True)
+    print(f"Debug: Parsed args - stage: {args.stage}, song: '{args.song}', clips: '{args.clips}', engine: {args.engine}, preset: {args.preset}, enable_shot_detection: {args.enable_shot_detection}", file=sys.stderr, flush=True)
 
     if args.stage == "probe":
         if not args.clips:
@@ -500,5 +571,5 @@ if __name__ == "__main__":
             emit("shots", progress=0.0, error="No clips directory provided. Please select a clips directory first.")
         else:
             run_shots(args.clips)
-    if args.stage == "cutlist": run_cutlist(args.song, args.clips, args.preset, args.cutting_mode)
+    if args.stage == "cutlist": run_cutlist(args.song, args.clips, args.preset, args.cutting_mode, args.enable_shot_detection)
     if args.stage == "render":  run_render(proxy=args.proxy, preset=args.preset)

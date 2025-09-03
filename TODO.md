@@ -319,3 +319,16 @@ Random: 1-8 beats = 0.469-3.75s per cut (randomly chosen)
 - [ ] Show preview of expected cut rate based on detected BPM
 - [ ] Display cutting mode in cutlist generation progress
 - [ ] Add cutting mode to render output metadata
+
+Todo to add:
+
+- When a folder has a lot of videos, it stretches the ui tries to accomidate so user has to scroll the entire length of the videos to see things that should always be seen like create videos. Perhaps there should be a always visible top and bottom bar? with the most vital settings
+- We can get rid of the optional inline option and always play the videos in the browser inline it looks great.
+- Replace the checkmark box when selecting it with a outline and/or gradiant over the image showing that it has been selected. You can barely see the checkbocx, and it feels natural just pressing it once to play it, and then leaving it on if you want it included.
+- Add a SELECT ALL button at the top of the video browser.
+- the Videos and load music should be "Add Videos" and "Add Music". They should be side by side not stacked.
+- All portrait videos with slightly different dimensions should be cropped to the same size. Same rule for landscape and square. This makes it easy to tell what proportion video you are selecting. Also when square or landscape, should be centered vertically instead of at top.
+- Filenames really arent very important in this setting. Lets try making them as a overlay on top of the videos, small font.
+- Lets try adding a small thumbs button in addition to the view we have now to make it easier to see all or at least more of the videos in a file.
+- Once videos are selected they should be placed onto the timeline in random order.
+- Once selected, the browser view should close and be replaced with a vertical list of the selected videos which represent the order they are in. User should be able to drag and drop to change their order, or press a random button to randomize their order. The preview pane should show a preview of the videos in the order they are set as in the left sidebar. This sets up the ui to add video effects and tweak with the beat/cut settings and see a preview in real time before rendering the full video.

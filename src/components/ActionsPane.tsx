@@ -32,6 +32,12 @@ import { SystemCheckPanel } from "./SystemCheckPanel";
 import { toast } from "sonner";
 
 const stageConfigs = {
+  probe: {
+    icon: Settings,
+    title: "Probe Videos",
+    description: "Analyze video file metadata and cache durations",
+    color: "from-slate-500 to-slate-600",
+  },
   beats: {
     icon: Activity,
     title: "Beat Analysis",
@@ -142,6 +148,7 @@ export function ActionsPane() {
         preset: prefs.preset,
         cutting_mode: prefs.cuttingMode,
         engine: prefs.engine,
+        enable_shot_detection: prefs.enableShotDetection,
       };
 
       console.log("ActionsPane calling worker with args:", workerArgs);
@@ -180,7 +187,13 @@ export function ActionsPane() {
     }
 
     setIsRunningFullWorkflow(true);
-    const stages = ["beats", "shots", "cutlist", "render"]; // Proxy render only
+
+    // Build stages list based on settings
+    const stages = ["probe", "beats"];
+    if (prefs.enableShotDetection) {
+      stages.push("shots");
+    }
+    stages.push("cutlist", "final"); // Final render for main workflow
 
     try {
       for (const stage of stages) {
@@ -191,11 +204,11 @@ export function ActionsPane() {
 
         if (!existingJob) {
           console.log(`Running workflow stage: ${stage}`);
-          
+
           // Run the stage and wait for its promise to resolve
           // This ensures we wait for the actual completion, not just state updates
           await runStage(stage);
-          
+
           console.log(`Stage ${stage} completed, moving to next stage`);
         } else {
           console.log(`Stage ${stage} already completed, skipping`);
@@ -336,8 +349,10 @@ export function ActionsPane() {
             {(() => {
               const renderJob = getJobStatus("render");
               const finalJob = getJobStatus("final");
-              const showFinalButton = renderJob.status === "completed" && finalJob.status !== "running";
-              
+              const showFinalButton =
+                renderJob.status === "completed" &&
+                finalJob.status !== "running";
+
               if (showFinalButton) {
                 return (
                   <Button
@@ -355,7 +370,9 @@ export function ActionsPane() {
                     ) : (
                       <>
                         <Monitor className="h-4 w-4 mr-2" />
-                        {finalJob.status === "completed" ? "Re-render Final" : "Create Final Video"}
+                        {finalJob.status === "completed"
+                          ? "Re-render Final"
+                          : "Create Final Video"}
                       </>
                     )}
                   </Button>
@@ -376,38 +393,42 @@ export function ActionsPane() {
               <div className="space-y-2">
                 <div className="text-xs text-slate-400 text-left">
                   Progress:{" "}
-                  {Object.keys(stageConfigs).map((stage) => {
-                    const job = jobs.find((j) => j.type === stage);
-                    return (
-                      <div key={stage} className="flex justify-between">
-                        <span>
-                          {
-                            stageConfigs[stage as keyof typeof stageConfigs]
-                              .title
-                          }
-                        </span>
-                        <span
-                          className={
-                            job?.status === "completed"
-                              ? "text-green-400"
+                  {Object.keys(stageConfigs)
+                    .filter(
+                      (stage) => stage !== "shots" || prefs.enableShotDetection
+                    )
+                    .map((stage) => {
+                      const job = jobs.find((j) => j.type === stage);
+                      return (
+                        <div key={stage} className="flex justify-between">
+                          <span>
+                            {
+                              stageConfigs[stage as keyof typeof stageConfigs]
+                                .title
+                            }
+                          </span>
+                          <span
+                            className={
+                              job?.status === "completed"
+                                ? "text-green-400"
+                                : job?.status === "running"
+                                ? "text-blue-400"
+                                : job?.status === "error"
+                                ? "text-red-400"
+                                : "text-slate-500"
+                            }
+                          >
+                            {job?.status === "completed"
+                              ? "✓"
                               : job?.status === "running"
-                              ? "text-blue-400"
+                              ? "..."
                               : job?.status === "error"
-                              ? "text-red-400"
-                              : "text-slate-500"
-                          }
-                        >
-                          {job?.status === "completed"
-                            ? "✓"
-                            : job?.status === "running"
-                            ? "..."
-                            : job?.status === "error"
-                            ? "✗"
-                            : "⋯"}
-                        </span>
-                      </div>
-                    );
-                  })}
+                              ? "✗"
+                              : "⋯"}
+                          </span>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             )}
@@ -423,89 +444,91 @@ export function ActionsPane() {
             </span>
           </div>
 
-          {Object.entries(stageConfigs).map(([stage, config]) => {
-            const job = getJobStatus(stage);
-            const Icon = config.icon;
+          {Object.entries(stageConfigs)
+            .filter(([stage]) => stage !== "shots" || prefs.enableShotDetection)
+            .map(([stage, config]) => {
+              const job = getJobStatus(stage);
+              const Icon = config.icon;
 
-            return (
-              <Card key={stage} className="border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`p-2 rounded-lg bg-gradient-to-r ${config.color}`}
-                      >
-                        <Icon className="h-4 w-4 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium">{config.title}</h3>
-                          <Badge
-                            variant={
-                              job.status === "completed"
-                                ? "default"
-                                : job.status === "running"
-                                ? "secondary"
-                                : job.status === "error"
-                                ? "destructive"
-                                : "outline"
-                            }
-                          >
-                            {job.status}
-                          </Badge>
+              return (
+                <Card key={stage} className="border-slate-700">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`p-2 rounded-lg bg-gradient-to-r ${config.color}`}
+                        >
+                          <Icon className="h-4 w-4 text-white" />
                         </div>
-                        <p className="text-xs text-slate-400 mt-1">
-                          {config.description}
-                        </p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium">{config.title}</h3>
+                            <Badge
+                              variant={
+                                job.status === "completed"
+                                  ? "default"
+                                  : job.status === "running"
+                                  ? "secondary"
+                                  : job.status === "error"
+                                  ? "destructive"
+                                  : "outline"
+                              }
+                            >
+                              {job.status}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-slate-400 mt-1">
+                            {config.description}
+                          </p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-2">
-                      {job.status === "running" && (
+                      <div className="flex items-center gap-2">
+                        {job.status === "running" && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => cancelJob(job.id!)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button
                           size="sm"
-                          variant="ghost"
-                          onClick={() => cancelJob(job.id!)}
+                          onClick={() => runStage(stage)}
+                          disabled={
+                            !hasRequiredInputs || job.status === "running"
+                          }
                         >
-                          <X className="h-4 w-4" />
+                          {job.status === "completed" ? "Re-run" : "Run"}
                         </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        onClick={() => runStage(stage)}
-                        disabled={
-                          !hasRequiredInputs || job.status === "running"
-                        }
-                      >
-                        {job.status === "completed" ? "Re-run" : "Run"}
-                      </Button>
-                      {job.status === "completed" && (
-                        <Button size="sm" variant="outline">
-                          Edit
-                        </Button>
-                      )}
+                        {job.status === "completed" && (
+                          <Button size="sm" variant="outline">
+                            Edit
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {job.status === "running" && (
-                    <div className="space-y-2">
-                      <Progress value={job.progress * 100} className="h-2" />
-                      <p className="text-xs text-slate-400">
-                        {job.message ||
-                          `Progress: ${(job.progress * 100).toFixed(1)}%`}
-                      </p>
-                    </div>
-                  )}
+                    {job.status === "running" && (
+                      <div className="space-y-2">
+                        <Progress value={job.progress * 100} className="h-2" />
+                        <p className="text-xs text-slate-400">
+                          {job.message ||
+                            `Progress: ${(job.progress * 100).toFixed(1)}%`}
+                        </p>
+                      </div>
+                    )}
 
-                  {job.status === "error" && job.error && (
-                    <div className="mt-2 p-2 bg-red-900/20 border border-red-900/30 rounded text-xs text-red-400">
-                      {job.error}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
+                    {job.status === "error" && job.error && (
+                      <div className="mt-2 p-2 bg-red-900/20 border border-red-900/30 rounded text-xs text-red-400">
+                        {job.error}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
         </div>
       )}
 
@@ -596,9 +619,15 @@ export function ActionsPane() {
             </Label>
             <Select
               value={prefs.cuttingMode}
-              onValueChange={(value: "slow" | "medium" | "fast" | "ultra_fast" | "random") =>
-                updatePrefs({ cuttingMode: value })
-              }
+              onValueChange={(
+                value:
+                  | "slow"
+                  | "medium"
+                  | "fast"
+                  | "ultra_fast"
+                  | "random"
+                  | "auto"
+              ) => updatePrefs({ cuttingMode: value })}
             >
               <SelectTrigger className="w-32">
                 <SelectValue />
@@ -609,9 +638,25 @@ export function ActionsPane() {
                 <SelectItem value="fast">🚀 Fast</SelectItem>
                 <SelectItem value="ultra_fast">💨 Ultra Fast</SelectItem>
                 <SelectItem value="random">🎲 Random</SelectItem>
+                <SelectItem value="auto">🧠 Auto/AI</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {prefs.engine === "advanced" && (
+            <div className="flex items-center justify-between">
+              <Label htmlFor="shotDetection" className="text-sm">
+                Shot detection
+              </Label>
+              <Switch
+                id="shotDetection"
+                checked={prefs.enableShotDetection}
+                onCheckedChange={(checked) =>
+                  updatePrefs({ enableShotDetection: checked })
+                }
+              />
+            </div>
+          )}
 
           <div className="flex items-center justify-between">
             <Label htmlFor="snap" className="text-sm">
