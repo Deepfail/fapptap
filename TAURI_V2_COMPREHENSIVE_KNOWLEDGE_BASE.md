@@ -10,6 +10,8 @@ This is a comprehensive, consolidated knowledge base capturing all lessons learn
 **Target Platform**: Windows 10 x64 desktop  
 **Status**: Fully functional with all core features working
 
+**CRITICAL WORKFLOW NOTE**: Always use `npm run tauri dev` for desktop development. The command `npm run dev` only runs the Vite dev server in browser mode without Tauri APIs.
+
 ## Recent Major Achievements (January 2025)
 
 ### UI/UX Breakthrough Features
@@ -629,6 +631,138 @@ console.log("File exists:", exists);
 - **Debounced Search**: Prevent excessive filtering operations
 - **Optimistic Updates**: Update UI immediately, sync with backend asynchronously
 - **Error Boundaries**: Isolate component failures for better reliability
+
+## Tauri CLI Command Reference
+
+### Essential Development Commands
+
+**Primary Development Workflow**:
+```bash
+# CORRECT: Launch Tauri app in development mode
+npm run tauri dev
+
+# INCORRECT: This only runs Vite dev server (browser mode)
+npm run dev
+```
+
+**Key Tauri CLI Commands**:
+
+- `npm run tauri dev` - **PRIMARY COMMAND** for development with hot-reloading
+- `npm run tauri build` - Build production release with bundles/installers
+- `npm run tauri info` - Show environment, Rust, Node.js versions and config
+- `npm run tauri add <plugin>` - Add a Tauri plugin to the project
+- `npm run tauri remove <plugin>` - Remove a Tauri plugin from the project
+
+### Development Command Options
+
+**tauri dev**:
+```bash
+# Basic development
+npm run tauri dev
+
+# With specific features
+npm run tauri dev --features feature1,feature2
+
+# With verbose logging
+npm run tauri dev --verbose
+
+# Skip dev server wait
+npm run tauri dev --no-dev-server-wait
+
+# Custom port for built-in dev server
+npm run tauri dev --port 1430
+
+# Run in release mode (for debugging)
+npm run tauri dev --release
+```
+
+**tauri build**:
+```bash
+# Standard production build
+npm run tauri build
+
+# Debug build
+npm run tauri build --debug
+
+# Specific target
+npm run tauri build --target x86_64-pc-windows-msvc
+
+# With custom features
+npm run tauri build --features feature1,feature2
+
+# Skip bundling
+npm run tauri build --no-bundle
+```
+
+### Plugin Management
+
+```bash
+# Add common plugins
+npm run tauri add dialog
+npm run tauri add fs
+npm run tauri add shell
+npm run tauri add opener
+npm run tauri add store
+
+# Remove plugins
+npm run tauri remove dialog
+```
+
+### Permission and Capability Management
+
+```bash
+# List available permissions
+npm run tauri permission ls
+
+# Create new permission
+npm run tauri permission new my-permission
+
+# Add permission to capability
+npm run tauri permission add fs:allow-read-file default
+
+# Create new capability
+npm run tauri capability new my-capability
+```
+
+### Debugging and Information
+
+```bash
+# Show comprehensive environment info
+npm run tauri info
+
+# Interactive mode to apply fixes
+npm run tauri info --interactive
+
+# Generate icons
+npm run tauri icon ./app-icon.png
+
+# Migration from v1 to v2
+npm run tauri migrate
+```
+
+### Critical Development Notes
+
+1. **ALWAYS use `npm run tauri dev`** for desktop app development
+2. **`npm run dev`** only runs Vite dev server (browser mode, no Tauri APIs)
+3. **Hot reloading** works for both Rust and frontend code in `tauri dev`
+4. **Platform detection** only works in actual Tauri environment
+5. **Sidecar binaries** are only available in Tauri mode
+6. **File system APIs** require Tauri environment and proper permissions
+
+### Package.json Scripts Integration
+
+Our project uses these script configurations:
+```json
+{
+  "scripts": {
+    "dev": "vite dev",              // Browser-only development
+    "build": "tsc -b && vite build", // Frontend build
+    "tauri": "tauri",               // Tauri CLI access
+    "tauri:dev": "tauri dev",       // Desktop development
+    "tauri:build": "tauri build"    // Desktop production build
+  }
+}
+```
 
 ## Future Roadmap and Extensibility
 
