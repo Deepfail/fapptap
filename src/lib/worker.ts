@@ -73,6 +73,7 @@ export class PythonWorker {
     }
 
     console.log(`Running worker stage: ${stage} with args:`, workerArgs);
+    console.log("Raw args object:", args);
 
     this.currentCommand = Command.sidecar("binaries/worker", workerArgs);
 

@@ -90,6 +90,25 @@ export function ActionsPane() {
       return;
     }
 
+    // Debug logging for input validation
+    console.log("ActionsPane runStage debug:", {
+      stage,
+      songPath,
+      clipsDir,
+      selectedClipIds: Array.from(selectedClipIds),
+      hasRequiredInputs
+    });
+
+    if (!songPath) {
+      toast.error("Please select an audio file first using the 'Load Audio' button");
+      return;
+    }
+
+    if (!clipsDir) {
+      toast.error("Please select a clips directory first");
+      return;
+    }
+
     const jobId = addJob({
       type: stage as any,
       status: "pending",
@@ -108,12 +127,16 @@ export function ActionsPane() {
         });
       });
 
-      await worker.runStage(stage, {
+      const workerArgs = {
         song: songPath,
         clips: clipsDir,
         proxy: stage === "render",
         engine: prefs.engine,
-      });
+      };
+
+      console.log("ActionsPane calling worker with args:", workerArgs);
+
+      await worker.runStage(stage, workerArgs);
 
       updateJob(jobId, {
         status: "completed",

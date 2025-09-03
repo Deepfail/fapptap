@@ -7,11 +7,29 @@ def emit(stage, progress=None, **kw):
 
 def run_beats(song, engine="advanced"):
     emit("beats", progress=0.0, message=f"Loading audio and analyzing beats (engine: {engine})...")
+    
+    # Validate input file
+    if not song or not song.strip():
+        emit("beats", progress=0.0, error="No audio file provided")
+        return
+        
+    from pathlib import Path
+    song_path = Path(song)
+    if not song_path.exists():
+        emit("beats", progress=0.0, error=f"Audio file not found: {song}")
+        return
+        
+    if not song_path.is_file():
+        emit("beats", progress=0.0, error=f"Path is not a file: {song}")
+        return
+    
     try:
         if engine == "basic":
             # Use basic beat detection
             import librosa
+            emit("beats", progress=0.2, message="Loading audio file...")
             y, sr = librosa.load(song, sr=None, mono=True)
+            emit("beats", progress=0.5, message="Detecting beats...")
             tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, units='frames')
             beat_times = librosa.frames_to_time(beat_frames, sr=sr)
             
@@ -23,10 +41,12 @@ def run_beats(song, engine="advanced"):
             }
         else:
             # Use advanced beat detection (default)
+            emit("beats", progress=0.2, message="Loading advanced beat detection...")
             from beats_adv import compute_advanced_beats
             beats_data = compute_advanced_beats(song, debug=True)
         
         # Save the results
+        emit("beats", progress=0.8, message="Saving beat analysis...")
         from pathlib import Path
         output_path = "cache/beats.json"
         Path("cache").mkdir(exist_ok=True)
@@ -160,7 +180,20 @@ if __name__ == "__main__":
     ap.add_argument("--engine", default="advanced", choices=["basic", "advanced"])
     args = ap.parse_args()
 
-    if args.stage == "beats":   run_beats(args.song, args.engine)
-    if args.stage == "shots":   run_shots(args.clips)
+    # Debug: Show all arguments received
+    import sys
+    print(f"Debug: Worker called with arguments: {sys.argv}", file=sys.stderr, flush=True)
+    print(f"Debug: Parsed args - stage: {args.stage}, song: '{args.song}', clips: '{args.clips}', engine: {args.engine}", file=sys.stderr, flush=True)
+
+    if args.stage == "beats":
+        if not args.song:
+            emit("beats", progress=0.0, error="No song file provided. Please select an audio file first.")
+        else:
+            run_beats(args.song, args.engine)
+    if args.stage == "shots":
+        if not args.clips:
+            emit("shots", progress=0.0, error="No clips directory provided. Please select a clips directory first.")
+        else:
+            run_shots(args.clips)
     if args.stage == "cutlist": run_cutlist(args.song, args.clips)
     if args.stage == "render":  run_render(proxy=args.proxy)
