@@ -4,6 +4,14 @@ import os
 import json
 from pathlib import Path
 
+# Numpy compatibility patch for madmom
+if not hasattr(np, 'int'):
+    np.int = int
+if not hasattr(np, 'float'):
+    np.float = float
+if not hasattr(np, 'bool'):
+    np.bool = bool
+
 def compute_advanced_beats(audio_path, debug=False):
     """
     Compute advanced beat detection with PLP tempo curve and beat strengths
@@ -209,6 +217,10 @@ def compute_advanced_beats(audio_path, debug=False):
     # Try to detect downbeats (optional)
     downbeats = None
     try:
+        # Suppress numpy warnings from madmom compatibility issues
+        import warnings
+        warnings.filterwarnings('ignore', category=UserWarning, module='madmom')
+        
         from madmom.features.downbeats import DBNDownBeatTrackingProcessor, RNNDownBeatProcessor
         
         print("Madmom available, detecting downbeats...")
@@ -221,7 +233,7 @@ def compute_advanced_beats(audio_path, debug=False):
         # Extract downbeat times (first beat of each bar)
         downbeats = [time for time, beat_num in downbeats_with_beats if beat_num == 1]
         print(f"Detected {len(downbeats)} downbeats")
-    except (ImportError, AttributeError) as e:
+    except (ImportError, AttributeError, ValueError, TypeError) as e:
         print(f"Madmom downbeat detection failed: {e}")
         print("Skipping downbeat detection")
         downbeats = None
