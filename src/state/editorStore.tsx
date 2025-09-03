@@ -31,7 +31,7 @@ export interface SpeedRamp {
 
 export interface Effect {
   id: string;
-  type: 'transform' | 'filter' | 'speed';
+  type: "transform" | "filter" | "speed";
   enabled: boolean;
   transform?: Transform;
   speedRamp?: SpeedRamp;
@@ -126,9 +126,9 @@ export const EditorProvider = ({
   const addClipToTimeline = (clipId: string, start: number) => {
     const clip = clips.find((c) => c.id === clipId);
     if (!clip) return;
-    
+
     saveSnapshot();
-    
+
     const item: TimelineItem = {
       id: `${clipId}-${Date.now()}`,
       clipId,
@@ -149,11 +149,15 @@ export const EditorProvider = ({
 
   const trimTimelineItem = (id: string, newIn: number, newOut: number) => {
     saveSnapshot();
-    
-    setTimeline((t) => 
-      t.map(item => 
-        item.id === id 
-          ? { ...item, in: Math.max(0, newIn), out: Math.max(newIn + 0.1, newOut) }
+
+    setTimeline((t) =>
+      t.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              in: Math.max(0, newIn),
+              out: Math.max(newIn + 0.1, newOut),
+            }
           : item
       )
     );
@@ -161,31 +165,34 @@ export const EditorProvider = ({
 
   const moveTimelineItem = (id: string, newStart: number) => {
     saveSnapshot();
-    
-    const item = timeline.find(t => t.id === id);
+
+    const item = timeline.find((t) => t.id === id);
     if (!item) return;
-    
+
     const adjustedStart = Math.max(0, newStart);
-    
+
     if (rippleMode) {
       // In ripple mode, move all items that come after this one
       const originalStart = item.start;
       const delta = adjustedStart - originalStart;
-      
-      setTimeline((t) => 
-        t.map(timelineItem => {
+
+      setTimeline((t) =>
+        t.map((timelineItem) => {
           if (timelineItem.id === id) {
             return { ...timelineItem, start: adjustedStart };
           } else if (timelineItem.start > originalStart) {
-            return { ...timelineItem, start: Math.max(0, timelineItem.start + delta) };
+            return {
+              ...timelineItem,
+              start: Math.max(0, timelineItem.start + delta),
+            };
           }
           return timelineItem;
         })
       );
     } else {
-      setTimeline((t) => 
-        t.map(timelineItem => 
-          timelineItem.id === id 
+      setTimeline((t) =>
+        t.map((timelineItem) =>
+          timelineItem.id === id
             ? { ...timelineItem, start: adjustedStart }
             : timelineItem
         )
@@ -195,26 +202,30 @@ export const EditorProvider = ({
 
   const deleteTimelineItem = (id: string) => {
     saveSnapshot();
-    
-    const item = timeline.find(t => t.id === id);
+
+    const item = timeline.find((t) => t.id === id);
     if (!item) return;
-    
+
     if (rippleMode) {
       // In ripple mode, move all items after this one to fill the gap
       const itemDuration = item.out - item.in;
-      
-      setTimeline((t) => 
-        t.filter(timelineItem => timelineItem.id !== id)
-         .map(timelineItem => 
-           timelineItem.start > item.start 
-             ? { ...timelineItem, start: Math.max(0, timelineItem.start - itemDuration) }
-             : timelineItem
-         )
+
+      setTimeline((t) =>
+        t
+          .filter((timelineItem) => timelineItem.id !== id)
+          .map((timelineItem) =>
+            timelineItem.start > item.start
+              ? {
+                  ...timelineItem,
+                  start: Math.max(0, timelineItem.start - itemDuration),
+                }
+              : timelineItem
+          )
       );
     } else {
-      setTimeline((t) => t.filter(timelineItem => timelineItem.id !== id));
+      setTimeline((t) => t.filter((timelineItem) => timelineItem.id !== id));
     }
-    
+
     // Clear selection if deleted item was selected
     if (selectedTimelineItemId === id) {
       setSelectedTimelineItemId(null);
@@ -271,18 +282,16 @@ export const EditorProvider = ({
 
   const updateTimelineItemEffects = (id: string, effects: Effect[]) => {
     saveSnapshot();
-    
-    setTimeline((t) => 
-      t.map(item => 
-        item.id === id 
-          ? { ...item, effects: [...effects] }
-          : item
+
+    setTimeline((t) =>
+      t.map((item) =>
+        item.id === id ? { ...item, effects: [...effects] } : item
       )
     );
   };
 
   const getTimelineItemEffects = (id: string): Effect[] => {
-    const item = timeline.find(t => t.id === id);
+    const item = timeline.find((t) => t.id === id);
     return item?.effects || [];
   };
 
@@ -293,8 +302,8 @@ export const EditorProvider = ({
 
   const replaceTimelineItem = (id: string, newItems: TimelineItem[]) => {
     saveSnapshot();
-    setTimeline(currentTimeline => 
-      currentTimeline.filter(item => item.id !== id).concat(newItems)
+    setTimeline((currentTimeline) =>
+      currentTimeline.filter((item) => item.id !== id).concat(newItems)
     );
   };
 

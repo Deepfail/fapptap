@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { PreviewPlayer } from '@/components/preview';
-import { Timeline } from '@/components/Timeline';
-import { MultiTrackTimeline } from '@/components/MultiTrackTimeline';
-import { EffectsInspector } from '@/components/EffectsInspector';
-import { TransitionsInspector } from '@/components/TransitionsInspector';
-import { CuttingTools } from '@/components/CuttingTools';
-import { SpeedRampEditor } from '@/components/SpeedRampEditor';
-import { BeatSyncTools } from '@/components/BeatSyncTools';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import { PreviewPlayer } from "@/components/preview";
+import { Timeline } from "@/components/Timeline";
+import { MultiTrackTimeline } from "@/components/MultiTrackTimeline";
+import { EffectsInspector } from "@/components/EffectsInspector";
+import { TransitionsInspector } from "@/components/TransitionsInspector";
+import { CuttingTools } from "@/components/CuttingTools";
+import { SpeedRampEditor } from "@/components/SpeedRampEditor";
+import { BeatSyncTools } from "@/components/BeatSyncTools";
+import { Button } from "@/components/ui/button";
 
 interface EditorLayoutProps {
   currentClip?: string;
@@ -16,7 +16,7 @@ interface EditorLayoutProps {
 export const EditorLayout = ({ currentClip }: EditorLayoutProps) => {
   const [showTimeline, setShowTimeline] = useState(true);
   const [multiTrackMode, setMultiTrackMode] = useState(false);
-  const [inspectorTab, setInspectorTab] = useState('effects');
+  const [inspectorTab, setInspectorTab] = useState("effects");
 
   return (
     <div className="flex flex-col h-full">
@@ -42,9 +42,9 @@ export const EditorLayout = ({ currentClip }: EditorLayoutProps) => {
             onClick={() => setShowTimeline(!showTimeline)}
             className="text-xs"
           >
-            {showTimeline ? 'Hide Timeline' : 'Show Timeline'}
+            {showTimeline ? "Hide Timeline" : "Show Timeline"}
           </Button>
-          
+
           {showTimeline && (
             <Button
               size="sm"
@@ -52,19 +52,25 @@ export const EditorLayout = ({ currentClip }: EditorLayoutProps) => {
               onClick={() => setMultiTrackMode(!multiTrackMode)}
               className="text-xs"
             >
-              {multiTrackMode ? 'Simple Timeline' : 'Multi-Track'}
+              {multiTrackMode ? "Simple Timeline" : "Multi-Track"}
             </Button>
           )}
         </div>
-        
+
         <div className="text-xs text-muted-foreground">
-          {multiTrackMode ? 'Multi-track timeline with video, audio, and effects layers' : 'Single timeline view'}
+          {multiTrackMode
+            ? "Multi-track timeline with video, audio, and effects layers"
+            : "Single timeline view"}
         </div>
       </div>
 
       {/* Timeline Area */}
       {showTimeline && (
-        <div className={`border-t border-slate-700 bg-slate-800/30 p-3 ${multiTrackMode ? 'h-80' : 'h-48'}`}>
+        <div
+          className={`border-t border-slate-700 bg-slate-800/30 p-3 ${
+            multiTrackMode ? "h-80" : "h-48"
+          }`}
+        >
           {multiTrackMode ? <MultiTrackTimeline /> : <Timeline />}
         </div>
       )}
@@ -83,43 +89,45 @@ export const EditorLayout = ({ currentClip }: EditorLayoutProps) => {
               <div className="flex gap-2 mb-3">
                 <Button
                   size="sm"
-                  variant={inspectorTab === 'effects' ? "default" : "outline"}
-                  onClick={() => setInspectorTab('effects')}
+                  variant={inspectorTab === "effects" ? "default" : "outline"}
+                  onClick={() => setInspectorTab("effects")}
                   className="text-xs"
                 >
                   Effects
                 </Button>
                 <Button
                   size="sm"
-                  variant={inspectorTab === 'transitions' ? "default" : "outline"}
-                  onClick={() => setInspectorTab('transitions')}
+                  variant={
+                    inspectorTab === "transitions" ? "default" : "outline"
+                  }
+                  onClick={() => setInspectorTab("transitions")}
                   className="text-xs"
                 >
                   Transitions
                 </Button>
                 <Button
                   size="sm"
-                  variant={inspectorTab === 'speed' ? "default" : "outline"}
-                  onClick={() => setInspectorTab('speed')}
+                  variant={inspectorTab === "speed" ? "default" : "outline"}
+                  onClick={() => setInspectorTab("speed")}
                   className="text-xs"
                 >
                   Speed
                 </Button>
                 <Button
                   size="sm"
-                  variant={inspectorTab === 'beatsync' ? "default" : "outline"}
-                  onClick={() => setInspectorTab('beatsync')}
+                  variant={inspectorTab === "beatsync" ? "default" : "outline"}
+                  onClick={() => setInspectorTab("beatsync")}
                   className="text-xs"
                 >
                   Beat Sync
                 </Button>
               </div>
-              
+
               <div className="flex-1 min-h-0">
-                {inspectorTab === 'effects' && <EffectsInspector />}
-                {inspectorTab === 'transitions' && <TransitionsInspector />}
-                {inspectorTab === 'speed' && <SpeedRampEditor />}
-                {inspectorTab === 'beatsync' && <BeatSyncTools />}
+                {inspectorTab === "effects" && <EffectsInspector />}
+                {inspectorTab === "transitions" && <TransitionsInspector />}
+                {inspectorTab === "speed" && <SpeedRampEditor />}
+                {inspectorTab === "beatsync" && <BeatSyncTools />}
               </div>
             </div>
           </div>

@@ -49,15 +49,20 @@ export class PythonWorker {
    */
   private emit(event: string, message: WorkerMessage): void {
     const handlers = this.eventHandlers.get(event) || [];
-    handlers.forEach(handler => handler(message));
+    handlers.forEach((handler) => handler(message));
   }
 
   /**
    * Run a worker stage
    */
-  async runStage(stage: string, args: Record<string, string | boolean> = {}): Promise<void> {
+  async runStage(
+    stage: string,
+    args: Record<string, string | boolean> = {}
+  ): Promise<void> {
     if (!isTauriAvailable()) {
-      throw new Error("Python worker execution is only available in desktop mode");
+      throw new Error(
+        "Python worker execution is only available in desktop mode"
+      );
     }
 
     // Build command arguments
@@ -104,22 +109,22 @@ export class PythonWorker {
 
       // Handle stdout for progress messages (JSONL format)
       this.currentCommand.stdout.on("data", (data: any) => {
-        const lines = data.split('\n').filter((line: string) => line.trim());
-        
+        const lines = data.split("\n").filter((line: string) => line.trim());
+
         for (const line of lines) {
           try {
             const message = JSON.parse(line) as WorkerMessage;
             console.log(`Worker message:`, message);
-            
+
             // Emit specific stage events
             this.emit(message.stage, message);
             this.emit("message", message);
-            
+
             // Handle progress updates
             if (message.progress !== undefined) {
               this.emit("progress", message);
             }
-            
+
             // Handle errors
             if (message.error) {
               this.emit("error", message);

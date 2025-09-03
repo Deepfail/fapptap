@@ -637,6 +637,7 @@ console.log("File exists:", exists);
 ### Essential Development Commands
 
 **Primary Development Workflow**:
+
 ```bash
 # CORRECT: Launch Tauri app in development mode
 npm run tauri dev
@@ -656,6 +657,7 @@ npm run dev
 ### Development Command Options
 
 **tauri dev**:
+
 ```bash
 # Basic development
 npm run tauri dev
@@ -677,6 +679,7 @@ npm run tauri dev --release
 ```
 
 **tauri build**:
+
 ```bash
 # Standard production build
 npm run tauri build
@@ -752,14 +755,15 @@ npm run tauri migrate
 ### Package.json Scripts Integration
 
 Our project uses these script configurations:
+
 ```json
 {
   "scripts": {
-    "dev": "vite dev",              // Browser-only development
+    "dev": "vite dev", // Browser-only development
     "build": "tsc -b && vite build", // Frontend build
-    "tauri": "tauri",               // Tauri CLI access
-    "tauri:dev": "tauri dev",       // Desktop development
-    "tauri:build": "tauri build"    // Desktop production build
+    "tauri": "tauri", // Tauri CLI access
+    "tauri:dev": "tauri dev", // Desktop development
+    "tauri:build": "tauri build" // Desktop production build
   }
 }
 ```

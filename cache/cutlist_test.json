@@ -1,0 +1,1335 @@
+{
+  "version": 1,
+  "fps": 60,
+  "width": 1920,
+  "height": 1080,
+  "audio": "C:/Users/Virta/Dropbox/Music/Audials Music/Big Boss Vette - Pretty Girls Walk [Explicit].mp3",
+  "events": [
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.0,
+      "out": 0.639,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.731,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.0,
+      "out": 0.72,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.639,
+      "out": 1.242,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.731,
+      "out": 1.44,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.72,
+      "out": 1.416,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.242,
+      "out": 1.892,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.44,
+      "out": 2.125,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.416,
+      "out": 2.067,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.892,
+      "out": 2.577,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.125,
+      "out": 2.728,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.067,
+      "out": 2.786,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.577,
+      "out": 3.251,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.728,
+      "out": 3.402,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.786,
+      "out": 3.448,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.251,
+      "out": 3.913,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 3.402,
+      "out": 4.063,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.448,
+      "out": 4.122,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.913,
+      "out": 4.563,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.685,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 4.122,
+      "out": 4.783,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.0,
+      "out": 0.673,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.685,
+      "out": 1.347,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.673,
+      "out": 1.335,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.347,
+      "out": 2.02,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.662,
+      "out": 1.277,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.335,
+      "out": 2.055,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.02,
+      "out": 2.682,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.277,
+      "out": 1.95,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.055,
+      "out": 2.705,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.682,
+      "out": 3.367,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.95,
+      "out": 2.612,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.705,
+      "out": 3.367,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 3.367,
+      "out": 4.017,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.612,
+      "out": 3.309,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.367,
+      "out": 4.029,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.309,
+      "out": 3.971,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 4.029,
+      "out": 4.702,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.662,
+      "out": 1.324,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.971,
+      "out": 4.644,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.0,
+      "out": 0.673,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.324,
+      "out": 1.985,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 4.644,
+      "out": 5.312,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.673,
+      "out": 1.347,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.985,
+      "out": 2.647,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.347,
+      "out": 2.009,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.647,
+      "out": 3.32,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.662,
+      "out": 1.324,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.009,
+      "out": 2.682,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 3.32,
+      "out": 3.971,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.324,
+      "out": 1.962,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.682,
+      "out": 3.402,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.962,
+      "out": 2.624,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.402,
+      "out": 4.075,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.662,
+      "out": 1.312,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.624,
+      "out": 3.309,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 4.075,
+      "out": 4.737,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.312,
+      "out": 1.974,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.309,
+      "out": 3.982,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.0,
+      "out": 0.673,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.974,
+      "out": 2.635,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.982,
+      "out": 4.644,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.673,
+      "out": 1.335,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.635,
+      "out": 3.309,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 4.644,
+      "out": 5.312,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.335,
+      "out": 1.985,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 3.309,
+      "out": 3.994,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.0,
+      "out": 0.673,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.985,
+      "out": 2.635,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.697,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.673,
+      "out": 1.265,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.635,
+      "out": 3.355,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.697,
+      "out": 1.37,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.265,
+      "out": 1.927,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.355,
+      "out": 4.029,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.37,
+      "out": 2.032,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.927,
+      "out": 2.589,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 4.029,
+      "out": 4.702,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.032,
+      "out": 2.682,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.589,
+      "out": 3.274,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.682,
+      "out": 3.355,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.274,
+      "out": 3.936,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.662,
+      "out": 1.324,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 3.355,
+      "out": 4.017,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.936,
+      "out": 4.609,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.324,
+      "out": 1.939,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.72,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 4.609,
+      "out": 5.312,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.939,
+      "out": 2.601,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.72,
+      "out": 1.393,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.601,
+      "out": 3.262,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.393,
+      "out": 2.067,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.662,
+      "out": 1.312,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.262,
+      "out": 3.947,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.067,
+      "out": 2.728,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.312,
+      "out": 1.985,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.947,
+      "out": 4.609,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.728,
+      "out": 3.39,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.985,
+      "out": 2.647,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.0,
+      "out": 0.673,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 3.39,
+      "out": 4.005,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.647,
+      "out": 3.367,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.673,
+      "out": 1.324,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.673,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.367,
+      "out": 4.052,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.324,
+      "out": 1.974,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.673,
+      "out": 1.324,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 4.052,
+      "out": 4.737,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.974,
+      "out": 2.612,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.324,
+      "out": 2.02,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.612,
+      "out": 3.286,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.02,
+      "out": 2.659,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.662,
+      "out": 1.358,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.286,
+      "out": 3.936,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.659,
+      "out": 3.309,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.358,
+      "out": 2.032,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.936,
+      "out": 4.632,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 3.309,
+      "out": 3.971,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.032,
+      "out": 2.705,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.639,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.705,
+      "out": 3.39,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.662,
+      "out": 1.335,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.639,
+      "out": 1.289,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.39,
+      "out": 4.052,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.335,
+      "out": 2.009,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.289,
+      "out": 1.974,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 4.052,
+      "out": 4.714,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.009,
+      "out": 2.67,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.974,
+      "out": 2.647,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.67,
+      "out": 3.355,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.647,
+      "out": 3.297,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.662,
+      "out": 1.324,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.355,
+      "out": 4.029,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 3.297,
+      "out": 3.982,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.324,
+      "out": 1.985,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 4.029,
+      "out": 4.679,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.673,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.985,
+      "out": 2.647,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.0,
+      "out": 0.673,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.673,
+      "out": 1.347,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.647,
+      "out": 3.309,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.673,
+      "out": 1.335,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.347,
+      "out": 2.009,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.309,
+      "out": 3.971,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.335,
+      "out": 2.032,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.009,
+      "out": 2.601,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.971,
+      "out": 4.69,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.032,
+      "out": 2.705,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.601,
+      "out": 3.262,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.0,
+      "out": 0.673,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.705,
+      "out": 3.367,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 3.262,
+      "out": 3.924,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.673,
+      "out": 1.347,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.367,
+      "out": 4.017,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.685,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.347,
+      "out": 2.009,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 4.017,
+      "out": 4.679,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.685,
+      "out": 1.358,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.009,
+      "out": 2.67,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.358,
+      "out": 2.032,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.67,
+      "out": 3.286,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.662,
+      "out": 1.382,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.032,
+      "out": 2.694,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.286,
+      "out": 3.959,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.382,
+      "out": 2.055,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.694,
+      "out": 3.355,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.959,
+      "out": 4.621,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.055,
+      "out": 2.728,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 3.355,
+      "out": 3.994,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 4.621,
+      "out": 5.312,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.728,
+      "out": 3.402,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.0,
+      "out": 0.673,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 3.402,
+      "out": 4.063,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.662,
+      "out": 1.312,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.673,
+      "out": 1.358,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 4.063,
+      "out": 4.679,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 1.312,
+      "out": 2.032,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 1.358,
+      "out": 2.02,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.032,
+      "out": 2.717,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.02,
+      "out": 2.67,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 0.662,
+      "out": 1.335,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 2.717,
+      "out": 3.379,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 2.67,
+      "out": 3.344,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.335,
+      "out": 1.997,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 3.379,
+      "out": 4.04,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 3.344,
+      "out": 4.017,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 1.997,
+      "out": 2.67,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.0,
+      "out": 0.662,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 4.017,
+      "out": 4.679,
+      "effects": [
+        "punch_in:0.10"
+      ]
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/76319854.mp4",
+      "in": 2.67,
+      "out": 3.332,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81550981.mp4",
+      "in": 0.662,
+      "out": 1.347,
+      "effects": []
+    },
+    {
+      "src": "C:/Files/Projects/fapptap/test_clips_small/81885201.mp4",
+      "in": 0.0,
+      "out": 0.65,
+      "effects": []
+    }
+  ]
+}

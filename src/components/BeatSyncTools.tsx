@@ -1,156 +1,188 @@
-import { useState } from 'react';
-import { useEditor } from '../state/editorStore';
-import { beatSyncTools, generateMockBeats } from '../lib/beatSync';
-import type { BeatSyncOptions } from '../lib/beatSync';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Separator } from './ui/separator';
-import { Slider } from './ui/slider';
+import { useState } from "react";
+import { useEditor } from "../state/editorStore";
+import { beatSyncTools, generateMockBeats } from "../lib/beatSync";
+import type { BeatSyncOptions } from "../lib/beatSync";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Separator } from "./ui/separator";
+import { Slider } from "./ui/slider";
 
 export const BeatSyncTools = () => {
-  const { 
-    selectedTimelineItemId, 
-    timeline, 
+  const {
+    selectedTimelineItemId,
+    timeline,
     updateTimelineItems,
     replaceTimelineItem,
     playhead,
-    setPlayhead
+    setPlayhead,
   } = useEditor();
-  
+
   const [syncOptions, setSyncOptions] = useState<BeatSyncOptions>({
     tolerance: 0.1,
-    quantizeLevel: '1/4',
-    swing: 0
+    quantizeLevel: "1/4",
+    swing: 0,
   });
-  
+
   const [nudgeAmount, setNudgeAmount] = useState(1);
   const [autoCutOptions, setAutoCutOptions] = useState({
     minCutLength: 1.0,
     energyThreshold: 0.7,
-    onlyOnBeats: true
+    onlyOnBeats: true,
   });
-  
+
   // Initialize with mock beat data for development
   useState(() => {
     const mockBeats = generateMockBeats(300, 120); // 5 minutes at 120 BPM
     beatSyncTools.updateBeats(mockBeats);
   });
-  
-  const selectedItem = timeline.find(item => item.id === selectedTimelineItemId);
-  
+
+  const selectedItem = timeline.find(
+    (item) => item.id === selectedTimelineItemId
+  );
+
   const quantizeSelected = () => {
     if (!selectedItem) return;
-    
-    const quantizedStart = beatSyncTools.quantizeTime(selectedItem.start, syncOptions);
-    const quantizedIn = beatSyncTools.quantizeTime(selectedItem.in, syncOptions);
-    const quantizedOut = beatSyncTools.quantizeTime(selectedItem.out, syncOptions);
-    
-    const updatedTimeline = timeline.map(item => 
-      item.id === selectedItem.id 
+
+    const quantizedStart = beatSyncTools.quantizeTime(
+      selectedItem.start,
+      syncOptions
+    );
+    const quantizedIn = beatSyncTools.quantizeTime(
+      selectedItem.in,
+      syncOptions
+    );
+    const quantizedOut = beatSyncTools.quantizeTime(
+      selectedItem.out,
+      syncOptions
+    );
+
+    const updatedTimeline = timeline.map((item) =>
+      item.id === selectedItem.id
         ? { ...item, start: quantizedStart, in: quantizedIn, out: quantizedOut }
         : item
     );
-    
+
     updateTimelineItems(updatedTimeline);
   };
-  
+
   const quantizeAll = () => {
-    const quantizedItems = beatSyncTools.quantizeTimelineItems(timeline, syncOptions);
+    const quantizedItems = beatSyncTools.quantizeTimelineItems(
+      timeline,
+      syncOptions
+    );
     updateTimelineItems(quantizedItems);
   };
-  
-  const nudgeSelected = (direction: 'forward' | 'backward') => {
+
+  const nudgeSelected = (direction: "forward" | "backward") => {
     if (!selectedItem) return;
-    
+
     const nudgedStart = beatSyncTools.nudgeTime(
-      selectedItem.start, 
-      direction, 
-      nudgeAmount, 
+      selectedItem.start,
+      direction,
+      nudgeAmount,
       syncOptions.quantizeLevel
     );
-    
-    const updatedTimeline = timeline.map(item => 
-      item.id === selectedItem.id 
+
+    const updatedTimeline = timeline.map((item) =>
+      item.id === selectedItem.id
         ? { ...item, start: Math.max(0, nudgedStart) }
         : item
     );
-    
+
     updateTimelineItems(updatedTimeline);
   };
-  
-  const nudgePlayhead = (direction: 'forward' | 'backward') => {
+
+  const nudgePlayhead = (direction: "forward" | "backward") => {
     const nudgedTime = beatSyncTools.nudgeTime(
-      playhead, 
-      direction, 
-      nudgeAmount, 
+      playhead,
+      direction,
+      nudgeAmount,
       syncOptions.quantizeLevel
     );
-    
+
     setPlayhead(Math.max(0, nudgedTime));
   };
-  
+
   const snapToNearestBeat = () => {
-    const nearestBeat = beatSyncTools.findNearestBeat(playhead, syncOptions.tolerance);
+    const nearestBeat = beatSyncTools.findNearestBeat(
+      playhead,
+      syncOptions.tolerance
+    );
     if (nearestBeat) {
       setPlayhead(nearestBeat.time);
     }
   };
-  
+
   const autoCutSelected = () => {
     if (!selectedItem) return;
-    
+
     const cutPoints = beatSyncTools.detectAutoCutPoints(
       selectedItem.start + selectedItem.in,
       selectedItem.start + selectedItem.out,
       autoCutOptions
     );
-    
+
     if (cutPoints.length === 0) return;
-    
+
     // Create new timeline items from cut points
     const newItems = [];
-    
+
     for (let i = 0; i < cutPoints.length; i++) {
       const cutTime = cutPoints[i];
-      const nextCutTime = i < cutPoints.length - 1 ? cutPoints[i + 1] : selectedItem.start + selectedItem.out;
-      
+      const nextCutTime =
+        i < cutPoints.length - 1
+          ? cutPoints[i + 1]
+          : selectedItem.start + selectedItem.out;
+
       // Convert absolute times back to relative clip times
       const clipIn = Math.max(0, cutTime - selectedItem.start);
-      const clipOut = Math.min(selectedItem.out, nextCutTime - selectedItem.start);
-      
+      const clipOut = Math.min(
+        selectedItem.out,
+        nextCutTime - selectedItem.start
+      );
+
       if (clipOut > clipIn) {
         newItems.push({
           ...selectedItem,
           id: `${selectedItem.id}-cut-${i}`,
           start: cutTime,
           in: clipIn,
-          out: clipOut
+          out: clipOut,
         });
       }
     }
-    
+
     // Replace selected item with new cut items
     replaceTimelineItem(selectedItem.id, newItems);
   };
-  
+
   const previewQuantize = () => {
     if (!selectedItem) return null;
-    
+
     const originalStart = selectedItem.start;
-    const quantizedStart = beatSyncTools.quantizeTime(selectedItem.start, syncOptions);
+    const quantizedStart = beatSyncTools.quantizeTime(
+      selectedItem.start,
+      syncOptions
+    );
     const delta = quantizedStart - originalStart;
-    
+
     return {
       original: originalStart,
       quantized: quantizedStart,
       delta: delta,
-      deltaMs: Math.round(delta * 1000)
+      deltaMs: Math.round(delta * 1000),
     };
   };
-  
+
   const preview = previewQuantize();
 
   return (
@@ -165,13 +197,13 @@ export const BeatSyncTools = () => {
         {/* Quantize Settings */}
         <div className="space-y-4">
           <Label className="text-sm font-semibold">Quantize Settings</Label>
-          
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label className="text-xs">Grid Level</Label>
-              <Select 
-                value={syncOptions.quantizeLevel} 
-                onValueChange={(value: BeatSyncOptions['quantizeLevel']) => 
+              <Select
+                value={syncOptions.quantizeLevel}
+                onValueChange={(value: BeatSyncOptions["quantizeLevel"]) =>
                   setSyncOptions({ ...syncOptions, quantizeLevel: value })
                 }
               >
@@ -187,16 +219,18 @@ export const BeatSyncTools = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label className="text-xs">Tolerance (s)</Label>
               <Input
                 type="number"
                 value={syncOptions.tolerance}
-                onChange={(e) => setSyncOptions({ 
-                  ...syncOptions, 
-                  tolerance: parseFloat(e.target.value) || 0.1 
-                })}
+                onChange={(e) =>
+                  setSyncOptions({
+                    ...syncOptions,
+                    tolerance: parseFloat(e.target.value) || 0.1,
+                  })
+                }
                 className="h-8"
                 min="0.01"
                 max="1"
@@ -204,12 +238,16 @@ export const BeatSyncTools = () => {
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
-            <Label className="text-xs">Swing Amount: {syncOptions.swing}%</Label>
+            <Label className="text-xs">
+              Swing Amount: {syncOptions.swing}%
+            </Label>
             <Slider
               value={[syncOptions.swing]}
-              onValueChange={([value]) => setSyncOptions({ ...syncOptions, swing: value })}
+              onValueChange={([value]) =>
+                setSyncOptions({ ...syncOptions, swing: value })
+              }
               min={0}
               max={50}
               step={1}
@@ -225,8 +263,17 @@ export const BeatSyncTools = () => {
             <div className="text-xs space-y-1">
               <div>Original: {preview.original.toFixed(3)}s</div>
               <div>Quantized: {preview.quantized.toFixed(3)}s</div>
-              <div className={`font-medium ${preview.deltaMs > 0 ? 'text-green-400' : preview.deltaMs < 0 ? 'text-red-400' : 'text-gray-400'}`}>
-                Delta: {preview.deltaMs > 0 ? '+' : ''}{preview.deltaMs}ms
+              <div
+                className={`font-medium ${
+                  preview.deltaMs > 0
+                    ? "text-green-400"
+                    : preview.deltaMs < 0
+                    ? "text-red-400"
+                    : "text-gray-400"
+                }`}
+              >
+                Delta: {preview.deltaMs > 0 ? "+" : ""}
+                {preview.deltaMs}ms
               </div>
             </div>
           </div>
@@ -261,7 +308,7 @@ export const BeatSyncTools = () => {
         {/* Nudge Controls */}
         <div className="space-y-3">
           <Label className="text-sm font-semibold">Nudge Controls</Label>
-          
+
           <div className="space-y-2">
             <Label className="text-xs">Nudge Amount (subdivisions)</Label>
             <Input
@@ -273,14 +320,14 @@ export const BeatSyncTools = () => {
               max="16"
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label className="text-xs">Nudge Selected Item</Label>
             <div className="grid grid-cols-2 gap-2">
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => nudgeSelected('backward')}
+                onClick={() => nudgeSelected("backward")}
                 disabled={!selectedItem}
                 className="text-xs"
               >
@@ -289,7 +336,7 @@ export const BeatSyncTools = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => nudgeSelected('forward')}
+                onClick={() => nudgeSelected("forward")}
                 disabled={!selectedItem}
                 className="text-xs"
               >
@@ -297,14 +344,14 @@ export const BeatSyncTools = () => {
               </Button>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <Label className="text-xs">Nudge Playhead</Label>
             <div className="grid grid-cols-2 gap-2">
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => nudgePlayhead('backward')}
+                onClick={() => nudgePlayhead("backward")}
                 className="text-xs"
               >
                 ← Back
@@ -312,14 +359,14 @@ export const BeatSyncTools = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => nudgePlayhead('forward')}
+                onClick={() => nudgePlayhead("forward")}
                 className="text-xs"
               >
                 Forward →
               </Button>
             </div>
           </div>
-          
+
           <Button
             size="sm"
             variant="outline"
@@ -335,33 +382,37 @@ export const BeatSyncTools = () => {
         {/* Auto-Cut Tools */}
         <div className="space-y-3">
           <Label className="text-sm font-semibold">Auto-Cut Tools</Label>
-          
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label className="text-xs">Min Cut Length (s)</Label>
               <Input
                 type="number"
                 value={autoCutOptions.minCutLength}
-                onChange={(e) => setAutoCutOptions({ 
-                  ...autoCutOptions, 
-                  minCutLength: parseFloat(e.target.value) || 1.0 
-                })}
+                onChange={(e) =>
+                  setAutoCutOptions({
+                    ...autoCutOptions,
+                    minCutLength: parseFloat(e.target.value) || 1.0,
+                  })
+                }
                 className="h-8"
                 min="0.1"
                 max="10"
                 step="0.1"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label className="text-xs">Energy Threshold</Label>
               <Input
                 type="number"
                 value={autoCutOptions.energyThreshold}
-                onChange={(e) => setAutoCutOptions({ 
-                  ...autoCutOptions, 
-                  energyThreshold: parseFloat(e.target.value) || 0.7 
-                })}
+                onChange={(e) =>
+                  setAutoCutOptions({
+                    ...autoCutOptions,
+                    energyThreshold: parseFloat(e.target.value) || 0.7,
+                  })
+                }
                 className="h-8"
                 min="0"
                 max="1"
@@ -369,23 +420,25 @@ export const BeatSyncTools = () => {
               />
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
               id="onlyOnBeats"
               checked={autoCutOptions.onlyOnBeats}
-              onChange={(e) => setAutoCutOptions({ 
-                ...autoCutOptions, 
-                onlyOnBeats: e.target.checked 
-              })}
+              onChange={(e) =>
+                setAutoCutOptions({
+                  ...autoCutOptions,
+                  onlyOnBeats: e.target.checked,
+                })
+              }
               className="w-4 h-4"
             />
             <Label htmlFor="onlyOnBeats" className="text-xs">
               Only cut on beat markers
             </Label>
           </div>
-          
+
           <Button
             size="sm"
             variant="outline"
@@ -407,7 +460,10 @@ export const BeatSyncTools = () => {
             {(() => {
               const nearestBeat = beatSyncTools.findNearestBeat(playhead, 0.5);
               return nearestBeat ? (
-                <div>Nearest Beat: {nearestBeat.time.toFixed(3)}s ({nearestBeat.type})</div>
+                <div>
+                  Nearest Beat: {nearestBeat.time.toFixed(3)}s (
+                  {nearestBeat.type})
+                </div>
               ) : (
                 <div>No beat nearby</div>
               );
@@ -415,7 +471,7 @@ export const BeatSyncTools = () => {
             <div>Current BPM: ~120 (estimated)</div>
           </div>
         </div>
-        
+
         {!selectedItem && (
           <div className="text-center text-muted-foreground py-4 text-sm">
             Select a timeline item to use beat sync tools

@@ -1,9 +1,36 @@
 import sys, json, time, argparse, subprocess, shlex
+import numpy as np
 from pathlib import Path
 
 def emit(stage, progress=None, **kw):
     msg = {"stage": stage, **({} if progress is None else {"progress": progress}), **kw}
     print(json.dumps(msg), flush=True)
+
+def run_probe(clips_dir):
+    """Probe all media files in clips_dir and cache metadata"""
+    emit("probe", progress=0.0, message=f"Probing media files in {clips_dir}...")
+    
+    try:
+        from pathlib import Path
+        
+        # Get path to the probe script  
+        probe_script = Path(__file__).parent.parent / "analysis" / "probe_media.py"
+        
+        if not probe_script.exists():
+            emit("probe", progress=0.0, error=f"Probe script not found: {probe_script}")
+            return
+            
+        # Run the probe script
+        result = subprocess.run([
+            sys.executable, str(probe_script), clips_dir
+        ], capture_output=True, text=True, check=True)
+        
+        emit("probe", progress=1.0, message="Media probing completed successfully")
+        
+    except subprocess.CalledProcessError as e:
+        emit("probe", progress=0.0, error=f"Probe failed: {e.stderr}")
+    except Exception as e:
+        emit("probe", progress=0.0, error=f"Probe error: {str(e)}")
 
 def run_beats(song, engine="advanced"):
     emit("beats", progress=0.0, message=f"Loading audio and analyzing beats (engine: {engine})...")
@@ -33,10 +60,25 @@ def run_beats(song, engine="advanced"):
             tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, units='frames')
             beat_times = librosa.frames_to_time(beat_frames, sr=sr)
             
+            # Convert tempo to scalar - try direct conversion first
+            tempo_scalar = 120.0  # Default fallback
+            try:
+                if hasattr(tempo, 'item') and callable(getattr(tempo, 'item', None)):
+                    # Handle numpy scalar/array
+                    tempo_scalar = tempo.item()
+                elif isinstance(tempo, (list, tuple)) and len(tempo) > 0:
+                    # Handle list/tuple, take first element
+                    tempo_scalar = float(tempo[0])
+                else:
+                    # Handle regular number
+                    tempo_scalar = float(tempo)
+            except:
+                pass  # Use default
+            
             beats_data = {
                 "audio": song.replace("\\", "/"),
                 "sr": int(sr),
-                "tempo_global": float(tempo.item()) if hasattr(tempo, 'item') else float(tempo),
+                "tempo_global": tempo_scalar,
                 "beats": [{"time": float(t)} for t in beat_times]
             }
         else:
@@ -73,7 +115,7 @@ def run_shots(clips_dir):
     except subprocess.CalledProcessError as e:
         emit("shots", progress=0.0, error=f"Shot detection failed: {e.stderr}")
 
-def run_cutlist(song, clips_dir):
+def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium"):
     emit("cutlist", progress=0.0)
     try:
         # Call the existing build_cutlist.py script with correct arguments
@@ -84,7 +126,7 @@ def run_cutlist(song, clips_dir):
         Path("cache").mkdir(exist_ok=True)
         
         result = subprocess.run([sys.executable, "analysis/build_cutlist.py", 
-                               beats_json, shots_json, song, output_path, clips_dir], 
+                               beats_json, shots_json, song, output_path, clips_dir, preset, cutting_mode], 
                               capture_output=True, text=True, check=True)
         emit("cutlist", progress=1.0, message="Cutlist generation completed")
     except subprocess.CalledProcessError as e:
@@ -97,49 +139,161 @@ def parse_progress_line(line):
         return {k: v}
     return {}
 
-def run_render(proxy=True, ffmpeg_path="ffmpeg", duration_s=None):
+def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape"):
+    import os
+    import sys
+    
+    if ffmpeg_path is None:
+        # For testing, use simple ffmpeg command
+        # TODO: In production, this should use Tauri sidecar
+        ffmpeg_path = "ffmpeg"
+    
+    print(f"Debug: Using FFmpeg path: {ffmpeg_path}", file=sys.stderr, flush=True)
     render_type = "proxy" if proxy else "final"
-    out_path = f"render/{render_type}_preview.mp4"
+    
+    # Select cutlist based on preset
+    cutlist_files = {
+        "landscape": "cache/cutlist.json",
+        "portrait": "render/cutlist_portrait.json", 
+        "square": "render/cutlist_square.json"
+    }
+    
+    cutlist_path = cutlist_files.get(preset, "cache/cutlist.json")
+    out_path = f"render/{preset}_{render_type}.mp4"
     Path("render").mkdir(exist_ok=True)
-    
-    # For demo purposes, use a basic command with progress reporting
-    # In a real implementation, this would read from cutlist.json and build a complex filtergraph
-    
-    # Try to find a test input file or use a fallback
-    test_inputs = ["media_samples/test.mp4", "cache/test.mp4", "media_samples/76319854.mp4"]
-    input_file = None
-    
-    for test_input in test_inputs:
-        if Path(test_input).exists():
-            input_file = test_input
-            break
-    
-    if not input_file:
-        emit("render", progress=0.0, error="No input file found for rendering test")
+    if not Path(cutlist_path).exists():
+        emit("render", progress=0.0, error="No cutlist found. Please generate cutlist first.")
         return
     
-    # Get duration from ffprobe if not provided
-    if duration_s is None:
-        try:
-            probe_cmd = f'{ffmpeg_path.replace("ffmpeg", "ffprobe")} -v quiet -show_entries format=duration -of csv=p=0 "{input_file}"'
-            result = subprocess.run(shlex.split(probe_cmd), capture_output=True, text=True, check=True)
-            duration_s = float(result.stdout.strip())
-        except:
-            duration_s = 30.0  # Default fallback
+    try:
+        with open(cutlist_path, 'r', encoding='utf-8') as f:
+            cutlist = json.load(f)
+    except Exception as e:
+        emit("render", progress=0.0, error=f"Failed to read cutlist: {e}")
+        return
     
-    # Build ffmpeg command with progress reporting and ensure even dimensions
-    # Use scale filter to ensure width and height are divisible by 2 for H.264 compatibility
-    cmd = f'{ffmpeg_path} -y -hide_banner -nostats -progress pipe:1 -i "{input_file}" -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v h264 -crf 23 -c:a aac -t 10 "{out_path}"'
+    events = cutlist.get("events", [])
+    if not events:
+        emit("render", progress=0.0, error="No events found in cutlist")
+        return
     
-    emit("render", progress=0.0, msg=f"Starting {render_type} render", input=input_file, duration=duration_s)
+    audio_path = cutlist.get("audio", "")
+    target_width = cutlist.get("width", 1920)
+    target_height = cutlist.get("height", 1080)
+    target_fps = cutlist.get("fps", 60)
+    
+    emit("render", progress=0.1, msg=f"Processing {len(events)} video clips...")
+    
+    # Verify that source files exist
+    missing_files = []
+    for event in events:
+        src_path = event.get("src", "")
+        if not Path(src_path).exists():
+            missing_files.append(src_path)
+    
+    if missing_files:
+        emit("render", progress=0.0, error=f"Missing source files: {missing_files[:3]}{'...' if len(missing_files) > 3 else ''}")
+        return
+    
+    # Build FFmpeg filter complex for concatenation
+    # Each event becomes: [input][filter_v][filter_a]
+    filter_parts = []
+    input_args = []
+    
+    # Add audio input first if available
+    audio_input_index = -1
+    if audio_path and Path(audio_path).exists():
+        input_args.extend(["-i", audio_path])  # Remove quotes - subprocess handles them
+        audio_input_index = 0
+    
+    # Process video events
+    for i, event in enumerate(events):
+        src_path = event["src"]
+        in_time = event["in"]
+        out_time = event["out"]
+        duration = out_time - in_time
+        
+        if duration <= 0:
+            continue
+            
+        input_idx = len(input_args) // 2  # Each input takes 2 args: -i "path"
+        input_args.extend(["-i", src_path])  # Remove quotes
+        
+        # Create video filter for this clip: trim, scale to fill and crop
+        video_filter = (f"[{input_idx}:v]trim=start={in_time}:end={out_time},setpts=PTS-STARTPTS,"
+                       f"scale={target_width}:{target_height}:force_original_aspect_ratio=increase,"
+                       f"crop={target_width}:{target_height},"
+                       f"fps={target_fps},format=yuv420p,setsar=1[v{i}]")
+        filter_parts.append(video_filter)
+    
+    if not filter_parts:
+        emit("render", progress=0.0, error="No valid video clips found")
+        return
+    
+    # Concatenate all video streams
+    video_concat = "".join([f"[v{i}]" for i in range(len(filter_parts))]) + f"concat=n={len(filter_parts)}:v=1:a=0[outv]"
+    filter_parts.append(video_concat)
+    
+    # Combine all filters
+    filter_complex = ";".join(filter_parts)
+    
+    # Build full FFmpeg command
+    base_args = [ffmpeg_path, "-y", "-hide_banner", "-nostats", "-progress", "pipe:1"]
+    
+    # Add all inputs
+    cmd_args = base_args + input_args
+    
+    # Add filter complex
+    cmd_args.extend(["-filter_complex", filter_complex])
+    
+    # Map outputs
+    cmd_args.extend(["-map", "[outv]"])
+    
+    # Add audio if available
+    if audio_input_index >= 0:
+        cmd_args.extend(["-map", f"{audio_input_index}:a"])
+        cmd_args.extend(["-c:a", "aac"])
+    else:
+        cmd_args.extend(["-an"])  # No audio
+    
+    # Video encoding settings
+    if proxy:
+        # Fast proxy settings
+        cmd_args.extend(["-c:v", "h264", "-crf", "28", "-preset", "ultrafast"])
+    else:
+        # High quality final settings  
+        cmd_args.extend(["-c:v", "h264", "-crf", "20", "-preset", "medium"])
+    
+    # Output path
+    cmd_args.append(out_path)
+    
+    # Process clips in batches to avoid command line length limits
+    max_clips_per_batch = 10  # Reduced batch size for better compatibility
+    total_duration_s = sum(event["out"] - event["in"] for event in events if event["out"] > event["in"])
+    
+    if len(events) <= max_clips_per_batch:
+        # Small number of clips - process normally
+        success = render_batch_direct(events, cmd_args, total_duration_s, render_type, out_path, ffmpeg_path)
+    else:
+        # Large number of clips - process in batches and concatenate
+        success = render_with_batching(events, ffmpeg_path, proxy, render_type, out_path, audio_input_index, target_width, target_height, target_fps)
+    
+    if not success:
+        return  # Error already emitted
+
+
+def render_batch_direct(events, cmd_args, total_duration_s, render_type, out_path, ffmpeg_path):
+    """Render a small batch of clips directly"""
+    import subprocess
+    import time
     
     try:
-        cmd_args = shlex.split(cmd)
-        p = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, universal_newlines=True)
+        # Execute FFmpeg with progress tracking
+        p = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, universal_newlines=True, encoding='utf-8', errors='replace')
         
         if not p.stdout:
             emit("render", progress=0.0, error="Failed to capture stdout from ffmpeg process")
-            return
+            return False
         
         out_time_ms = 0
         
@@ -157,11 +311,11 @@ def run_render(proxy=True, ffmpeg_path="ffmpeg", duration_s=None):
                     out_time_ms = int(kv["out_time_ms"])
                     # Convert microseconds to seconds for progress calculation
                     out_time_s = out_time_ms / 1_000_000
-                    if duration_s and duration_s > 0:
-                        # Calculate progress but cap at 10s since we're using -t 10
-                        target_duration = min(duration_s, 10.0)
-                        prog = max(0.0, min(1.0, out_time_s / target_duration))
-                        emit("render", progress=prog, out_time_s=out_time_s, target_duration=target_duration)
+                    if total_duration_s and total_duration_s > 0:
+                        # Calculate progress based on total expected output duration
+                        prog = max(0.0, min(1.0, out_time_s / total_duration_s))
+                        prog = 0.2 + (prog * 0.8)  # Scale from 0.2 to 1.0
+                        emit("render", progress=prog, out_time_s=out_time_s, total_duration=total_duration_s)
                 except ValueError: 
                     pass
             elif "speed" in kv:
@@ -173,32 +327,169 @@ def run_render(proxy=True, ffmpeg_path="ffmpeg", duration_s=None):
         
         if code == 0:
             emit("render", progress=1.0, message=f"{render_type.capitalize()} render completed successfully", output=out_path)
+            return True
         else:
             # Capture any remaining stderr
             stderr_output = ""
             if p.stderr:
                 stderr_output = p.stderr.read()
             emit("render", progress=0.0, error=f"Render failed with exit code {code}. stderr: {stderr_output}")
+            return False
             
-    except FileNotFoundError:
-        emit("render", progress=0.0, error=f"FFmpeg not found at path: {ffmpeg_path}")
+    except FileNotFoundError as e:
+        emit("render", progress=0.0, error=f"FFmpeg not found at path: {ffmpeg_path}. Error: {str(e)}")
+        return False
+    except OSError as e:
+        emit("render", progress=0.0, error=f"OS error running FFmpeg: {str(e)}")
+        return False
     except Exception as e:
         emit("render", progress=0.0, error=f"Render failed: {str(e)}")
+        return False
+
+
+def render_with_batching(events, ffmpeg_path, proxy, render_type, final_out_path, audio_input_index, target_width, target_height, target_fps):
+    """Render large number of clips using batching and concatenation"""
+    import tempfile
+    import subprocess
+    import os
+    import shutil
+    from pathlib import Path
+    
+    max_clips_per_batch = 10
+    batch_files = []
+    
+    try:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Process clips in batches
+            for batch_idx in range(0, len(events), max_clips_per_batch):
+                batch_events = events[batch_idx:batch_idx + max_clips_per_batch]
+                batch_output = os.path.join(temp_dir, f"batch_{batch_idx//max_clips_per_batch}.mp4")
+                
+                emit("render", progress=0.2 + (batch_idx / len(events)) * 0.6, 
+                     msg=f"Rendering batch {batch_idx//max_clips_per_batch + 1} with {len(batch_events)} clips...")
+                
+                # Build FFmpeg command for this batch
+                input_args = []
+                filter_parts = []
+                
+                # Add audio input if available for first batch only
+                if batch_idx == 0 and audio_input_index >= 0:
+                    # Get audio path from first event
+                    audio_path = None
+                    # Try to find audio file in cache
+                    for audio_file in ["cache/audio.mp3", "cache/audio.wav"]:
+                        if Path(audio_file).exists():
+                            audio_path = audio_file
+                            break
+                    
+                    if audio_path:
+                        input_args.extend(["-i", audio_path])
+                
+                # Process video events for this batch
+                for i, event in enumerate(batch_events):
+                    src_path = event["src"]
+                    in_time = event["in"]
+                    out_time = event["out"]
+                    duration = out_time - in_time
+                    
+                    if duration <= 0:
+                        continue
+                        
+                    input_idx = len(input_args) // 2
+                    input_args.extend(["-i", src_path])
+                    
+                    # Create video filter for this clip - crop to fill frame
+                    video_filter = (f"[{input_idx}:v]trim=start={in_time}:end={out_time},setpts=PTS-STARTPTS,"
+                                  f"scale={target_width}:{target_height}:force_original_aspect_ratio=increase,"
+                                  f"crop={target_width}:{target_height},"
+                                  f"fps={target_fps},format=yuv420p,setsar=1[v{i}]")
+                    filter_parts.append(video_filter)
+                
+                if not filter_parts:
+                    continue
+                
+                # Concatenate video streams
+                video_concat = "".join([f"[v{i}]" for i in range(len(filter_parts))]) + f"concat=n={len(filter_parts)}:v=1:a=0[outv]"
+                filter_parts.append(video_concat)
+                filter_complex = ";".join(filter_parts)
+                
+                # Build batch command
+                batch_cmd = [ffmpeg_path, "-y", "-hide_banner"] + input_args
+                batch_cmd.extend(["-filter_complex", filter_complex, "-map", "[outv]"])
+                
+                # Video encoding
+                if proxy:
+                    batch_cmd.extend(["-c:v", "h264", "-crf", "28", "-preset", "ultrafast"])
+                else:
+                    batch_cmd.extend(["-c:v", "h264", "-crf", "20", "-preset", "medium"])
+                
+                batch_cmd.append(batch_output)
+                
+                # Execute batch
+                result = subprocess.run(batch_cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
+                if result.returncode != 0:
+                    emit("render", progress=0.0, error=f"Batch {batch_idx//max_clips_per_batch + 1} failed: {result.stderr}")
+                    return False
+                
+                batch_files.append(batch_output)
+            
+            if not batch_files:
+                emit("render", progress=0.0, error="No valid batches were created")
+                return False
+            
+            # Concatenate all batch files
+            if len(batch_files) == 1:
+                # Only one batch, just copy it
+                shutil.copy2(batch_files[0], final_out_path)
+                emit("render", progress=1.0, message=f"{render_type.capitalize()} render completed successfully", output=final_out_path)
+                return True
+            else:
+                # Multiple batches - concatenate them
+                emit("render", progress=0.85, msg="Concatenating final output...")
+                
+                concat_list_path = os.path.join(temp_dir, "concat_list.txt")
+                with open(concat_list_path, 'w') as f:
+                    for batch_file in batch_files:
+                        f.write(f"file '{batch_file}'\n")
+                
+                concat_cmd = [
+                    ffmpeg_path, "-y", "-f", "concat", "-safe", "0", 
+                    "-i", concat_list_path, "-c", "copy", final_out_path
+                ]
+                
+                result = subprocess.run(concat_cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
+                if result.returncode == 0:
+                    emit("render", progress=1.0, message=f"{render_type.capitalize()} render completed successfully", output=final_out_path)
+                    return True
+                else:
+                    emit("render", progress=0.0, error=f"Final concatenation failed: {result.stderr}")
+                    return False
+                    
+    except Exception as e:
+        emit("render", progress=0.0, error=f"Batch rendering failed: {str(e)}")
+        return False
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("stage", choices=["beats","shots","cutlist","render"])
+    ap.add_argument("stage", choices=["probe","beats","shots","cutlist","render"])
     ap.add_argument("--song", default="")
     ap.add_argument("--clips", default="")
     ap.add_argument("--proxy", action="store_true")
+    ap.add_argument("--preset", default="landscape", choices=["landscape", "portrait", "square"])
+    ap.add_argument("--cutting_mode", default="medium", choices=["slow", "medium", "fast", "ultra_fast", "random"])
     ap.add_argument("--engine", default="advanced", choices=["basic", "advanced"])
     args = ap.parse_args()
 
     # Debug: Show all arguments received
     import sys
     print(f"Debug: Worker called with arguments: {sys.argv}", file=sys.stderr, flush=True)
-    print(f"Debug: Parsed args - stage: {args.stage}, song: '{args.song}', clips: '{args.clips}', engine: {args.engine}", file=sys.stderr, flush=True)
+    print(f"Debug: Parsed args - stage: {args.stage}, song: '{args.song}', clips: '{args.clips}', engine: {args.engine}, preset: {args.preset}", file=sys.stderr, flush=True)
 
+    if args.stage == "probe":
+        if not args.clips:
+            emit("probe", progress=0.0, error="No clips directory provided. Please select a clips directory first.")
+        else:
+            run_probe(args.clips)
     if args.stage == "beats":
         if not args.song:
             emit("beats", progress=0.0, error="No song file provided. Please select an audio file first.")
@@ -209,5 +500,5 @@ if __name__ == "__main__":
             emit("shots", progress=0.0, error="No clips directory provided. Please select a clips directory first.")
         else:
             run_shots(args.clips)
-    if args.stage == "cutlist": run_cutlist(args.song, args.clips)
-    if args.stage == "render":  run_render(proxy=args.proxy)
+    if args.stage == "cutlist": run_cutlist(args.song, args.clips, args.preset, args.cutting_mode)
+    if args.stage == "render":  run_render(proxy=args.proxy, preset=args.preset)

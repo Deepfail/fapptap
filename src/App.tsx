@@ -35,8 +35,8 @@ export default function App() {
           {/* Top Bar with Editor Mode Toggle */}
           <div className="flex items-center justify-between p-3 border-b border-slate-700 bg-slate-800/50">
             <TopBar />
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               variant="outline"
               onClick={() => setEditorMode(false)}
               className="text-xs"
@@ -72,8 +72,8 @@ export default function App() {
         {/* Top Bar with Editor Mode Toggle */}
         <div className="flex items-center justify-between p-3 border-b border-slate-700 bg-slate-800/50">
           <TopBar />
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             variant="default"
             onClick={() => setEditorMode(true)}
             className="text-xs"
@@ -118,9 +118,5 @@ export default function App() {
     );
   };
 
-  return (
-    <EditorProvider>
-      {renderContent()}
-    </EditorProvider>
-  );
+  return <EditorProvider>{renderContent()}</EditorProvider>;
 }

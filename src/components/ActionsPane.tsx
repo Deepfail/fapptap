@@ -56,6 +56,12 @@ const stageConfigs = {
     description: "Generate preview video with audio sync",
     color: "from-orange-500 to-orange-600",
   },
+  final: {
+    icon: Monitor,
+    title: "Final Render",
+    description: "Create high-quality final video",
+    color: "from-red-500 to-red-600",
+  },
 };
 
 export function ActionsPane() {
@@ -96,11 +102,13 @@ export function ActionsPane() {
       songPath,
       clipsDir,
       selectedClipIds: Array.from(selectedClipIds),
-      hasRequiredInputs
+      hasRequiredInputs,
     });
 
     if (!songPath) {
-      toast.error("Please select an audio file first using the 'Load Audio' button");
+      toast.error(
+        "Please select an audio file first using the 'Load Audio' button"
+      );
       return;
     }
 
@@ -130,13 +138,17 @@ export function ActionsPane() {
       const workerArgs = {
         song: songPath,
         clips: clipsDir,
-        proxy: stage === "render",
+        proxy: stage === "render", // proxy for "render", final quality for "final"
+        preset: prefs.preset,
+        cutting_mode: prefs.cuttingMode,
         engine: prefs.engine,
       };
 
       console.log("ActionsPane calling worker with args:", workerArgs);
 
-      await worker.runStage(stage, workerArgs);
+      // Map "final" stage to "render" for the worker, but with proxy=false
+      const workerStage = stage === "final" ? "render" : stage;
+      await worker.runStage(workerStage, workerArgs);
 
       updateJob(jobId, {
         status: "completed",
@@ -168,7 +180,7 @@ export function ActionsPane() {
     }
 
     setIsRunningFullWorkflow(true);
-    const stages = ["beats", "shots", "cutlist", "render"];
+    const stages = ["beats", "shots", "cutlist", "render"]; // Proxy render only
 
     try {
       for (const stage of stages) {
@@ -178,32 +190,21 @@ export function ActionsPane() {
         );
 
         if (!existingJob) {
+          console.log(`Running workflow stage: ${stage}`);
+          
+          // Run the stage and wait for its promise to resolve
+          // This ensures we wait for the actual completion, not just state updates
           await runStage(stage);
-
-          // Wait for completion before moving to next stage
-          await new Promise<void>((resolve, reject) => {
-            const checkInterval = setInterval(() => {
-              const currentJob = jobs.find(
-                (j) =>
-                  j.type === stage &&
-                  j.status !== "pending" &&
-                  j.status !== "running"
-              );
-
-              if (currentJob?.status === "completed") {
-                clearInterval(checkInterval);
-                resolve();
-              } else if (currentJob?.status === "error") {
-                clearInterval(checkInterval);
-                reject(new Error(currentJob.error || `${stage} failed`));
-              }
-            }, 500);
-          });
+          
+          console.log(`Stage ${stage} completed, moving to next stage`);
+        } else {
+          console.log(`Stage ${stage} already completed, skipping`);
         }
       }
 
       toast.success("Video creation completed! 🎉");
     } catch (error: any) {
+      console.error("Workflow failed:", error);
       toast.error(`Workflow failed: ${error.message}`);
     } finally {
       setIsRunningFullWorkflow(false);
@@ -330,6 +331,38 @@ export function ActionsPane() {
                 </>
               )}
             </Button>
+
+            {/* Final Render Button - shown after proxy render is complete */}
+            {(() => {
+              const renderJob = getJobStatus("render");
+              const finalJob = getJobStatus("final");
+              const showFinalButton = renderJob.status === "completed" && finalJob.status !== "running";
+              
+              if (showFinalButton) {
+                return (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full h-12 text-base border-red-500 text-red-400 hover:bg-red-500/10"
+                    onClick={() => runStage("final")}
+                    disabled={finalJob.status === "running"}
+                  >
+                    {finalJob.status === "running" ? (
+                      <>
+                        <div className="h-4 w-4 border border-red-400 border-t-transparent rounded-full animate-spin mr-2" />
+                        Creating Final Video...
+                      </>
+                    ) : (
+                      <>
+                        <Monitor className="h-4 w-4 mr-2" />
+                        {finalJob.status === "completed" ? "Re-render Final" : "Create Final Video"}
+                      </>
+                    )}
+                  </Button>
+                );
+              }
+              return null;
+            })()}
 
             {!hasRequiredInputs && (
               <p className="text-xs text-red-400">
@@ -517,6 +550,65 @@ export function ActionsPane() {
                     Advanced
                   </div>
                 </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label htmlFor="preset" className="text-sm">
+              Aspect Ratio
+            </Label>
+            <Select
+              value={prefs.preset}
+              onValueChange={(value: "landscape" | "portrait" | "square") =>
+                updatePrefs({ preset: value })
+              }
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="landscape">
+                  <div className="flex items-center gap-2">
+                    <Monitor className="h-3 w-3" />
+                    Landscape
+                  </div>
+                </SelectItem>
+                <SelectItem value="portrait">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-2 bg-current" />
+                    Portrait
+                  </div>
+                </SelectItem>
+                <SelectItem value="square">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 bg-current" />
+                    Square
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label htmlFor="cutting_mode" className="text-sm">
+              Cutting Rate
+            </Label>
+            <Select
+              value={prefs.cuttingMode}
+              onValueChange={(value: "slow" | "medium" | "fast" | "ultra_fast" | "random") =>
+                updatePrefs({ cuttingMode: value })
+              }
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="slow">🐌 Slow</SelectItem>
+                <SelectItem value="medium">⚡ Medium</SelectItem>
+                <SelectItem value="fast">🚀 Fast</SelectItem>
+                <SelectItem value="ultra_fast">💨 Ultra Fast</SelectItem>
+                <SelectItem value="random">🎲 Random</SelectItem>
               </SelectContent>
             </Select>
           </div>

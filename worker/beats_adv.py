@@ -4,13 +4,19 @@ import os
 import json
 from pathlib import Path
 
-# Numpy compatibility patch for madmom
-if not hasattr(np, 'int'):
-    np.int = int
-if not hasattr(np, 'float'):
-    np.float = float
-if not hasattr(np, 'bool'):
-    np.bool = bool
+# Numpy compatibility patch for madmom - ensure madmom can access these deprecated aliases
+try:
+    import madmom
+    # Only set these attributes if madmom is available and they don't exist
+    if not hasattr(np, 'int'):
+        setattr(np, 'int', np.int_)
+    if not hasattr(np, 'float'):
+        setattr(np, 'float', np.float64)
+    if not hasattr(np, 'bool'):
+        setattr(np, 'bool', np.bool_)
+except ImportError:
+    # If madmom isn't available, we don't need these patches
+    pass
 
 def compute_advanced_beats(audio_path, debug=False):
     """
@@ -124,7 +130,13 @@ def compute_advanced_beats(audio_path, debug=False):
     # Fallback: Use global tempo if no tempo curve could be computed
     if len(tempo_curve) == 0:
         print("Warning: Could not compute tempo curve, using global tempo as fallback")
-        tempo_curve = [(0.0, float(tempo.item()) if hasattr(tempo, 'item') else float(tempo))]
+        # Convert tempo to scalar for tempo curve - try direct conversion first
+        tempo_scalar = 120.0  # Default fallback
+        try:
+            tempo_scalar = float(tempo)
+        except:
+            pass  # Use default
+        tempo_curve = [(0.0, tempo_scalar)]
     
     # Dynamic programming beat snapping with tempo drift handling
     if len(tempo_curve) > 0:
@@ -252,8 +264,12 @@ def compute_advanced_beats(audio_path, debug=False):
         downbeats = None
     
     # Prepare result
-    # Ensure tempo is a scalar float (handle case where it might be a numpy array)
-    tempo_scalar = float(tempo.item()) if hasattr(tempo, 'item') else float(tempo)
+    # Ensure tempo is a scalar float - try direct conversion first
+    tempo_scalar = 120.0  # Default fallback
+    try:
+        tempo_scalar = float(tempo)
+    except:
+        pass  # Use default
     
     result = {
         "version": 1,

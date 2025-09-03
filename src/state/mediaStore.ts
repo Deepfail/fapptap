@@ -38,6 +38,8 @@ export interface PrefsState {
   songPath?: string;
   selectedClipIds: Set<string>;
   engine: "basic" | "advanced";
+  preset: "landscape" | "portrait" | "square";
+  cuttingMode: "slow" | "medium" | "fast" | "ultra_fast" | "random";
   snapToBeat: boolean;
   pixelsPerSecond: number;
   theme: "dark" | "light";
@@ -108,6 +110,8 @@ const createId = () => {
 const defaultPrefs: PrefsState = {
   selectedClipIds: new Set(),
   engine: "basic",
+  preset: "landscape",
+  cuttingMode: "medium",
   snapToBeat: true,
   pixelsPerSecond: 50,
   theme: "dark",

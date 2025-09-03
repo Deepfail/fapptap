@@ -110,7 +110,7 @@ let currentWorkerCommand: Command<string> | null = null;
 
 /**
  * Run the Python worker with specified arguments using sidecar binary
- * 
+ *
  * @param stage - The worker stage to run (beats, shots, cutlist, render)
  * @param args - Arguments to pass to the worker
  * @param onProgress - Callback for real-time JSON progress updates
@@ -171,13 +171,13 @@ export async function runWorker(
         command.stdout.on("data", (data) => {
           const textData = String(data);
           allStdout += textData;
-          
+
           // Process each line for JSONL format
-          const lines = textData.split('\n').filter(line => line.trim());
-          
+          const lines = textData.split("\n").filter((line) => line.trim());
+
           for (const line of lines) {
             onLine?.(line);
-            
+
             // Try to parse as JSON for progress updates
             if (onProgress) {
               try {
