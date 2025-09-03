@@ -74,23 +74,43 @@ def run_render(proxy=True, ffmpeg_path="ffmpeg", duration_s=None):
     out_path = f"render/{render_type}_preview.mp4"
     Path("render").mkdir(exist_ok=True)
     
-    # For now, build a basic ffmpeg command with progress reporting
+    # For demo purposes, use a basic command with progress reporting
     # In a real implementation, this would read from cutlist.json and build a complex filtergraph
-    # But we'll use a simple command for demonstration
     
-    # Try to get duration from a test file or estimate
+    # Try to find a test input file or use a fallback
+    test_inputs = ["media_samples/test.mp4", "cache/test.mp4", "media_samples/76319854.mp4"]
+    input_file = None
+    
+    for test_input in test_inputs:
+        if Path(test_input).exists():
+            input_file = test_input
+            break
+    
+    if not input_file:
+        emit("render", progress=0.0, error="No input file found for rendering test")
+        return
+    
+    # Get duration from ffprobe if not provided
     if duration_s is None:
-        duration_s = 30.0  # Default fallback duration
+        try:
+            probe_cmd = f'{ffmpeg_path.replace("ffmpeg", "ffprobe")} -v quiet -show_entries format=duration -of csv=p=0 "{input_file}"'
+            result = subprocess.run(shlex.split(probe_cmd), capture_output=True, text=True, check=True)
+            duration_s = float(result.stdout.strip())
+        except:
+            duration_s = 30.0  # Default fallback
     
-    # Basic ffmpeg command with progress reporting
-    # This is a simplified version - in reality you'd build from cutlist.json
-    test_input = "cache/test.mp4"  # Fallback test input
-    cmd = f'{ffmpeg_path} -y -hide_banner -nostats -progress pipe:1 -i "{test_input}" -c:v h264 -crf 23 -c:a aac "{out_path}"'
+    # Build ffmpeg command with progress reporting
+    cmd = f'{ffmpeg_path} -y -hide_banner -nostats -progress pipe:1 -i "{input_file}" -c:v h264 -crf 23 -c:a aac -t 10 "{out_path}"'
     
-    emit("render", progress=0.0, msg="starting")
+    emit("render", progress=0.0, msg=f"Starting {render_type} render", input=input_file, duration=duration_s)
     
     try:
-        p = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+        p = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, universal_newlines=True)
+        
+        if not p.stdout:
+            emit("render", progress=0.0, error="Failed to capture stdout from ffmpeg process")
+            return
+        
         out_time_ms = 0
         
         while True:
@@ -105,27 +125,29 @@ def run_render(proxy=True, ffmpeg_path="ffmpeg", duration_s=None):
             if "out_time_ms" in kv:
                 try: 
                     out_time_ms = int(kv["out_time_ms"])
-                except: 
+                    # Convert microseconds to seconds for progress calculation
+                    out_time_s = out_time_ms / 1_000_000
+                    if duration_s and duration_s > 0:
+                        # Calculate progress but cap at 10s since we're using -t 10
+                        target_duration = min(duration_s, 10.0)
+                        prog = max(0.0, min(1.0, out_time_s / target_duration))
+                        emit("render", progress=prog, out_time_s=out_time_s, target_duration=target_duration)
+                except ValueError: 
                     pass
-                if duration_s and duration_s > 0:
-                    prog = max(0.0, min(1.0, (out_time_ms/1_000_000) / duration_s))
-                    emit("render", progress=prog, out_time_ms=out_time_ms)
             elif "speed" in kv:
-                emit("render", progress=None, speed=kv["speed"])
+                emit("render", speed=kv["speed"])
             elif "progress" in kv and kv["progress"] == "end":
-                emit("render", progress=1.0, msg="done")
+                emit("render", progress=1.0, msg="Render completed successfully")
         
         code = p.wait()
-        emit("render", exit_code=code)
         
         if code == 0:
-            emit("render", progress=1.0, message=f"{render_type.capitalize()} render completed")
+            emit("render", progress=1.0, message=f"{render_type.capitalize()} render completed successfully", output=out_path)
         else:
             emit("render", progress=0.0, error=f"Render failed with exit code {code}")
             
     except FileNotFoundError:
-        # Fallback when ffmpeg or test file is not available
-        emit("render", progress=0.0, error="ffmpeg not found or test input missing")
+        emit("render", progress=0.0, error=f"FFmpeg not found at path: {ffmpeg_path}")
     except Exception as e:
         emit("render", progress=0.0, error=f"Render failed: {str(e)}")
 

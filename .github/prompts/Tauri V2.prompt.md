@@ -13,6 +13,7 @@ TAURI V2 MANDATORY WORKFLOW:
 MCP TOOLS INTEGRATION:
 
 ALWAYS use these MCP servers when relevant to the task:
+
 - 🗂️ filesystem: For file operations, media management, project structure analysis
 - 🗃️ sqlite: For querying analysis.db cache, metadata storage
 - 🧠 memory: For remembering project context across sessions
@@ -21,8 +22,9 @@ ALWAYS use these MCP servers when relevant to the task:
 - ⚡ shell: For build scripts, FFmpeg operations, Git commands, system tasks
 
 When to use MCP tools:
+
 - File operations → Use filesystem server for enhanced file management
-- Database queries → Use sqlite server for analysis cache operations  
+- Database queries → Use sqlite server for analysis cache operations
 - Complex problems → Use sequential-thinking for step-by-step problem solving
 - Need context → Use memory server to store/retrieve project patterns
 - Testing UI → Use puppeteer for automated browser testing

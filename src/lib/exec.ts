@@ -105,12 +105,23 @@ export async function ffprobeVersion(): Promise<CommandResult> {
   }
 }
 
+// Global reference to current running command for cancellation
+let currentWorkerCommand: Command<string> | null = null;
+
 /**
  * Run the Python worker with specified arguments using sidecar binary
+ * 
+ * @param stage - The worker stage to run (beats, shots, cutlist, render)
+ * @param args - Arguments to pass to the worker
+ * @param onProgress - Callback for real-time JSON progress updates
+ * @param onLine - Optional callback for raw output lines
+ * @returns Promise that resolves when worker completes
  */
 export async function runWorker(
   stage: string,
-  args: Record<string, string | boolean> = {}
+  args: Record<string, string | boolean> = {},
+  onProgress?: (data: any) => void,
+  onLine?: (line: string) => void
 ): Promise<CommandResult> {
   if (!isTauriAvailable()) {
     throw new Error("Worker execution is only available in desktop mode");
@@ -132,14 +143,93 @@ export async function runWorker(
   console.log("Running worker with args:", workerArgs);
 
   const command = Command.sidecar("binaries/worker", workerArgs);
-  const result = await command.execute();
-  if (result.code !== 0) {
-    console.error("Worker sidecar non-zero exit", { workerArgs, result });
-  }
+  currentWorkerCommand = command;
 
-  return {
-    code: result.code ?? -1,
-    stdout: result.stdout,
-    stderr: result.stderr,
-  };
+  try {
+    if (onProgress || onLine) {
+      // Handle real-time streaming output using event listeners
+      let allStdout = "";
+      let allStderr = "";
+
+      return new Promise<CommandResult>((resolve, reject) => {
+        // Set up event listeners for streaming
+        command.on("close", (data) => {
+          console.log("Worker process closed with code:", data.code);
+          resolve({
+            code: data.code ?? -1,
+            stdout: allStdout,
+            stderr: allStderr,
+          });
+        });
+
+        command.on("error", (error) => {
+          console.error("Worker process error:", error);
+          reject(new Error(`Worker process error: ${error}`));
+        });
+
+        // Handle stdout streaming with JSONL parsing
+        command.stdout.on("data", (data) => {
+          const textData = String(data);
+          allStdout += textData;
+          
+          // Process each line for JSONL format
+          const lines = textData.split('\n').filter(line => line.trim());
+          
+          for (const line of lines) {
+            onLine?.(line);
+            
+            // Try to parse as JSON for progress updates
+            if (onProgress) {
+              try {
+                const progressData = JSON.parse(line);
+                onProgress(progressData);
+              } catch {
+                // Not JSON, ignore silently
+              }
+            }
+          }
+        });
+
+        // Handle stderr streaming
+        command.stderr.on("data", (data) => {
+          const textData = String(data);
+          allStderr += textData;
+          console.warn("Worker stderr:", textData);
+        });
+
+        // Start the streaming process
+        command.spawn().catch(reject);
+      });
+    } else {
+      // Execute without streaming (legacy mode)
+      const result = await command.execute();
+      if (result.code !== 0) {
+        console.error("Worker sidecar non-zero exit", { workerArgs, result });
+      }
+
+      return {
+        code: result.code ?? -1,
+        stdout: result.stdout,
+        stderr: result.stderr,
+      };
+    }
+  } finally {
+    currentWorkerCommand = null;
+  }
+}
+
+/**
+ * Cancel the currently running worker process
+ */
+export async function cancelWorker(): Promise<void> {
+  if (currentWorkerCommand) {
+    try {
+      // @ts-ignore - kill method may not be properly typed in Tauri v2
+      await currentWorkerCommand.kill();
+      console.log("Worker process cancelled");
+      currentWorkerCommand = null;
+    } catch (error) {
+      console.error("Failed to cancel worker process:", error);
+    }
+  }
 }

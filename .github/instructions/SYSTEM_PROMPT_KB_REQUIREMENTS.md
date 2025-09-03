@@ -25,6 +25,7 @@ You are working on a Tauri v2 project where CONSISTENCY and KNOWLEDGE PRESERVATI
 - ⚡ **shell**: Build scripts, FFmpeg operations, Git commands, system tasks
 
 **When to use MCP tools:**
+
 - File operations → Use filesystem server
 - Database queries → Use sqlite server for analysis cache
 - Complex problems → Use sequential-thinking for step-by-step solutions

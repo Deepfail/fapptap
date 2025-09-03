@@ -15,16 +15,19 @@
 ### 1. Access GitHub Copilot MCP Settings
 
 **Method 1: VS Code Settings UI**
+
 1. Open **Settings** (`Ctrl+,`)
 2. Search for `"github copilot mcp"` or `"copilot mcp"`
 3. Look for MCP-related settings under GitHub Copilot section
 
-**Method 2: Command Palette** 
+**Method 2: Command Palette**
+
 1. Open **Command Palette** (`Ctrl+Shift+P`)
 2. Type `"MCP"` to see available MCP commands from installed extensions
 3. Try `"Copilot MCP: Configure Servers"` or similar
 
 **Method 3: Manual Configuration**
+
 - Configure via `.vscode/settings.json` (see below)
 
 ### 2. Available MCP Servers for FapTap
@@ -67,6 +70,7 @@ npm install -g @modelcontextprotocol/server-filesystem
 
 **Option A: VS Code Settings JSON**
 Add to `.vscode/settings.json`:
+
 ```json
 {
   "github.copilot.mcp.servers": {
@@ -79,11 +83,13 @@ Add to `.vscode/settings.json`:
 ```
 
 **Option B: Global VS Code Settings**
+
 1. **Open Settings**: `Ctrl+,`
 2. **Click JSON icon** (top-right) to edit `settings.json`
 3. **Add MCP configuration** for GitHub Copilot
 
 **Option C: Use Installed MCP Extensions**
+
 - **Copilot MCP Extension** should automatically detect servers
 - **MCP Explorer** can help install and configure servers
 - Check extension-specific settings in VS Code
@@ -148,12 +154,14 @@ Copilot + MCP → Reference KB → Update patterns → Validate changes → Docu
 ## 💡 How to Install and Configure New MCP Servers
 
 Installing a new MCP server for GitHub Copilot is a two-step process:
+
 1.  **Install the Server Package**: Get the server's command-line tool onto your system (usually with `npm`).
 2.  **Configure in VS Code**: Tell GitHub Copilot how to run that server by adding it to your `.vscode/settings.json`.
 
 ### **Example: Installing a `super-shell-mcp` Server**
 
 #### **Step 1: Install the Server Package**
+
 Open your terminal and install the package globally using `npm`.
 
 ```powershell
@@ -161,6 +169,7 @@ npm install -g super-shell-mcp
 ```
 
 #### **Step 2: Configure the Server in VS Code**
+
 Open your project's `.vscode/settings.json` and add a new entry to the `github.copilot.mcp.servers` object.
 
 ```jsonc
@@ -181,6 +190,7 @@ Open your project's `.vscode/settings.json` and add a new entry to the `github.c
 ```
 
 #### **Step 3: Restart and Verify**
+
 **Restart VS Code** to apply the changes. You can then check Copilot's MCP settings panel to see if your new server is listed.
 
 ---
