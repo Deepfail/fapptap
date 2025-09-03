@@ -131,18 +131,31 @@ def compute_advanced_beats(audio_path, debug=False):
         # Create a predicted beat grid from smoothed tempo curve
         beat_grid = []
         current_time = 0.0
-        for i in range(len(tempo_curve) - 1):
-            t_current, bpm_current = tempo_curve[i]
-            t_next, bpm_next = tempo_curve[i + 1]
-            # Interpolate BPM between points
-            duration = t_next - t_current
-            num_beats = int(round(duration * (bpm_current + bpm_next) / 120))
-            if num_beats > 0:
-                beat_interval = duration / num_beats
-                for j in range(num_beats):
-                    beat_time = t_current + j * beat_interval
+        
+        if len(tempo_curve) == 1:
+            # Single tempo point - create regular beat grid
+            t_start, bpm = tempo_curve[0]
+            beat_interval = 60.0 / bpm
+            duration = len(y) / sr
+            num_beats = int(duration / beat_interval)
+            for i in range(num_beats):
+                beat_time = t_start + i * beat_interval
+                if beat_time < duration:
                     beat_grid.append(beat_time)
-            current_time = t_next
+        else:
+            # Multiple tempo points - interpolate between them
+            for i in range(len(tempo_curve) - 1):
+                t_current, bpm_current = tempo_curve[i]
+                t_next, bpm_next = tempo_curve[i + 1]
+                # Interpolate BPM between points
+                duration = t_next - t_current
+                num_beats = int(round(duration * (bpm_current + bpm_next) / 120))
+                if num_beats > 0:
+                    beat_interval = duration / num_beats
+                    for j in range(num_beats):
+                        beat_time = t_current + j * beat_interval
+                        beat_grid.append(beat_time)
+                current_time = t_next
         
         # Snap beats to local onset maxima within ±60ms window
         snap_window = 0.06  # 60ms
@@ -245,12 +258,13 @@ def compute_advanced_beats(audio_path, debug=False):
     result = {
         "version": 1,
         "engine": "advanced",
+        "audio": audio_path.replace("\\", "/"),
         "tempo_global": tempo_scalar,
-        "beats": beat_times.tolist(),
-        "strength": beat_strengths,
+        "beats": [float(t) for t in beat_times.tolist()],
+        "strength": [float(s) for s in beat_strengths],
         "tempo_curve": {
-            "t": [t for t, _ in tempo_curve],
-            "bpm": [bpm for _, bpm in tempo_curve]
+            "t": [float(t) for t, _ in tempo_curve],
+            "bpm": [float(bpm) for _, bpm in tempo_curve]
         }
     }
     

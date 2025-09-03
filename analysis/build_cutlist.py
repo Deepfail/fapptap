@@ -60,8 +60,12 @@ def main(beats_json, shots_json, audio_path, out_json):
         # Legacy format: flat array of times
         beat_times = [float(t) for t in beats["beats_sec"]]
     elif "beats" in beats and isinstance(beats["beats"], list) and beats["beats"]:
-        # New format: array of objects with "time" key
-        beat_times = [float(beat["time"]) for beat in beats["beats"]]
+        if isinstance(beats["beats"][0], dict):
+            # New format: array of objects with "time" key
+            beat_times = [float(beat["time"]) for beat in beats["beats"]]
+        else:
+            # Advanced engine format: flat array of times
+            beat_times = [float(beat) for beat in beats["beats"]]
     else:
         beat_times = []
     
