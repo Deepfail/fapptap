@@ -18,6 +18,54 @@ except ImportError:
     # If madmom isn't available, we don't need these patches
     pass
 
+def detect_downbeats_from_strengths(beat_times, beat_strengths, tempo):
+    """
+    Fallback downbeat detection using beat strengths and tempo analysis
+    """
+    if len(beat_times) == 0 or len(beat_strengths) == 0:
+        return []
+    
+    # Estimate beats per bar based on tempo (most music is 4/4)
+    beats_per_bar = 4
+    
+    # Calculate expected time between downbeats
+    beat_interval = 60.0 / tempo  # seconds per beat
+    bar_interval = beat_interval * beats_per_bar  # seconds per bar
+    
+    # Group beats into potential bars
+    downbeats = []
+    start_time = beat_times[0]
+    
+    # Find the strongest beat within each expected bar interval
+    current_bar_start = start_time
+    while current_bar_start < beat_times[-1]:
+        bar_end = current_bar_start + bar_interval
+        
+        # Find beats within this bar
+        bar_beats = []
+        bar_strengths = []
+        for i, beat_time in enumerate(beat_times):
+            if current_bar_start <= beat_time < bar_end:
+                bar_beats.append(beat_time)
+                bar_strengths.append(beat_strengths[i])
+        
+        # Find the strongest beat in this bar (likely the downbeat)
+        if bar_beats and bar_strengths:
+            max_strength_idx = np.argmax(bar_strengths)
+            strongest_beat = bar_beats[max_strength_idx]
+            downbeats.append(strongest_beat)
+        
+        current_bar_start = bar_end
+    
+    # Filter out downbeats that are too close together (minimum 2 seconds apart)
+    filtered_downbeats = []
+    for downbeat in downbeats:
+        if not filtered_downbeats or (downbeat - filtered_downbeats[-1]) >= 2.0:
+            filtered_downbeats.append(downbeat)
+    
+    return filtered_downbeats
+
+
 def compute_advanced_beats(audio_path, debug=False):
     """
     Compute advanced beat detection with PLP tempo curve and beat strengths
@@ -61,15 +109,33 @@ def compute_advanced_beats(audio_path, debug=False):
     whitened_stft = stft / magnitude_plus
     y_transient = librosa.istft(whitened_stft)
     
-    # Compute onset envelope on transient-emphasized percussive component
-    onset_env = librosa.onset.onset_strength(y=y_transient, sr=sr)
+    # UPTEMPO-HELP implementation: Fix the three failure modes
+    # 1. Robust audio preprocessing
+    print("Applying UPTEMPO preprocessing...")
     
-    # Run beat tracker
-    tempo, beat_frames = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr)
+    # Pre-emphasis and filtering to enhance onset clarity  
+    import scipy.signal as signal
+    y_processed = signal.lfilter([1, -0.97], [1], y_transient)  # pre-emphasis
+    b, a = signal.butter(2, 40/(sr/2), 'highpass')  # 40 Hz HPF
+    y_processed = signal.lfilter(b, a, y_processed)
+    y_processed = np.tanh(2.0 * y_processed)  # soft compression
+    
+    # 2. Enhanced onset envelope computation
+    hop_length = 512
+    onset_env = librosa.onset.onset_strength(y=y_processed, sr=sr, hop_length=hop_length, aggregate=np.median)
+    
+    # Light denoising
+    onset_env = librosa.decompose.nn_filter(onset_env, aggregate=np.median, metric='cosine', width=31)
+    onset_env = np.maximum(0, onset_env - librosa.util.normalize(onset_env, norm=np.inf)*0.02)
+    
+    print(f"Enhanced onset envelope: shape={onset_env.shape}, min={onset_env.min():.3f}, max={onset_env.max():.3f}")
+    
+    # Run beat tracker on enhanced onset envelope
+    tempo, beat_frames = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=hop_length)
     
     # Convert frames to times and compute strengths
-    beat_times = librosa.frames_to_time(beat_frames, sr=sr)
-    beat_strengths = [onset_env[frame] for frame in beat_frames]
+    beat_times = librosa.frames_to_time(beat_frames, sr=sr, hop_length=hop_length)
+    beat_strengths = [onset_env[frame] for frame in beat_frames] if len(beat_frames) > 0 else []
     
     # Normalize strengths to 0-1 range
     if len(beat_strengths) > 0:
@@ -85,23 +151,28 @@ def compute_advanced_beats(audio_path, debug=False):
     hop_length = 512
     plp = librosa.beat.plp(onset_envelope=onset_env, sr=sr, hop_length=hop_length)
     
-    # Extract tempo curve
+    # Compute tempo curve
     times = librosa.times_like(plp, sr=sr, hop_length=hop_length)
     
-    # Compute local tempo estimates
+    # Compute local tempo estimates with more relaxed parameters
     win_size = int(sr / hop_length)  # 1-second window
     tempo_curve = []
     
     # Ensure we have enough PLP data for analysis
     if len(plp) > win_size:
+        print(f"Computing tempo curve with PLP range {plp.min():.6f} - {plp.max():.6f}")
+        
         for i in range(0, len(plp) - win_size, win_size // 2):
             window = plp[i:i + win_size]
             if len(window) < win_size // 2:
                 continue
                 
-            # Find peaks in the window
-            peaks = librosa.util.peak_pick(window, pre_max=1, post_max=1, pre_avg=1, 
-                                          post_avg=1, delta=0.1, wait=1)
+            # Very relaxed peak detection parameters for PLP
+            # PLP values are typically very small (0-1 range)
+            delta_threshold = 0.001  # Very small fixed threshold
+            
+            peaks = librosa.util.peak_pick(window, pre_max=2, post_max=2, pre_avg=2, 
+                                          post_avg=2, delta=delta_threshold, wait=3)
             
             if len(peaks) >= 2:
                 # Compute average time between peaks
@@ -245,24 +316,83 @@ def compute_advanced_beats(audio_path, debug=False):
         # Suppress numpy warnings from madmom compatibility issues
         import warnings
         warnings.filterwarnings('ignore', category=UserWarning, module='madmom')
+        warnings.filterwarnings('ignore', category=FutureWarning, module='madmom')
         
         from madmom.features.downbeats import DBNDownBeatTrackingProcessor, RNNDownBeatProcessor
         
         print("Madmom available, detecting downbeats...")
+        
+        # Use RNN processor to get downbeat probabilities
         proc = RNNDownBeatProcessor()
+        print("Processing audio for downbeat probabilities...")
         downbeat_probs = proc(audio_path)
         
-        dbn = DBNDownBeatTrackingProcessor(beats_per_bar=[3, 4], fps=100)
-        downbeats_with_beats = dbn(downbeat_probs)
+        print(f"Downbeat probabilities shape: {downbeat_probs.shape}")
         
-        # Extract downbeat times (first beat of each bar)
-        downbeats = [time for time, beat_num in downbeats_with_beats if beat_num == 1]
-        print(f"Detected {len(downbeats)} downbeats")
-    except (ImportError, AttributeError, ValueError, TypeError) as e:
-        print(f"Madmom downbeat detection failed: {e}")
-        print("Skipping downbeat detection")
-        downbeats = None
-    
+        # Validate downbeat_probs shape before proceeding
+        if len(downbeat_probs.shape) < 2 or downbeat_probs.shape[1] < 2:
+            print(f"Invalid downbeat_probs shape: {downbeat_probs.shape}, using fallback method")
+            downbeats = None
+        else:
+            # Try madmom DBN first, but catch any array shape errors
+            try:
+                print("Attempting madmom DBN downbeat tracking...")
+                dbn = DBNDownBeatTrackingProcessor(beats_per_bar=[4], fps=100)
+                downbeats_with_beats = dbn(downbeat_probs)
+                
+                # More robust extraction of downbeat times
+                downbeats = []
+                for item in downbeats_with_beats:
+                    try:
+                        if isinstance(item, (list, tuple, np.ndarray)) and len(item) >= 2:
+                            time_val, beat_num = item[0], item[1]
+                            if float(beat_num) == 1.0:
+                                downbeats.append(float(time_val))
+                    except (ValueError, TypeError, IndexError):
+                        continue
+                
+                print(f"Madmom detected {len(downbeats)} downbeats")
+                
+            except (ValueError, TypeError) as dbn_error:
+                print(f"Madmom DBN failed ({dbn_error}), using strength-based fallback")
+                downbeats = None
+        
+        # Fallback: Use our own downbeat detection based on beat strengths and tempo
+        if downbeats is None or len(downbeats) == 0:
+            print("Using strength-based downbeat detection fallback...")
+            # Convert tempo to scalar for fallback method
+            tempo_for_fallback = 120.0  # Default
+            try:
+                if isinstance(tempo, np.ndarray):
+                    tempo_for_fallback = float(tempo[0]) if len(tempo) > 0 else 120.0
+                else:
+                    tempo_for_fallback = float(tempo)
+            except:
+                tempo_for_fallback = 120.0
+            
+            downbeats = detect_downbeats_from_strengths(beat_times, beat_strengths, tempo_for_fallback)
+            print(f"Strength-based method detected {len(downbeats)} downbeats")
+            
+    except Exception as e:
+        print(f"Madmom downbeat detection failed: {type(e).__name__}: {e}")
+        print("Using strength-based downbeat detection fallback...")
+        try:
+            # Convert tempo to scalar for fallback method
+            tempo_for_fallback = 120.0  # Default
+            try:
+                if isinstance(tempo, np.ndarray):
+                    tempo_for_fallback = float(tempo[0]) if len(tempo) > 0 else 120.0
+                else:
+                    tempo_for_fallback = float(tempo)
+            except:
+                tempo_for_fallback = 120.0
+                
+            downbeats = detect_downbeats_from_strengths(beat_times, beat_strengths, tempo_for_fallback)
+            print(f"Fallback method detected {len(downbeats)} downbeats")
+        except Exception as fallback_error:
+            print(f"Fallback downbeat detection also failed: {fallback_error}")
+            downbeats = None
+
     # Prepare result
     # Ensure tempo is a scalar float - try direct conversion first
     tempo_scalar = 120.0  # Default fallback
@@ -283,6 +413,13 @@ def compute_advanced_beats(audio_path, debug=False):
             "bpm": [float(bpm) for _, bpm in tempo_curve]
         }
     }
+    
+    # Add downbeats if detected successfully
+    if downbeats is not None and len(downbeats) > 0:
+        result["downbeats"] = [float(t) for t in downbeats]
+        print(f"Added {len(downbeats)} downbeats to result")
+    else:
+        print("No downbeats available in result")
     
     # Add confidence scores to debug info if we computed them
     if debug and len(filled_confidences) > 0:

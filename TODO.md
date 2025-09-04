@@ -321,7 +321,9 @@ Random: 1-8 beats = 0.469-3.75s per cut (randomly chosen)
 - [ ] Add cutting mode to render output metadata
 
 Todo to add:
+FILE BROWSER
 
+- File broswer performance: If a dir has a lot of videos, it crashes the app as it appears to try to load them all at once. Can we implement something here like lazyload or something similar to stop the app from crashing.
 - When a folder has a lot of videos, it stretches the ui tries to accomidate so user has to scroll the entire length of the videos to see things that should always be seen like create videos. Perhaps there should be a always visible top and bottom bar? with the most vital settings
 - We can get rid of the optional inline option and always play the videos in the browser inline it looks great.
 - Replace the checkmark box when selecting it with a outline and/or gradiant over the image showing that it has been selected. You can barely see the checkbocx, and it feels natural just pressing it once to play it, and then leaving it on if you want it included.
@@ -332,3 +334,11 @@ Todo to add:
 - Lets try adding a small thumbs button in addition to the view we have now to make it easier to see all or at least more of the videos in a file.
 - Once videos are selected they should be placed onto the timeline in random order.
 - Once selected, the browser view should close and be replaced with a vertical list of the selected videos which represent the order they are in. User should be able to drag and drop to change their order, or press a random button to randomize their order. The preview pane should show a preview of the videos in the order they are set as in the left sidebar. This sets up the ui to add video effects and tweak with the beat/cut settings and see a preview in real time before rendering the full video.
+
+VIDEO PREVIEW
+
+- Video preview is basically non-existent. I need to see a large video player with the beats/cuts displayed under it. This will allow user to see if beats/cuts are being placed in the correct spots, aka when there is a beat. If possible, for larger/stronger beats, a bigger dot or different color dot (such as downbeat being a different color then regular beats). It would also be great if I could create my own cuts on the timeline by clicking and creating a new one, or dragging an existing one.
+
+EFFECTS
+
+- Effects need to be added to the cuts. Each effect should have Low/Med/High, which will determine how much of that effect get added to the video. The placement of each effect should be randomized throughout all the cuts, and visually represented on the timeline with a colored dot. Preliminary effects we can add are Flash, RGB Glitch, Zoom, and Shake.

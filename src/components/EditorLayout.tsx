@@ -7,6 +7,7 @@ import { TransitionsInspector } from "@/components/TransitionsInspector";
 import { CuttingTools } from "@/components/CuttingTools";
 import { SpeedRampEditor } from "@/components/SpeedRampEditor";
 import { BeatSyncTools } from "@/components/BeatSyncTools";
+import { CuttingModeSettings } from "@/components/CuttingModeSettings";
 import { Button } from "@/components/ui/button";
 
 interface EditorLayoutProps {
@@ -16,7 +17,7 @@ interface EditorLayoutProps {
 export const EditorLayout = ({ currentClip }: EditorLayoutProps) => {
   const [showTimeline, setShowTimeline] = useState(true);
   const [multiTrackMode, setMultiTrackMode] = useState(false);
-  const [inspectorTab, setInspectorTab] = useState("effects");
+  const [inspectorTab, setInspectorTab] = useState("cutting");
 
   return (
     <div className="flex flex-col h-full">
@@ -89,6 +90,14 @@ export const EditorLayout = ({ currentClip }: EditorLayoutProps) => {
               <div className="flex gap-2 mb-3">
                 <Button
                   size="sm"
+                  variant={inspectorTab === "cutting" ? "default" : "outline"}
+                  onClick={() => setInspectorTab("cutting")}
+                  className="text-xs"
+                >
+                  Cutting Modes
+                </Button>
+                <Button
+                  size="sm"
                   variant={inspectorTab === "effects" ? "default" : "outline"}
                   onClick={() => setInspectorTab("effects")}
                   className="text-xs"
@@ -124,6 +133,7 @@ export const EditorLayout = ({ currentClip }: EditorLayoutProps) => {
               </div>
 
               <div className="flex-1 min-h-0">
+                {inspectorTab === "cutting" && <CuttingModeSettings />}
                 {inspectorTab === "effects" && <EffectsInspector />}
                 {inspectorTab === "transitions" && <TransitionsInspector />}
                 {inspectorTab === "speed" && <SpeedRampEditor />}

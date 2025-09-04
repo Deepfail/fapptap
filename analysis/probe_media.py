@@ -144,9 +144,16 @@ def probe_directory(media_dir):
     processed = 0
     for file_path in sorted(media_files):
         try:
-            print(f"Probing: {file_path.name}")
+            # Handle Unicode characters in filename gracefully
+            display_name = str(file_path.name)
+            print(f"Probing: {display_name}")
         except UnicodeEncodeError:
-            print(f"Probing: {file_path.name.encode('ascii', 'replace').decode('ascii')}")
+            # Fallback to ASCII representation if Unicode fails
+            display_name = file_path.name.encode('ascii', 'replace').decode('ascii')
+            print(f"Probing: {display_name}")
+        except Exception:
+            # Ultimate fallback
+            print(f"Probing: <filename with special characters>")
         
         # Run ffprobe
         probe_data = probe_file(file_path)

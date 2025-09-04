@@ -20,15 +20,21 @@ def run_probe(clips_dir):
             emit("probe", progress=0.0, error=f"Probe script not found: {probe_script}")
             return
             
-        # Run the probe script
+        # Run the probe script with robust encoding handling
         result = subprocess.run([
             sys.executable, str(probe_script), clips_dir
-        ], capture_output=True, text=True, check=True)
+        ], capture_output=True, text=False, check=True)
+        
+        # Decode output manually with error handling
+        stdout = result.stdout.decode('utf-8', errors='replace') if result.stdout else ""
+        stderr = result.stderr.decode('utf-8', errors='replace') if result.stderr else ""
         
         emit("probe", progress=1.0, message="Media probing completed successfully")
         
     except subprocess.CalledProcessError as e:
-        emit("probe", progress=0.0, error=f"Probe failed: {e.stderr}")
+        # Decode stderr with error handling
+        stderr_output = e.stderr.decode('utf-8', errors='replace') if e.stderr else "No stderr output"
+        emit("probe", progress=0.0, error=f"Probe failed: {stderr_output}")
     except Exception as e:
         emit("probe", progress=0.0, error=f"Probe error: {str(e)}")
 
@@ -121,10 +127,16 @@ def run_shots(clips_dir):
         
         emit("shots", progress=0.5, message="Running fast shot detection...")
         result = subprocess.run([sys.executable, "analysis/detect_shots_fast.py", clips_dir, output_path, "2.0"], 
-                              capture_output=True, text=True, check=True)
+                              capture_output=True, text=False, check=True)
+        
+        # Decode output manually with error handling
+        stdout = result.stdout.decode('utf-8', errors='replace') if result.stdout else ""
+        stderr = result.stderr.decode('utf-8', errors='replace') if result.stderr else ""
         emit("shots", progress=1.0, message="Fast shot detection completed")
     except subprocess.CalledProcessError as e:
-        emit("shots", progress=0.0, error=f"Shot detection failed: {e.stderr}")
+        # Decode stderr with error handling
+        stderr_output = e.stderr.decode('utf-8', errors='replace') if e.stderr else "No stderr output"
+        emit("shots", progress=0.0, error=f"Shot detection failed: {stderr_output}")
 
 def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium", enable_shot_detection=True):
     emit("cutlist", progress=0.0)
@@ -149,15 +161,23 @@ def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium", enab
         if not enable_shot_detection:
             args.append("--skip-shots")
         
-        result = subprocess.run(args, capture_output=True, text=True, check=True)
+        result = subprocess.run(args, capture_output=True, text=False, check=True)
+        
+        # Decode output manually with error handling
+        stdout = result.stdout.decode('utf-8', errors='replace') if result.stdout else ""
+        stderr = result.stderr.decode('utf-8', errors='replace') if result.stderr else ""
         emit("cutlist", progress=1.0, message="Cutlist generation completed")
     except subprocess.CalledProcessError as e:
-        emit("cutlist", progress=0.0, error=f"Cutlist generation failed: {e.stderr}")
+        # Decode stderr with error handling
+        stderr_output = e.stderr.decode('utf-8', errors='replace') if e.stderr else "No stderr output"
+        stdout_output = e.stdout.decode('utf-8', errors='replace') if e.stdout else "No stdout output"
+        
+        emit("cutlist", progress=0.0, error=f"Cutlist generation failed: {stderr_output}")
         # Also emit stdout for debugging
-        if e.stdout:
-            print(f"Cutlist stdout: {e.stdout}")
-        if e.stderr:
-            print(f"Cutlist stderr: {e.stderr}")
+        if stdout_output:
+            print(f"Cutlist stdout: {stdout_output}")
+        if stderr_output:
+            print(f"Cutlist stderr: {stderr_output}")
 
 def parse_progress_line(line):
     """Parse ffmpeg progress line in key=value format"""

@@ -19,12 +19,12 @@ ASPECT_RATIO_PRESETS = {
 
 # Cutting rate mode presets
 CUTTING_MODES = {
-    "slow": {"multiplier": 2.0, "description": "Slower cuts, 2x beat interval"},
-    "medium": {"multiplier": 1.0, "description": "Standard tempo, every beat"},
-    "fast": {"multiplier": 0.5, "description": "Fast cuts, half beat interval"},
-    "ultra_fast": {"multiplier": 0.25, "description": "Ultra fast cuts, quarter beat"},
-    "random": {"multiplier": "random", "description": "Random cut intervals"},
-    "auto": {"multiplier": "ai", "description": "AI-driven cuts based on music energy and dynamics"}
+    "slow": {"multiplier": 2.0, "min_duration": 0.60, "description": "Slower cuts, 2x beat interval"},
+    "medium": {"multiplier": 1.0, "min_duration": 0.40, "description": "Standard tempo, every beat"},
+    "fast": {"multiplier": 0.5, "min_duration": 0.25, "description": "Fast cuts, half beat interval"},
+    "ultra_fast": {"multiplier": 0.25, "min_duration": 0.15, "description": "Ultra fast cuts, quarter beat"},
+    "random": {"multiplier": "random", "min_duration": 0.30, "description": "Random cut intervals"},
+    "auto": {"multiplier": "ai", "min_duration": 0.40, "description": "AI-driven cuts based on music energy and dynamics"}
 }
 
 def list_videos(clips_dir: Path):
@@ -298,6 +298,14 @@ def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ra
     if cutting_mode is None:
         cutting_mode = "medium"
     
+    # Get cutting mode configuration
+    if cutting_mode not in CUTTING_MODES:
+        raise ValueError(f"Unknown cutting mode: {cutting_mode}")
+    
+    mode_config = CUTTING_MODES[cutting_mode]
+    MIN_DUR = mode_config["min_duration"]  # Use mode-specific minimum duration
+    print(f"Using cutting mode '{cutting_mode}' with minimum duration {MIN_DUR}s")
+    
     # Apply cutting mode to adjust beat timing FIRST
     beat_times = apply_cutting_mode(beat_times, cutting_mode, audio_path)
 
@@ -517,13 +525,13 @@ if __name__ == "__main__":
     # For backward compatibility, also check sys.argv for positional arguments
     if len(sys.argv) >= 6 and not any(arg.startswith('-') for arg in sys.argv[1:]):
         # Old-style positional arguments - parse them properly
-        beats_json = sys.argv[2]
-        shots_json = sys.argv[3] 
-        audio_path = sys.argv[4]
-        out_json = sys.argv[5]
-        clips_dir = sys.argv[6] if len(sys.argv) > 6 else None
-        aspect_ratio = sys.argv[7] if len(sys.argv) > 7 else None  
-        cutting_mode = sys.argv[8] if len(sys.argv) > 8 else None
+        beats_json = sys.argv[1]
+        shots_json = sys.argv[2] 
+        audio_path = sys.argv[3]
+        out_json = sys.argv[4]
+        clips_dir = sys.argv[5] if len(sys.argv) > 5 else None
+        aspect_ratio = sys.argv[6] if len(sys.argv) > 6 else None  
+        cutting_mode = sys.argv[7] if len(sys.argv) > 7 else None
         skip_shots = "--skip-shots" in sys.argv
         
         main(beats_json, shots_json, audio_path, out_json, clips_dir, aspect_ratio, cutting_mode, skip_shots)

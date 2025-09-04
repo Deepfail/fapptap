@@ -81,7 +81,7 @@ if out_dir:  # Only create directory if there's a directory component
 with open(out_json, "w", encoding="utf-8") as f:
     json.dump(out, f, indent=2)
 
-print(f"✅ Fast shot detection complete!")
-print(f"📁 Processed {total_videos} videos")
-print(f"🎬 Created {total_shots} total shots")
-print(f"💾 Wrote {out_json}")
+print(f"Fast shot detection complete!")
+print(f"Processed {total_videos} videos")
+print(f"Created {total_shots} total shots")
+print(f"Wrote {out_json}")
