@@ -7,11 +7,11 @@ import { LibraryPane } from "@/components/library";
 import { PreviewPlayer } from "@/components/preview";
 import { ActionsPane } from "./components/ActionsPane";
 import { TopBar } from "./components/TopBar";
-import { EditorLayout } from "./components/EditorLayout";
-import { Button } from "./components/ui/button";
-
 // state (prefs loader)
 import { useMediaStore, MediaStore } from "./state/mediaStore";
+import { Button } from "./components/ui/button";
+
+import { VideoEditor } from "./components/VideoEditor";
 import { EditorProvider } from "./state/editorStore";
 
 import "./App.css";
@@ -58,7 +58,7 @@ export default function App() {
 
             {/* Main Editor */}
             <main className="flex-1 overflow-hidden">
-              <EditorLayout currentClip={currentClip} />
+              <VideoEditor currentClip={currentClip} />
             </main>
           </div>
 
