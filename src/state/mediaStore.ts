@@ -2,6 +2,9 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { IS_DESKTOP } from "@/lib/platform";
 
+// after imports
+const norm = (p: string) => p.replace(/\\/g, "/");
+
 export interface MediaFile {
   id: string;
   name: string;
@@ -41,9 +44,15 @@ export interface PrefsState {
   preset: "landscape" | "portrait" | "square";
   cuttingMode: "slow" | "medium" | "fast" | "ultra_fast" | "random" | "auto";
   enableShotDetection: boolean;
-  snapToBeat: boolean;
   pixelsPerSecond: number;
   theme: "dark" | "light";
+  minClipLength: number; // seconds
+  maxClipLength: number; // seconds
+  minBeats: number; // minimum number of beats
+  crossfadeDuration: number; // seconds
+  preferDownbeats: boolean;
+  respectShotBoundaries: boolean;
+  energyThreshold: number; // 0-1
 }
 
 export interface MediaStore {
@@ -114,9 +123,15 @@ const defaultPrefs: PrefsState = {
   preset: "landscape",
   cuttingMode: "medium",
   enableShotDetection: true,
-  snapToBeat: true,
   pixelsPerSecond: 50,
   theme: "dark",
+  minClipLength: 0.5, // 500ms minimum
+  maxClipLength: 8.0, // 8 seconds maximum
+  minBeats: 4, // 4 beats minimum
+  crossfadeDuration: 0.1, // 100ms crossfade
+  preferDownbeats: true,
+  respectShotBoundaries: true,
+  energyThreshold: 0.3,
 };
 
 export const useMediaStore = create<MediaStore>()(
@@ -135,37 +150,35 @@ export const useMediaStore = create<MediaStore>()(
       set({ clipsDir: dir });
       get().updatePrefs({ clipsDir: dir });
 
-      // Clear media files and completed jobs when directory changes
-      set({ mediaFiles: [], jobs: [] });
+      // Clear media, jobs, AND selection when directory changes
+      const cleared = new Set<string>();
+      set({ mediaFiles: [], jobs: [], selectedClipIds: cleared });
+      get().updatePrefs({ selectedClipIds: cleared });
     },
 
     setSongPath: (path: string) => {
-      set({ songPath: path });
-      get().updatePrefs({ songPath: path });
+      const p = norm(path);
+      set({ songPath: p });
+      get().updatePrefs({ songPath: p });
     },
 
     setCurrentClip: (clipId?: string) => {
-      set({ currentClipId: clipId });
+      set({ currentClipId: clipId ? norm(clipId) : undefined });
     },
 
     toggleClipSelection: (clipId: string) => {
+      const p = norm(clipId);
       const { selectedClipIds } = get();
-      const newSelection = new Set(selectedClipIds);
-
-      if (newSelection.has(clipId)) {
-        newSelection.delete(clipId);
-      } else {
-        newSelection.add(clipId);
-      }
-
-      set({ selectedClipIds: newSelection });
-      get().updatePrefs({ selectedClipIds: newSelection });
+      const next = new Set(selectedClipIds); // IMMUTABLE
+      next.has(p) ? next.delete(p) : next.add(p);
+      set({ selectedClipIds: next });
+      get().updatePrefs({ selectedClipIds: next }); // if you want to persist selection
     },
 
     setSelectedClips: (clipIds: string[]) => {
-      const newSelection = new Set(clipIds);
-      set({ selectedClipIds: newSelection });
-      get().updatePrefs({ selectedClipIds: newSelection });
+      const next = new Set(clipIds.map(norm)); // IMMUTABLE
+      set({ selectedClipIds: next });
+      get().updatePrefs({ selectedClipIds: next });
     },
 
     clearSelection: () => {
@@ -190,16 +203,28 @@ export const useMediaStore = create<MediaStore>()(
     },
 
     removeMediaFile: (id: string) => {
-      set((state) => ({
-        mediaFiles: state.mediaFiles.filter((file) => file.id !== id),
-        selectedClipIds: new Set(
-          [...state.selectedClipIds].filter((cid) => cid !== id)
-        ),
-      }));
+      set((state) => {
+        // Find by id; if caller accidentally passes a path, handle that too
+        const file = state.mediaFiles.find(
+          (f) => f.id === id || norm(f.path) === norm(id)
+        );
+        const toRemovePath = file ? norm(file.path) : norm(id);
+
+        return {
+          mediaFiles: state.mediaFiles.filter(
+            (f) => f.id !== id && norm(f.path) !== norm(id)
+          ),
+          selectedClipIds: new Set(
+            [...state.selectedClipIds].filter((cid) => cid !== toRemovePath)
+          ),
+        };
+      });
     },
 
     clearMediaFiles: () => {
-      set({ mediaFiles: [], selectedClipIds: new Set() });
+      const cleared = new Set<string>();
+      set({ mediaFiles: [], selectedClipIds: cleared });
+      get().updatePrefs({ selectedClipIds: cleared });
     },
 
     setPlayhead: (seconds: number) => {
@@ -263,14 +288,22 @@ export const useMediaStore = create<MediaStore>()(
           const stored = localStorage.getItem("fapptap-prefs");
           if (stored) {
             const parsed = JSON.parse(stored);
-            // Convert selectedClipIds array back to Set
             if (
               parsed.selectedClipIds &&
               Array.isArray(parsed.selectedClipIds)
             ) {
               parsed.selectedClipIds = new Set(parsed.selectedClipIds);
             }
+            // 1) prefs
             set({ prefs: { ...defaultPrefs, ...parsed } });
+            // 2) root selection (normalized)
+            if (parsed.selectedClipIds instanceof Set) {
+              set({
+                selectedClipIds: new Set(
+                  Array.from(parsed.selectedClipIds as Set<string>).map(norm)
+                ),
+              });
+            }
           }
         } catch (error) {
           console.warn("Failed to load preferences from localStorage:", error);
@@ -281,14 +314,21 @@ export const useMediaStore = create<MediaStore>()(
       try {
         const { load } = await import("@tauri-apps/plugin-store");
         const store = await load(".fapptap.dat", { defaults: {} });
-
         const stored = await store.get<Partial<PrefsState>>("prefs");
         if (stored) {
-          // Convert selectedClipIds array back to Set
           if (stored.selectedClipIds && Array.isArray(stored.selectedClipIds)) {
             stored.selectedClipIds = new Set(stored.selectedClipIds as any);
           }
+          // 1) prefs
           set({ prefs: { ...defaultPrefs, ...stored } });
+          // 2) root selection (normalized)
+          if (stored.selectedClipIds instanceof Set) {
+            set({
+              selectedClipIds: new Set(
+                Array.from(stored.selectedClipIds as Set<string>).map(norm)
+              ),
+            });
+          }
         }
       } catch (error) {
         console.warn("Failed to load preferences from Tauri Store:", error);
@@ -356,9 +396,15 @@ useMediaStore.subscribe(
         a.preset === b.preset &&
         a.cuttingMode === b.cuttingMode &&
         a.enableShotDetection === b.enableShotDetection &&
-        a.snapToBeat === b.snapToBeat &&
         a.pixelsPerSecond === b.pixelsPerSecond &&
         a.theme === b.theme &&
+        a.minClipLength === b.minClipLength &&
+        a.maxClipLength === b.maxClipLength &&
+        a.minBeats === b.minBeats &&
+        a.crossfadeDuration === b.crossfadeDuration &&
+        a.preferDownbeats === b.preferDownbeats &&
+        a.respectShotBoundaries === b.respectShotBoundaries &&
+        a.energyThreshold === b.energyThreshold &&
         a.selectedClipIds.size === b.selectedClipIds.size &&
         [...a.selectedClipIds].every((id) => b.selectedClipIds.has(id))
       );

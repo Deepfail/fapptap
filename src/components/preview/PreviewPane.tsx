@@ -12,6 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { useMediaStore } from "@/state/mediaStore";
 import { TimelineStrip } from "@/components/TimelineStrip";
 import { toMediaSrc } from "@/lib/mediaUrl";
+import { CutSettingsPanel } from "@/components/CutSettingsPanel";
 
 export default function PreviewPane() {
   const { mediaFiles, currentClipId, isPlaying, setPlayhead, setPlaying } =
@@ -331,6 +332,8 @@ export default function PreviewPane() {
       <div className="border-t border-slate-700">
         <TimelineStrip />
       </div>
+
+      <CutSettingsPanel />
 
       {/* Transport Help */}
       <div className="px-4 py-2 bg-slate-800/50 border-t border-slate-700">

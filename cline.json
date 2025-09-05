@@ -5,7 +5,7 @@
       "args": ["-y", "@modelcontextprotocol/server-filesystem"],
       "env": { "ALLOW": "C:/Files/Projects/fapptap" },
       "autoApprove": ["list_directory", "read_file"],
-      "disabled": false
+      "disabled": true
     },
     "process": {
       "command": "npx",
@@ -22,7 +22,7 @@
       "env": {
         "PLANNING_STORAGE": "${workspaceFolder}/cache/plans"
       },
-      "disabled": false,
+      "disabled": true,
       "autoApprove": [
         "start_planning",
         "add_todo",
@@ -40,7 +40,7 @@
         "cache/analysis.db"
       ],
       "autoApprove": ["query", "execute"],
-      "disabled": false
+      "disabled": true
     },
     "github": {
       "command": "docker",
@@ -66,18 +66,18 @@
         "get_commit",
         "list_commits"
       ],
-      "disabled": false
+      "disabled": true
     },
     "sequential-thinking": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "disabled": false,
+      "disabled": true,
       "autoApprove": ["sequentialthinking"]
     },
     "code-runner": {
       "command": "npx",
       "args": ["-y", "mcp-server-code-runner"],
-      "disabled": false,
+      "disabled": true,
       "autoApprove": []
     },
     "github.com/upstash/context7-mcp": {
@@ -100,14 +100,14 @@
         "search_nodes",
         "open_nodes"
       ],
-      "disabled": false
+      "disabled": true
     },
     "supermemory": {
       "command": "npx",
       "args": ["-y", "supermemory"],
       "env": { "SUPERMEMORY_API_KEY": "${input:supermemory_api_key}" },
       "autoApprove": ["search", "upsert"],
-      "disabled": false
+      "disabled": true
     },
     "ffmpeg-mcp": {
       "command": "npx",
@@ -128,7 +128,7 @@
         "/c",
         "set FIRECRAWL_API_KEY=fc-a2cd8a3fd6f241879099613c48a98f21 && npx -y firecrawl-mcp"
       ],
-      "disabled": false,
+      "disabled": true,
       "autoApprove": ["firecrawl_search", "firecrawl_scrape"]
     },
     "@21st-dev/magic": {
@@ -191,19 +191,19 @@
     "github.com/executeautomation/mcp-playwright": {
       "command": "npx",
       "args": ["-y", "@executeautomation/playwright-mcp-server"],
-      "disabled": false,
+      "disabled": true,
       "autoApprove": ["playwright_navigate", "playwright_screenshot"]
     },
     "notion": {
       "command": "npx",
       "args": ["-y", "@notionhq/notion-mcp-server"],
-      "disabled": false,
+      "disabled": true,
       "autoApprove": ["API-get-user", "API-get-users", "API-get-self"]
     },
     "youtube": {
       "command": "npx",
       "args": ["-y", "youtube-data-mcp-server"],
-      "disabled": false,
+      "disabled": true,
       "autoApprove": ["searchVideos", "getVideoDetails", "getTranscripts"]
     }
   },

@@ -11,7 +11,11 @@ type SelectedVideo = {
   order: number;
 };
 
-export default function SelectedVideosTimeline() {
+interface SelectedVideosTimelineProps {
+  onSelectClip?: (path: string) => void;
+}
+
+export default function SelectedVideosTimeline({ onSelectClip }: SelectedVideosTimelineProps = {}) {
   const { selectedClipIds, toggleClipSelection, clearSelection } =
     useMediaStore();
   const [videos, setVideos] = useState<SelectedVideo[]>([]);
@@ -123,6 +127,7 @@ export default function SelectedVideosTimeline() {
             onDragOver={(e) => handleDragOver(e, index)}
             onDragEnd={handleDragEnd}
             onRemove={() => removeVideo(video.path)}
+            onSelectClip={onSelectClip}
           />
         ))}
       </div>
@@ -146,6 +151,7 @@ function VideoTimelineItem({
   onDragOver,
   onDragEnd,
   onRemove,
+  onSelectClip,
 }: {
   video: SelectedVideo;
   index: number;
@@ -155,6 +161,7 @@ function VideoTimelineItem({
   onDragOver: (e: React.DragEvent) => void;
   onDragEnd: () => void;
   onRemove: () => void;
+  onSelectClip?: (path: string) => void;
 }) {
   const [src, setSrc] = useState<string>("");
   const [tauriReadyTick, setTauriReadyTick] = useState(0);
@@ -199,7 +206,11 @@ function VideoTimelineItem({
       </div>
 
       {/* Video Thumbnail */}
-      <div className="flex-shrink-0 w-16 h-9 rounded overflow-hidden bg-black">
+      <div 
+        className="flex-shrink-0 w-16 h-9 rounded overflow-hidden bg-black cursor-pointer"
+        onClick={() => onSelectClip?.(video.path)}
+        title="Click to load in video editor"
+      >
         {src ? (
           <video
             src={src}

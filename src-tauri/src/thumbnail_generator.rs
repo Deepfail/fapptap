@@ -1,7 +1,7 @@
-use crate::media_cache::{MediaCache, current_timestamp};
-use serde::{Deserialize, Serialize};
+use crate::media_cache::MediaCache;
+use serde::Serialize;
 use sha1::{Digest, Sha1};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{AppHandle, Emitter};
 use tokio::process::Command;
@@ -24,7 +24,7 @@ pub struct ThumbnailProgress {
 pub struct ThumbnailGenerator {
     cache: Arc<MediaCache>,
     cache_dir: PathBuf,
-    max_concurrent: usize,
+    _max_concurrent: usize, // Prefixed with _ to suppress warning
 }
 
 impl ThumbnailGenerator {
@@ -37,7 +37,7 @@ impl ThumbnailGenerator {
         Self {
             cache,
             cache_dir,
-            max_concurrent: 2, // Limit concurrent ffmpeg processes
+            _max_concurrent: 2, // Limit concurrent ffmpeg processes
         }
     }
 

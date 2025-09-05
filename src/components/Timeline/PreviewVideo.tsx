@@ -1,6 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { usePlayerStore } from '../../state/playerStore';
-import { formatTime } from '../../utils/timelineUtils';
+import { useRef, useEffect, useState } from "react";
+import { usePlayerStore } from "@/state/playerStore";
 
 interface PreviewVideoProps {
   src: string;
@@ -10,7 +9,7 @@ interface PreviewVideoProps {
 export function PreviewVideo({ src, className }: PreviewVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  
+
   const {
     currentTime,
     isPlaying,
@@ -47,7 +46,7 @@ export function PreviewVideo({ src, className }: PreviewVideoProps) {
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    
+
     video.playbackRate = playbackRate;
   }, [playbackRate]);
 
@@ -66,7 +65,10 @@ export function PreviewVideo({ src, className }: PreviewVideoProps) {
     const handleTimeUpdate = () => {
       // Throttled time updates to prevent excessive store updates
       const now = Date.now();
-      if (!handleTimeUpdate.lastUpdate || now - handleTimeUpdate.lastUpdate > 100) {
+      if (
+        !handleTimeUpdate.lastUpdate ||
+        now - handleTimeUpdate.lastUpdate > 100
+      ) {
         setTime(video.currentTime);
         handleTimeUpdate.lastUpdate = now;
       }
@@ -91,18 +93,18 @@ export function PreviewVideo({ src, className }: PreviewVideoProps) {
       playPause(false);
     };
 
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handlePause);
-    video.addEventListener('ended', handleEnded);
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("pause", handlePause);
+    video.addEventListener("ended", handleEnded);
 
     return () => {
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('play', handlePlay);
-      video.removeEventListener('pause', handlePause);
-      video.removeEventListener('ended', handleEnded);
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("pause", handlePause);
+      video.removeEventListener("ended", handleEnded);
     };
   }, [src, isPlaying, setTime, playPause, loadSource]);
 
@@ -110,27 +112,32 @@ export function PreviewVideo({ src, className }: PreviewVideoProps) {
     <video
       ref={videoRef}
       src={src}
-      className={className}
-      controls={false} // Use custom controls
+      className={`block w-full h-full object-contain ${className ?? ""}`}
+      controls={false}
       playsInline
       preload="metadata"
+      muted
+      disableRemotePlayback
+      controlsList="nodownload noplaybackrate noremoteplayback nopictureinpicture"
     />
   );
 }
 
 // Mock beat generation for development
-function generateMockBeats(duration: number): Array<{ time: number; isDownbeat: boolean; confidence: number }> {
+function generateMockBeats(
+  duration: number
+): Array<{ time: number; isDownbeat: boolean; confidence: number }> {
   const beats = [];
   const bpm = 128; // Mock BPM
   const beatInterval = 60 / bpm;
-  
+
   for (let time = 0; time < duration; time += beatInterval) {
     beats.push({
       time,
-      isDownbeat: (beats.length % 4) === 0, // Every 4th beat is a downbeat
+      isDownbeat: beats.length % 4 === 0, // Every 4th beat is a downbeat
       confidence: 0.8 + Math.random() * 0.2, // Random confidence between 0.8-1.0
     });
   }
-  
+
   return beats;
 }

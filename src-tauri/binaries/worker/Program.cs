@@ -90,8 +90,13 @@ class Program
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 RedirectStandardInput = true,
-                WorkingDirectory = workingDir
+                WorkingDirectory = workingDir,
+                StandardOutputEncoding = System.Text.Encoding.UTF8,
+                StandardErrorEncoding = System.Text.Encoding.UTF8
             };
+            
+            // Set environment variable for Python UTF-8 encoding
+            startInfo.Environment["PYTHONIOENCODING"] = "utf-8:replace";
             
             using var process = Process.Start(startInfo);
             if (process == null)

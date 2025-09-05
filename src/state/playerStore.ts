@@ -26,8 +26,10 @@ export interface EffectRef {
   params?: Record<string, number | string | boolean>;
 }
 
-export type EffectType = 'flash' | 'rgb_glitch' | 'zoom' | 'shake';
-export type Intensity = 'low' | 'med' | 'high';
+export type EffectType = "flash" | "rgb_glitch" | "zoom" | "shake";
+export type Intensity = "low" | "med" | "high";
+
+export interface CutSettings {}
 
 export interface PlayerState {
   // Video state
@@ -35,20 +37,23 @@ export interface PlayerState {
   currentTime: number;
   isPlaying: boolean;
   playbackRate: number;
-  
+
   // Timeline state
   snapToBeats: boolean;
   beats: BeatPoint[];
   cuts: Cut[];
   selectedCutId?: string;
-  
+
   // Timeline rendering
   pixelsPerSecond: number;
   scrollLeft: number;
-  
+
   // Performance settings
   batchSize: number;
   maxConcurrentThumbs: number;
+
+  // Cut generation settings
+  cutSettings: CutSettings;
 }
 
 export interface PlayerActions {
@@ -57,22 +62,26 @@ export interface PlayerActions {
   setTime: (t: number) => void;
   playPause: (on?: boolean) => void;
   setPlaybackRate: (rate: number) => void;
-  
+
   // Cut management
   addCut: (start: number, end: number, src: string) => string;
   updateCut: (id: string, patch: Partial<Cut>) => void;
   deleteCut: (id: string) => void;
   splitCut: (id: string, at: number) => { leftId: string; rightId: string };
   selectCut: (id: string | undefined) => void;
-  
+
   // Timeline controls
   setSnapToBeats: (enabled: boolean) => void;
   setPixelsPerSecond: (pps: number) => void;
   setScrollLeft: (left: number) => void;
-  
+
   // Effects
-  addEffect: (cutId: string, effect: Omit<EffectRef, 'id'>) => string;
-  updateEffect: (cutId: string, effectId: string, patch: Partial<EffectRef>) => void;
+  addEffect: (cutId: string, effect: Omit<EffectRef, "id">) => string;
+  updateEffect: (
+    cutId: string,
+    effectId: string,
+    patch: Partial<EffectRef>
+  ) => void;
   deleteEffect: (cutId: string, effectId: string) => void;
 }
 
@@ -101,6 +110,7 @@ export const usePlayerStore = create<PlayerStore>()(
     scrollLeft: 0,
     batchSize: 200,
     maxConcurrentThumbs: 3,
+    cutSettings: {},
 
     // Video controls
     loadSource: (src, beats, duration) => {
@@ -112,6 +122,7 @@ export const usePlayerStore = create<PlayerStore>()(
         cuts: [], // Clear existing cuts
         selectedCutId: undefined,
       });
+      console.log("Loaded source:", src); // Use the src parameter
     },
 
     setTime: (currentTime) => {
@@ -137,12 +148,12 @@ export const usePlayerStore = create<PlayerStore>()(
         src,
         effects: [],
       };
-      
+
       set((state) => ({
         cuts: [...state.cuts, newCut].sort((a, b) => a.start - b.start),
         selectedCutId: id,
       }));
-      
+
       return id;
     },
 
@@ -157,7 +168,8 @@ export const usePlayerStore = create<PlayerStore>()(
     deleteCut: (id) => {
       set((state) => ({
         cuts: state.cuts.filter((cut) => cut.id !== id),
-        selectedCutId: state.selectedCutId === id ? undefined : state.selectedCutId,
+        selectedCutId:
+          state.selectedCutId === id ? undefined : state.selectedCutId,
       }));
     },
 
@@ -165,7 +177,7 @@ export const usePlayerStore = create<PlayerStore>()(
       const state = get();
       const cut = state.cuts.find((c) => c.id === id);
       if (!cut || at <= cut.start || at >= cut.end) {
-        return { leftId: '', rightId: '' };
+        return { leftId: "", rightId: "" };
       }
 
       const leftId = createId();

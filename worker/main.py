@@ -1,6 +1,11 @@
+# -*- coding: utf-8 -*-
 import sys, json, time, argparse, subprocess, shlex
 import numpy as np
 from pathlib import Path
+
+# Set default encoding for Python 3 
+import os
+os.environ.setdefault('PYTHONIOENCODING', 'utf-8:replace')
 
 def emit(stage, progress=None, **kw):
     msg = {"stage": stage, **({} if progress is None else {"progress": progress}), **kw}
@@ -633,6 +638,16 @@ if __name__ == "__main__":
     ap.add_argument("--cutting_mode", default="medium", choices=["slow", "medium", "fast", "ultra_fast", "random", "auto"])
     ap.add_argument("--engine", default="advanced", choices=["basic", "advanced"])
     ap.add_argument("--enable_shot_detection", action="store_true", help="Enable shot detection for cutlist generation")
+    
+    # Cut settings arguments (from UI)
+    ap.add_argument("--min_clip_length", type=float, default=0.5, help="Minimum clip length in seconds")
+    ap.add_argument("--max_clip_length", type=float, default=8.0, help="Maximum clip length in seconds")
+    ap.add_argument("--min_beats", type=int, default=4, help="Minimum beats per clip")
+    ap.add_argument("--crossfade_duration", type=float, default=0.1, help="Crossfade duration in seconds")
+    ap.add_argument("--prefer_downbeats", action="store_true", help="Prefer cutting on downbeats")
+    ap.add_argument("--respect_shot_boundaries", action="store_true", help="Respect shot boundaries when cutting")
+    ap.add_argument("--energy_threshold", type=float, default=0.5, help="Energy threshold for clip selection")
+    
     args = ap.parse_args()
 
     # Debug: Show all arguments received

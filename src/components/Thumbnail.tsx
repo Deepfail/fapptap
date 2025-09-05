@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { IS_DESKTOP } from "@/lib/platform";
+import { requestThumbnail, setupScanListeners } from "@/ipc/commands";
 
 interface ThumbnailProps {
   src: string;
@@ -24,9 +25,11 @@ export const Thumbnail = ({
 
   useEffect(() => {
     const loadThumbnail = async () => {
+      setLoading(true);
+      setError(false);
+
       // First try the provided src
       try {
-        setLoading(true);
         const response = await fetch(src);
         if (response.ok) {
           setThumbnailSrc(src);
@@ -37,13 +40,16 @@ export const Thumbnail = ({
         // Fall through to generation logic
       }
 
-      // If Tauri is available and we have video path, try to generate thumbnail
-      if (IS_DESKTOP && videoPath && clipId) {
+      // If Tauri is available and we have video path, try to use backend thumbnail API
+      if (IS_DESKTOP && videoPath) {
         try {
-          await generateThumbnail(videoPath, clipId, timestamp);
+          // Use the backend thumbnail generator instead of direct FFmpeg
+          await requestThumbnail(videoPath);
+          // The thumbnail will be ready via event listener
         } catch (e) {
-          console.warn("Failed to generate thumbnail:", e);
+          console.warn("Failed to request thumbnail:", e);
           setError(true);
+          setThumbnailSrc(createPlaceholderThumbnail(alt));
         }
       } else {
         // Browser fallback - use a placeholder
@@ -55,60 +61,26 @@ export const Thumbnail = ({
     loadThumbnail();
   }, [src, videoPath, clipId, timestamp, alt]);
 
-  const generateThumbnail = async (
-    videoPath: string,
-    clipId: string,
-    timestamp: number
-  ) => {
-    if (!IS_DESKTOP) return;
+  // Listen for thumbnail ready events
+  useEffect(() => {
+    if (!IS_DESKTOP || !videoPath) return;
 
-    try {
-      const { Command } = await import("@tauri-apps/plugin-shell");
-      const { exists, mkdir } = await import("@tauri-apps/plugin-fs");
+    const unlisteners: (() => void)[] = [];
 
-      // Create cache directory if it doesn't exist
-      const cacheDir = "cache/thumbnails";
-      const thumbnailPath = `${cacheDir}/${clipId}_${timestamp}.jpg`;
+    setupScanListeners({
+      onThumbReady: (result) => {
+        if (result.src_path === videoPath) {
+          setThumbnailSrc(result.thumb_path);
+          setLoading(false);
+          setError(false);
+        }
+      },
+    });
 
-      if (await exists(thumbnailPath)) {
-        setThumbnailSrc(thumbnailPath);
-        return;
-      }
-
-      // Ensure cache directory exists
-      try {
-        await mkdir(cacheDir, { recursive: true });
-      } catch (e) {
-        // Directory might already exist
-      }
-
-      // Generate thumbnail using ffmpeg sidecar
-      const command = Command.sidecar("binaries/ffmpegbin", [
-        "-i",
-        videoPath,
-        "-ss",
-        timestamp.toString(),
-        "-vframes",
-        "1",
-        "-q:v",
-        "3",
-        "-y",
-        thumbnailPath,
-      ]);
-
-      const output = await command.execute();
-
-      if (output.code === 0) {
-        setThumbnailSrc(thumbnailPath);
-      } else {
-        throw new Error(`FFmpeg failed with code ${output.code}`);
-      }
-    } catch (error) {
-      console.error("Failed to generate thumbnail:", error);
-      setError(true);
-      setThumbnailSrc(createPlaceholderThumbnail(alt));
-    }
-  };
+    return () => {
+      unlisteners.forEach((unlisten) => unlisten());
+    };
+  }, [videoPath]);
 
   const createPlaceholderThumbnail = (text: string): string => {
     // Create a simple SVG placeholder

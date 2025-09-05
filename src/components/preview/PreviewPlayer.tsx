@@ -377,29 +377,32 @@ export default function PreviewPlayer({
           </div>
         )}
 
+        {/* Always show overlay and controls for consistent UI */}
         {showOverlay && (
           <div
             className={`absolute inset-0 transition-opacity duration-300 ${
               showControls ? "opacity-100" : "opacity-0"
             }`}
           >
-            {/* Center play/pause */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm pointer-events-auto"
-                onClick={togglePlay}
-              >
-                {playing ? (
-                  <Pause className="h-8 w-8" />
-                ) : (
-                  <Play className="h-8 w-8" />
-                )}
-              </Button>
-            </div>
+            {/* Center play/pause - only show if video is loaded */}
+            {resolvedSrc && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm pointer-events-auto"
+                  onClick={togglePlay}
+                >
+                  {playing ? (
+                    <Pause className="h-8 w-8" />
+                  ) : (
+                    <Play className="h-8 w-8" />
+                  )}
+                </Button>
+              </div>
+            )}
 
-            {/* Bottom transport */}
+            {/* Bottom transport - always show */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 space-y-3">
               {/* Seek */}
               <Slider
@@ -407,20 +410,36 @@ export default function PreviewPlayer({
                 max={duration || 0}
                 step={0.05}
                 onValueChange={(v) => seekTo(v[0] ?? 0)}
+                disabled={!resolvedSrc}
               />
               <div className="flex items-center justify-between text-neutral-100 gap-4">
                 <div className="flex items-center gap-1">
-                  <Button size="sm" variant="ghost" onClick={() => nudge(-10)}>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => nudge(-10)}
+                    disabled={!resolvedSrc}
+                  >
                     <SkipBack className="h-4 w-4" />
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={togglePlay}>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={togglePlay}
+                    disabled={!resolvedSrc}
+                  >
                     {playing ? (
                       <Pause className="h-4 w-4" />
                     ) : (
                       <Play className="h-4 w-4" />
                     )}
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => nudge(+10)}>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => nudge(+10)}
+                    disabled={!resolvedSrc}
+                  >
                     <SkipForward className="h-4 w-4" />
                   </Button>
                   <div className="flex items-center gap-2 ml-3">
@@ -430,6 +449,7 @@ export default function PreviewPlayer({
                       max={1}
                       step={0.05}
                       onValueChange={(v) => setVolume(v[0] ?? 0)}
+                      disabled={!resolvedSrc}
                       className="w-24"
                     />
                   </div>
@@ -441,6 +461,7 @@ export default function PreviewPlayer({
                   <Button
                     size="sm"
                     variant="ghost"
+                    disabled={!resolvedSrc}
                     onClick={async () => {
                       const v = videoRef.current;
                       if (!v) return;

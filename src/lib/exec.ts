@@ -5,6 +5,7 @@
  */
 import { Command } from "@tauri-apps/plugin-shell";
 import { isTauriAvailable } from "./platform";
+import { logger, logSidecarOutput } from "./logging";
 
 export interface CommandResult {
   code: number;
@@ -44,16 +45,20 @@ export async function ffmpegVersion(): Promise<CommandResult> {
   try {
     const command = Command.sidecar("binaries/ffmpegbin", ["-version"]);
     const result = await command.execute();
+    
+    // Log the sidecar output
+    logSidecarOutput("ffmpegbin", result.stdout, result.stderr);
+    
     if (result.code !== 0) {
       const lines = result.stderr.split(/\r?\n/);
-      console.error("FFmpeg sidecar non-zero exit", {
+      logger.error("FFmpeg sidecar non-zero exit", {
         code: result.code,
         firstLines: lines.slice(0, 8),
         totalLines: lines.length,
       });
-      console.log("FFmpeg stderr:", result.stderr);
+      logger.warn("FFmpeg stderr:", result.stderr);
     } else if (!/^ffmpeg version /i.test(result.stdout)) {
-      console.warn(
+      logger.warn(
         "FFmpeg output did not match expected version signature",
         result.stdout.split(/\r?\n/)[0]
       );
@@ -64,7 +69,7 @@ export async function ffmpegVersion(): Promise<CommandResult> {
       stderr: result.stderr,
     };
   } catch (error) {
-    console.error("FFmpeg version retrieval failed", error);
+    logger.error("FFmpeg version retrieval failed", error);
     throw new Error(`Failed to get FFmpeg version: ${error}`);
   }
 }
@@ -80,16 +85,20 @@ export async function ffprobeVersion(): Promise<CommandResult> {
   try {
     const command = Command.sidecar("binaries/ffprobebin", ["-version"]);
     const result = await command.execute();
+    
+    // Log the sidecar output
+    logSidecarOutput("ffprobebin", result.stdout, result.stderr);
+    
     if (result.code !== 0) {
       const lines = result.stderr.split(/\r?\n/);
-      console.error("FFprobe sidecar non-zero exit", {
+      logger.error("FFprobe sidecar non-zero exit", {
         code: result.code,
         firstLines: lines.slice(0, 8),
         totalLines: lines.length,
       });
-      console.log("FFprobe stderr:", result.stderr);
+      logger.warn("FFprobe stderr:", result.stderr);
     } else if (!/^ffprobe version /i.test(result.stdout)) {
-      console.warn(
+      logger.warn(
         "FFprobe output did not match expected version signature",
         result.stdout.split(/\r?\n/)[0]
       );
@@ -100,7 +109,7 @@ export async function ffprobeVersion(): Promise<CommandResult> {
       stderr: result.stderr,
     };
   } catch (error) {
-    console.error("FFprobe version retrieval failed", error);
+    logger.error("FFprobe version retrieval failed", error);
     throw new Error(`Failed to get FFprobe version: ${error}`);
   }
 }
@@ -140,7 +149,7 @@ export async function runWorker(
     }
   }
 
-  console.log("Running worker with args:", workerArgs);
+  logger.info("Running worker with args:", workerArgs);
 
   const command = Command.sidecar("binaries/worker", workerArgs);
   currentWorkerCommand = command;
@@ -154,7 +163,9 @@ export async function runWorker(
       return new Promise<CommandResult>((resolve, reject) => {
         // Set up event listeners for streaming
         command.on("close", (data) => {
-          console.log("Worker process closed with code:", data.code);
+          logger.info("Worker process closed with code:", data.code);
+          // Log final sidecar output
+          logSidecarOutput("worker", allStdout, allStderr);
           resolve({
             code: data.code ?? -1,
             stdout: allStdout,
@@ -163,13 +174,14 @@ export async function runWorker(
         });
 
         command.on("error", (error) => {
-          console.error("Worker process error:", error);
+          logger.error("Worker process error:", error);
           reject(new Error(`Worker process error: ${error}`));
         });
 
         // Handle stdout streaming with JSONL parsing
         command.stdout.on("data", (data) => {
-          const textData = String(data);
+          // Handle encoding safely - replace invalid UTF-8 with replacement character
+          const textData = Buffer.from(data as any).toString('utf8');
           allStdout += textData;
 
           // Process each line for JSONL format
@@ -192,9 +204,10 @@ export async function runWorker(
 
         // Handle stderr streaming
         command.stderr.on("data", (data) => {
-          const textData = String(data);
+          // Handle encoding safely - replace invalid UTF-8 with replacement character
+          const textData = Buffer.from(data as any).toString('utf8');
           allStderr += textData;
-          console.warn("Worker stderr:", textData);
+          logger.warn("Worker stderr:", textData);
         });
 
         // Start the streaming process
@@ -203,8 +216,12 @@ export async function runWorker(
     } else {
       // Execute without streaming (legacy mode)
       const result = await command.execute();
+      
+      // Log the sidecar output
+      logSidecarOutput("worker", result.stdout, result.stderr);
+      
       if (result.code !== 0) {
-        console.error("Worker sidecar non-zero exit", { workerArgs, result });
+        logger.error("Worker sidecar non-zero exit", { workerArgs, result });
       }
 
       return {
@@ -226,10 +243,10 @@ export async function cancelWorker(): Promise<void> {
     try {
       // @ts-ignore - kill method may not be properly typed in Tauri v2
       await currentWorkerCommand.kill();
-      console.log("Worker process cancelled");
+      logger.info("Worker process cancelled");
       currentWorkerCommand = null;
     } catch (error) {
-      console.error("Failed to cancel worker process:", error);
+      logger.error("Failed to cancel worker process:", error);
     }
   }
 }

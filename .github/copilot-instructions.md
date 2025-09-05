@@ -91,6 +91,9 @@ This repository is a Tauri + React + TypeScript desktop-first video editor (Auto
 4) Integration & external dependencies
 - Tauri plugins used: `@tauri-apps/plugin-shell`, `plugin-dialog`, `plugin-fs`. Use `isTauriAvailable()` from `src/lib/worker.ts` to gate native calls.
 - Python worker/ffmpeg: Worker is invoked via `PythonWorker.runStage(stage, args)`. `runStage` spawns `python worker/main.py <stage> ...` through Tauri shell (desktop) and streams JSON messages to UI. In browser mode `runStage` will raise; tests or UI must not call it unless desktop/runtime available.
+- **MCP Servers (Playwright & FFmpeg)**: The workspace is configured with Model Context Protocol (MCP) servers, enabling direct control over browser automation and media manipulation.
+  - **Playwright**: Provides tools for web automation (`browser_navigate`, `browser_snapshot`, `browser_click`, `browser_fill_form`, etc.). Useful for testing UI interactions or scraping web content.
+  - **FFmpeg**: Provides tools for media processing (`probe`, `transcode`, `concat`). Use this for analyzing, converting, or combining video/audio files.
 - Tests: `vitest` + `@testing-library/react` are used. The repository needed `jsdom` installed; tests run with `npx vitest run --environment jsdom`.
 
 5) Useful files to check when working on features

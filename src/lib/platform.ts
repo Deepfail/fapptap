@@ -43,6 +43,11 @@ if (!desktop && typeof window !== "undefined") {
 export function isTauriAvailable(): boolean {
   return desktop;
 }
+
+export function isTauri(): boolean {
+  return desktop;
+}
+
 export const IS_DESKTOP = desktop; // legacy constant (snapshot at import time)
 export function getPlatform(): "desktop" | "browser" {
   return desktop ? "desktop" : "browser";

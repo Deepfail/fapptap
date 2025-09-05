@@ -1,9 +1,8 @@
-import React, { useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Slider } from '../ui/slider';
-import { usePlayerStore } from '../../state/playerStore';
-import { formatTime } from '../../utils/timelineUtils';
+import { useEffect } from "react";
+import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { usePlayerStore } from "@/state/playerStore";
+import { formatTime } from "@/utils/timelineUtils";
 
 interface TransportControlsProps {
   className?: string;
@@ -26,81 +25,85 @@ export function TransportControls({ className }: TransportControlsProps) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Don't trigger shortcuts when typing in inputs
-      if (event.target instanceof HTMLInputElement || 
-          event.target instanceof HTMLTextAreaElement) {
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement
+      ) {
         return;
       }
 
       switch (event.code) {
-        case 'Space':
-        case 'KeyK':
+        case "Space":
+        case "KeyK":
           event.preventDefault();
           playPause();
           break;
-        
-        case 'KeyJ':
+
+        case "KeyJ":
           event.preventDefault();
           setTime(Math.max(0, currentTime - 10));
           break;
-        
-        case 'KeyL':
+
+        case "KeyL":
           event.preventDefault();
           setTime(Math.min(duration, currentTime + 10));
           break;
-        
-        case 'ArrowLeft':
+
+        case "ArrowLeft":
           event.preventDefault();
           setTime(Math.max(0, currentTime - 1));
           break;
-        
-        case 'ArrowRight':
+
+        case "ArrowRight":
           event.preventDefault();
           setTime(Math.min(duration, currentTime + 1));
           break;
-        
-        case 'BracketLeft': // [
+
+        case "BracketLeft": // [
           event.preventDefault();
           // Mark in - could trigger cut creation
           break;
-        
-        case 'BracketRight': // ]
+
+        case "BracketRight": // ]
           event.preventDefault();
           // Mark out - could trigger cut creation
           break;
-        
-        case 'KeyS':
+
+        case "KeyS":
           event.preventDefault();
           // Split at playhead - could trigger cut split
           break;
-        
-        case 'Delete':
-        case 'Backspace':
+
+        case "Delete":
+        case "Backspace":
           event.preventDefault();
           // Delete selected cut
           break;
-        
-        case 'Comma':
+
+        case "Comma":
           event.preventDefault();
           // Nudge -1 frame (assuming 30fps)
-          setTime(Math.max(0, currentTime - 1/30));
+          setTime(Math.max(0, currentTime - 1 / 30));
           break;
-        
-        case 'Period':
+
+        case "Period":
           event.preventDefault();
           // Nudge +1 frame
-          setTime(Math.min(duration, currentTime + 1/30));
+          setTime(Math.min(duration, currentTime + 1 / 30));
           break;
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [currentTime, duration, playPause, setTime]);
 
   const playbackRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
 
   return (
-    <div className={`flex items-center gap-4 p-4 bg-slate-800 border-t border-slate-700 ${className}`}>
+    <div
+      className={`flex items-center gap-4 p-4 bg-slate-800 border-t border-slate-700 ${className}`}
+    >
       {/* Playback Controls */}
       <div className="flex items-center gap-2">
         <Button
@@ -111,16 +114,20 @@ export function TransportControls({ className }: TransportControlsProps) {
         >
           <SkipBack className="h-4 w-4" />
         </Button>
-        
+
         <Button
           size="sm"
           variant={isPlaying ? "default" : "secondary"}
           onClick={() => playPause()}
           title="Play/Pause (Space/K)"
         >
-          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          {isPlaying ? (
+            <Pause className="h-4 w-4" />
+          ) : (
+            <Play className="h-4 w-4" />
+          )}
         </Button>
-        
+
         <Button
           size="sm"
           variant="ghost"
@@ -146,7 +153,7 @@ export function TransportControls({ className }: TransportControlsProps) {
           onChange={(e) => setPlaybackRate(Number(e.target.value))}
           className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-xs text-slate-300"
         >
-          {playbackRates.map(rate => (
+          {playbackRates.map((rate) => (
             <option key={rate} value={rate}>
               {rate}x
             </option>
@@ -172,7 +179,8 @@ export function TransportControls({ className }: TransportControlsProps) {
 
       {/* Help Text */}
       <div className="text-xs text-slate-500">
-        Space/K: Play • J/L: ±10s • ←/→: ±1s • ,/.: ±1 frame • [/]: Mark • S: Split
+        Space/K: Play • J/L: ±10s • ←/→: ±1s • ,/.: ±1 frame • [/]: Mark • S:
+        Split
       </div>
     </div>
   );

@@ -149,6 +149,14 @@ export function ActionsPane() {
         cutting_mode: prefs.cuttingMode,
         engine: prefs.engine,
         enable_shot_detection: prefs.enableShotDetection,
+        // Cut settings (converted to strings for worker)
+        min_clip_length: prefs.minClipLength.toString(),
+        max_clip_length: prefs.maxClipLength.toString(),
+        min_beats: prefs.minBeats.toString(),
+        crossfade_duration: prefs.crossfadeDuration.toString(),
+        prefer_downbeats: prefs.preferDownbeats,
+        respect_shot_boundaries: prefs.respectShotBoundaries,
+        energy_threshold: prefs.energyThreshold.toString(),
       };
 
       console.log("ActionsPane calling worker with args:", workerArgs);
@@ -658,17 +666,146 @@ export function ActionsPane() {
             </div>
           )}
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="snap" className="text-sm">
-              Snap to beat
-            </Label>
-            <Switch
-              id="snap"
-              checked={prefs.snapToBeat}
-              onCheckedChange={(checked) =>
-                updatePrefs({ snapToBeat: checked })
-              }
-            />
+          {/* Cut Settings */}
+          <div className="space-y-3 pt-3 border-t border-slate-600">
+            <h4 className="text-xs font-medium text-slate-300 uppercase tracking-wide">
+              Cut Settings
+            </h4>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="minClipLength" className="text-sm">
+                Min clip length
+              </Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="minClipLength"
+                  type="number"
+                  min="0.1"
+                  max="10"
+                  step="0.1"
+                  value={prefs.minClipLength}
+                  onChange={(e) =>
+                    updatePrefs({ minClipLength: parseFloat(e.target.value) })
+                  }
+                  className="w-16 px-2 py-1 text-xs bg-slate-800 border border-slate-600 rounded text-right"
+                />
+                <span className="text-xs text-slate-400">s</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="maxClipLength" className="text-sm">
+                Max clip length
+              </Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="maxClipLength"
+                  type="number"
+                  min="1"
+                  max="30"
+                  step="0.5"
+                  value={prefs.maxClipLength}
+                  onChange={(e) =>
+                    updatePrefs({ maxClipLength: parseFloat(e.target.value) })
+                  }
+                  className="w-16 px-2 py-1 text-xs bg-slate-800 border border-slate-600 rounded text-right"
+                />
+                <span className="text-xs text-slate-400">s</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="minBeats" className="text-sm">
+                Min beats per clip
+              </Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="minBeats"
+                  type="number"
+                  min="1"
+                  max="32"
+                  step="1"
+                  value={prefs.minBeats}
+                  onChange={(e) =>
+                    updatePrefs({ minBeats: parseInt(e.target.value) })
+                  }
+                  className="w-16 px-2 py-1 text-xs bg-slate-800 border border-slate-600 rounded text-right"
+                />
+                <span className="text-xs text-slate-400">beats</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="energyThreshold" className="text-sm">
+                Energy threshold
+              </Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="energyThreshold"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={prefs.energyThreshold}
+                  onChange={(e) =>
+                    updatePrefs({ energyThreshold: parseFloat(e.target.value) })
+                  }
+                  className="w-16 accent-fuchsia-500"
+                />
+                <span className="text-xs text-slate-400 w-8 text-right">
+                  {(prefs.energyThreshold * 100).toFixed(0)}%
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="crossfadeDuration" className="text-sm">
+                Crossfade duration
+              </Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="crossfadeDuration"
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={prefs.crossfadeDuration}
+                  onChange={(e) =>
+                    updatePrefs({
+                      crossfadeDuration: parseFloat(e.target.value),
+                    })
+                  }
+                  className="w-16 px-2 py-1 text-xs bg-slate-800 border border-slate-600 rounded text-right"
+                />
+                <span className="text-xs text-slate-400">s</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="preferDownbeats" className="text-sm">
+                Prefer downbeats
+              </Label>
+              <Switch
+                id="preferDownbeats"
+                checked={prefs.preferDownbeats}
+                onCheckedChange={(checked) =>
+                  updatePrefs({ preferDownbeats: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="respectShotBoundaries" className="text-sm">
+                Respect shot boundaries
+              </Label>
+              <Switch
+                id="respectShotBoundaries"
+                checked={prefs.respectShotBoundaries}
+                onCheckedChange={(checked) =>
+                  updatePrefs({ respectShotBoundaries: checked })
+                }
+              />
+            </div>
           </div>
         </div>
       </div>

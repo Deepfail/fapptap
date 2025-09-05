@@ -2,19 +2,27 @@ import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readDir } from "@tauri-apps/plugin-fs";
 import { toMediaSrc } from "@/lib/mediaUrl";
-import { onDesktopAvailable } from "@/lib/platform";
+import { onDesktopAvailable, isTauri } from "@/lib/platform";
 import { useMediaStore } from "@/state/mediaStore";
+import { useProbeStore } from "@/state/probeStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Music,
   Grid3X3,
   Grid2X2,
   LayoutGrid,
   Folder,
   List,
+  FileAudio,
 } from "lucide-react";
 import SelectedVideosTimeline from "./SelectedVideosTimeline";
+import {
+  getAspectRatioClasses,
+  getObjectFitStyle,
+  getObjectPosition,
+  estimateAspectRatioFromVideo,
+  type AspectRatio,
+} from "@/lib/aspectRatio";
 
 const VIDEO_EXT = new Set(["mp4", "mov", "mkv", "webm", "avi", "m4v"]);
 
@@ -39,14 +47,14 @@ export default function LibraryPane({
   const [clips, setClips] = useState<Clip[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [inlinePlayback] = useState(true); // Always enabled as requested
+  const [_inlinePlayback] = useState(true); // Always enabled as requested
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "compact" | "thumbnail">(
     "grid"
   );
   const [currentPage, setCurrentPage] = useState(0);
   const [activeTab, setActiveTab] = useState<"browser" | "timeline">("browser");
-  const CLIPS_PER_PAGE = 50; // Limit to prevent performance issues
+  const CLIPS_PER_PAGE = 100; // Limit to prevent performance issues
 
   const {
     setClipsDir,
@@ -57,6 +65,34 @@ export default function LibraryPane({
     clearSelection,
     setSelectedClips,
   } = useMediaStore();
+
+  // Probe store for media analysis
+  const { requestFileProbe, getFileProbeStatus } = useProbeStore();
+
+  // Trigger probing when clips are selected
+  const handleClipSelection = useCallback(
+    (clipPath: string) => {
+      toggleClipSelection(clipPath);
+
+      // Set as current clip for video editor when selected
+      if (!selectedClipIds.has(clipPath)) {
+        onSelectClip?.(clipPath);
+      }
+
+      // Start probing the file when it's selected (if not already probed/probing)
+      const status = getFileProbeStatus(clipPath);
+      if (!status || status.status === "error") {
+        requestFileProbe(clipPath);
+      }
+    },
+    [
+      toggleClipSelection,
+      requestFileProbe,
+      getFileProbeStatus,
+      selectedClipIds,
+      onSelectClip,
+    ]
+  );
 
   // Paginated clips
   const paginatedClips = useMemo(() => {
@@ -75,6 +111,16 @@ export default function LibraryPane({
   };
 
   const chooseDir = useCallback(async () => {
+    // In browser mode, set a mock directory
+    if (!isTauri()) {
+      const mockDir = "media_samples"; // Use sample media folder
+      setDir(mockDir);
+      onDirChange?.(mockDir);
+      setClipsDir(mockDir);
+      return;
+    }
+
+    // Real Tauri directory picker
     const picked = await open({ directory: true, multiple: false });
     if (typeof picked === "string" && picked.length) {
       setDir(picked);
@@ -84,6 +130,15 @@ export default function LibraryPane({
   }, [onDirChange, setClipsDir]);
 
   const loadAudioFile = useCallback(async () => {
+    // In browser mode, set a mock audio file
+    if (!isTauri()) {
+      const mockAudio = "media_samples/audio/sample.mp3";
+      console.log("Browser mode: Mock audio file selected:", mockAudio);
+      setSongPath(mockAudio);
+      return;
+    }
+
+    // Real Tauri file picker
     const picked = await open({
       multiple: false,
       filters: [
@@ -94,7 +149,10 @@ export default function LibraryPane({
       ],
     });
     if (typeof picked === "string" && picked.length) {
+      console.log("Audio file selected:", picked);
       setSongPath(picked);
+      // Audio loaded but beat analysis NOT started automatically to prevent freezing
+      // User can manually start beat analysis from the timeline
     }
   }, [setSongPath]);
 
@@ -109,6 +167,45 @@ export default function LibraryPane({
         setLoading(true);
         setErr(null);
 
+        // Load mock clips in browser mode
+        if (!isTauri()) {
+          console.log("Browser mode: Loading mock clips");
+          const mockClips = [
+            {
+              path: "media_samples/anime-1.mp4",
+              name: "Anime Video.mp4",
+              ext: "mp4",
+            },
+            {
+              path: "media_samples/at-work_001.mp4",
+              name: "At Work 1.mp4",
+              ext: "mp4",
+            },
+            {
+              path: "media_samples/cumshot-dance.mp4",
+              name: "Dance Video.mp4",
+              ext: "mp4",
+            },
+            {
+              path: "media_samples/FINAL_00001.mp4",
+              name: "Final Video 1.mp4",
+              ext: "mp4",
+            },
+            {
+              path: "media_samples/video.mp4",
+              name: "Sample Video.mp4",
+              ext: "mp4",
+            },
+          ];
+
+          if (!cancelled) {
+            setClips(mockClips);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Real Tauri file loading
         const entries = await readDir(dir);
 
         const allFiles = entries
@@ -185,7 +282,7 @@ export default function LibraryPane({
                 onClick={loadAudioFile}
                 className="flex-1 flex items-center justify-center gap-1"
               >
-                <Music className="h-3 w-3" />
+                <FileAudio className="h-3 w-3" />
                 Add Music
               </Button>
             </div>
@@ -298,8 +395,8 @@ export default function LibraryPane({
             )}
           </div>
 
-          {/* content - scrollable area */}
-          <div className="flex-1 min-h-0 rounded-lg border border-neutral-800 overflow-auto p-2 bg-neutral-950">
+          {/* Scrollable content area - constrained to parent width */}
+          <div className="flex-1 min-h-0 rounded-lg border border-neutral-800 overflow-y-auto overflow-x-hidden p-2 bg-neutral-950">
             {loading && (
               <div className="p-4 text-neutral-400 text-sm">
                 Scanning directory...
@@ -314,37 +411,41 @@ export default function LibraryPane({
               </div>
             )}
 
-            {/* Performance-optimized grid with pagination */}
+            {/* Grid with fixed small sizes to prevent stretching */}
             {!loading && !err && clips.length > 0 && (
               <div
-                className={`grid gap-2 ${
+                className={`grid gap-2 w-full ${
                   viewMode === "thumbnail"
-                    ? "grid-cols-[repeat(auto-fill,minmax(80px,1fr))]"
+                    ? "grid-cols-[repeat(auto-fill,60px)]"
                     : viewMode === "compact"
-                    ? "grid-cols-[repeat(auto-fill,minmax(120px,1fr))]"
-                    : "grid-cols-[repeat(auto-fill,minmax(160px,1fr))]"
+                    ? "grid-cols-[repeat(auto-fill,80px)]"
+                    : "grid-cols-[repeat(auto-fill,120px)]"
                 }`}
               >
-                {paginatedClips.map((c) => (
-                  <ClipTile
-                    key={c.path}
-                    clip={c}
-                    isSelected={selectedClipIds.has(c.path)}
-                    onToggleSelect={() => toggleClipSelection(c.path)}
-                    onPreview={() => onSelectClip?.(c.path)}
-                    enableInlinePlayback={inlinePlayback}
-                    isPlaying={currentlyPlaying === c.path}
-                    onPlayStateChange={(playing) => {
-                      if (playing) {
-                        setCurrentlyPlaying(c.path);
-                      } else if (currentlyPlaying === c.path) {
-                        setCurrentlyPlaying(null);
+                {paginatedClips.map((c) => {
+                  const normPath = c.path.replace(/\\/g, "/");
+                  const playing = currentlyPlaying === normPath;
+
+                  return (
+                    <ClipTile
+                      key={normPath}
+                      clip={{ ...c, path: normPath }}
+                      isSelected={selectedClipIds.has(normPath)}
+                      onToggleSelect={() => handleClipSelection(normPath)}
+                      onPreview={() => onSelectClip?.(normPath)} // always update main preview
+                      enableInlinePlayback={true} // keep inline playback
+                      isPlaying={playing}
+                      onPlayStateChange={(next) => {
+                        if (next) setCurrentlyPlaying(normPath);
+                        else if (playing) setCurrentlyPlaying(null);
+                      }}
+                      compact={
+                        viewMode === "compact" || viewMode === "thumbnail"
                       }
-                    }}
-                    compact={viewMode === "compact" || viewMode === "thumbnail"}
-                    thumbnail={viewMode === "thumbnail"}
-                  />
-                ))}
+                      thumbnail={viewMode === "thumbnail"}
+                    />
+                  );
+                })}
               </div>
             )}
           </div>
@@ -364,7 +465,7 @@ export default function LibraryPane({
           )}
         </div>
       ) : (
-        <SelectedVideosTimeline />
+        <SelectedVideosTimeline onSelectClip={onSelectClip} />
       )}
     </div>
   );
@@ -392,8 +493,17 @@ function ClipTile({
   thumbnail?: boolean;
 }) {
   const [src, setSrc] = useState<string>("");
+  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("landscape");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [tauriReadyTick, setTauriReadyTick] = useState(0);
+
+  // Detect aspect ratio when video metadata loads
+  const handleVideoLoadedMetadata = () => {
+    if (videoRef.current) {
+      const detectedRatio = estimateAspectRatioFromVideo(videoRef.current);
+      setAspectRatio(detectedRatio);
+    }
+  };
 
   // Effect to handle video playback state
   useEffect(() => {
@@ -429,30 +539,35 @@ function ClipTile({
 
   return (
     <div
-      className={`group relative rounded-md overflow-hidden bg-neutral-900 border-2 transition-all cursor-pointer ${
+      className={`group relative rounded-md overflow-hidden bg-neutral-900 border-2 transition-all cursor-pointer w-full max-w-[200px] ${
         isSelected
-          ? "border-blue-400 shadow-lg shadow-blue-500/25"
+          ? "border-green-500 shadow-lg shadow-green-500/20"
           : "border-transparent hover:border-neutral-600"
       }`}
-      onClick={onToggleSelect}
+      onClick={() => {
+        onToggleSelect(); // toggle selection (checkmark)
+        onPreview(); // update main preview
+        if (enableInlinePlayback) {
+          onPlayStateChange?.(!isPlaying); // keep inline playback behavior
+        }
+      }}
       title={clip.name}
     >
-      {/* Gradient selection overlay */}
-      {isSelected && (
-        <div className="absolute inset-0 z-10 bg-gradient-to-br from-blue-500/20 via-purple-500/15 to-cyan-500/20 pointer-events-none" />
-      )}
-
-      {/* Selection indicator (subtle outline instead of checkbox) */}
+      {/* Selection indicator - checkmark only */}
       {isSelected && (
         <div
           className={`absolute ${
-            thumbnail ? "top-1 right-1 w-4 h-4" : "top-2 right-2 w-5 h-5"
-          } z-20 rounded-full bg-blue-500 flex items-center justify-center shadow-lg`}
+            thumbnail ? "top-1 right-1 w-8 h-8" : "top-2 right-2 w-12 h-12"
+          } z-50 rounded-full bg-green-500 flex items-center justify-center shadow-2xl border-4 border-white animate-bounce`}
+          style={{ backgroundColor: "#10b981" }}
         >
           <svg
-            className={`${thumbnail ? "w-2 h-2" : "w-3 h-3"} text-white`}
+            className={`${
+              thumbnail ? "w-4 h-4" : "w-8 h-8"
+            } text-white drop-shadow-lg font-bold`}
             fill="currentColor"
             viewBox="0 0 20 20"
+            style={{ filter: "drop-shadow(0 0 4px rgba(0,0,0,0.8))" }}
           >
             <path
               fillRule="evenodd"
@@ -476,23 +591,28 @@ function ClipTile({
                 muted={!isPlaying}
                 playsInline
                 loop
-                className={`w-full object-cover bg-black ${
-                  thumbnail ? "aspect-square" : "aspect-video"
-                }`}
+                className={`w-full ${getObjectFitStyle()} bg-black ${getAspectRatioClasses(
+                  aspectRatio,
+                  thumbnail
+                )}`}
                 style={{
-                  objectPosition: "center center", // Center videos vertically
+                  objectPosition: getObjectPosition(aspectRatio, thumbnail),
                 }}
                 controls={false}
+                onLoadedMetadata={handleVideoLoadedMetadata}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onPlayStateChange?.(!isPlaying);
+                  onToggleSelect(); // ensure checkmark toggles when video is clicked
+                  onPreview(); // update main preview
+                  onPlayStateChange?.(!isPlaying); // keep inline playback
                 }}
               />
             ) : (
               <div
-                className={`w-full grid place-items-center text-neutral-500 text-xs bg-black ${
-                  thumbnail ? "aspect-square" : "aspect-video"
-                }`}
+                className={`w-full grid place-items-center text-neutral-500 text-xs bg-black ${getAspectRatioClasses(
+                  aspectRatio,
+                  thumbnail
+                )}`}
               >
                 Loading...
               </div>
@@ -514,29 +634,28 @@ function ClipTile({
             }}
             className="group/preview relative w-full focus:outline-none focus:ring-2 focus:ring-amber-500"
           >
-            {/* Video preview with centered positioning */}
+            {/* Video preview with proper aspect ratio */}
             {src ? (
               <video
                 src={src}
                 preload="metadata"
                 muted
                 playsInline
-                className={`w-full object-cover bg-black ${
-                  thumbnail ? "aspect-square" : "aspect-video"
-                }`}
+                className={`w-full ${getObjectFitStyle()} bg-black ${getAspectRatioClasses(
+                  aspectRatio,
+                  thumbnail
+                )}`}
                 style={{
-                  objectPosition: "center center", // Center videos vertically
+                  objectPosition: getObjectPosition(aspectRatio, thumbnail),
                 }}
+                onLoadedMetadata={handleVideoLoadedMetadata}
               />
             ) : (
               <div
-                className={`w-full grid place-items-center text-neutral-500 bg-black ${
+                className={`w-full grid place-items-center text-neutral-500 bg-black ${getAspectRatioClasses(
+                  aspectRatio,
                   thumbnail
-                    ? "aspect-square text-xs"
-                    : compact
-                    ? "aspect-video text-xs"
-                    : "aspect-video text-sm"
-                }`}
+                )} ${thumbnail ? "text-xs" : compact ? "text-xs" : "text-sm"}`}
               >
                 no preview
               </div>

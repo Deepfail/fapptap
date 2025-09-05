@@ -1,0 +1,43 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "dialog:default",
+    "fs:default",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "$HOME/**/*" },
+        { "path": "$DESKTOP/**/*" },
+        { "path": "$DOWNLOAD/**/*" },
+        { "path": "$DOCUMENT/**/*" },
+        { "path": "$VIDEO/**/*" },
+        { "path": "$PICTURE/**/*" },
+        { "path": "$MUSIC/**/*" },
+        { "path": "C:\\**" },
+        { "path": "D:\\**" },
+        { "path": "E:\\**" },
+        { "path": "F:\\**" }
+      ]
+    },
+    "store:default",
+    "store:allow-load",
+    "store:allow-save",
+    "store:allow-set",
+    "store:allow-get",
+    "log:default",
+    "shell:default",
+    "shell:allow-spawn",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        { "name": "binaries/worker", "sidecar": true, "args": true },
+        { "name": "binaries/ffmpegbin", "sidecar": true, "args": true },
+        { "name": "binaries/ffprobebin", "sidecar": true, "args": true }
+      ]
+    }
+  ]
+}

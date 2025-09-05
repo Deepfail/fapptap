@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { TimelineCanvas } from './TimelineCanvas';
-import { useTimelineMouse } from './useTimelineMouse';
-import { usePlayerStore } from '../../state/playerStore';
+import React, { useRef, useEffect, useState, useCallback } from "react";
+import { TimelineCanvas } from "./TimelineCanvas";
+import { useTimelineMouse } from "./useTimelineMouse";
+import { usePlayerStore } from "@/state/playerStore";
 
 interface TimelineProps {
   className?: string;
@@ -10,7 +10,8 @@ interface TimelineProps {
 export function Timeline({ className }: TimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 120 });
-  
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const {
     duration,
     pixelsPerSecond,
@@ -31,18 +32,35 @@ export function Timeline({ className }: TimelineProps) {
     };
 
     updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
+    window.addEventListener("resize", updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
   }, []);
+
+  // Throttled scroll handler
+  const handleScroll = useCallback(
+    (event: React.UIEvent<HTMLDivElement>) => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+
+      scrollTimeoutRef.current = setTimeout(() => {
+        setScrollLeft(event.currentTarget.scrollLeft);
+      }, 16); // ~60fps
+    },
+    [setScrollLeft]
+  );
 
   // Handle zoom with wheel
   const handleWheel = (event: React.WheelEvent) => {
     event.preventDefault();
-    
+
     if (event.ctrlKey || event.metaKey) {
       // Zoom
       const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
-      const newPixelsPerSecond = Math.max(10, Math.min(500, pixelsPerSecond * zoomFactor));
+      const newPixelsPerSecond = Math.max(
+        10,
+        Math.min(500, pixelsPerSecond * zoomFactor)
+      );
       setPixelsPerSecond(newPixelsPerSecond);
     } else {
       // Pan
@@ -52,13 +70,7 @@ export function Timeline({ className }: TimelineProps) {
     }
   };
 
-  // Handle horizontal scrolling
-  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    setScrollLeft(event.currentTarget.scrollLeft);
-  };
-
   const totalWidth = duration * pixelsPerSecond;
-  const needsScrollbar = totalWidth > dimensions.width;
 
   return (
     <div className={`relative ${className}`}>
@@ -69,7 +81,9 @@ export function Timeline({ className }: TimelineProps) {
           {/* Zoom Controls */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setPixelsPerSecond(Math.max(10, pixelsPerSecond * 0.5))}
+              onClick={() =>
+                setPixelsPerSecond(Math.max(10, pixelsPerSecond * 0.5))
+              }
               className="px-2 py-1 text-xs bg-slate-700 hover:bg-slate-600 rounded"
             >
               −
@@ -78,7 +92,9 @@ export function Timeline({ className }: TimelineProps) {
               {Math.round(pixelsPerSecond)}px/s
             </span>
             <button
-              onClick={() => setPixelsPerSecond(Math.min(500, pixelsPerSecond * 2))}
+              onClick={() =>
+                setPixelsPerSecond(Math.min(500, pixelsPerSecond * 2))
+              }
               className="px-2 py-1 text-xs bg-slate-700 hover:bg-slate-600 rounded"
             >
               +
@@ -110,7 +126,12 @@ export function Timeline({ className }: TimelineProps) {
         {...mouseHandlers}
       >
         {/* Scrollable Content */}
-        <div style={{ width: Math.max(totalWidth, dimensions.width), height: '100%' }}>
+        <div
+          style={{
+            width: Math.max(totalWidth, dimensions.width),
+            height: "100%",
+          }}
+        >
           <TimelineCanvas
             width={dimensions.width}
             height={dimensions.height}
@@ -132,7 +153,8 @@ export function Timeline({ className }: TimelineProps) {
       {/* Instructions */}
       <div className="p-2 bg-slate-800/30 border-t border-slate-700">
         <div className="text-xs text-slate-500">
-          Click to seek • Drag in cuts lane to create • Drag cut edges to trim • Cmd/Ctrl+wheel to zoom • Shift+wheel to pan
+          Click to seek • Drag in cuts lane to create • Drag cut edges to trim •
+          Cmd/Ctrl+wheel to zoom • Shift+wheel to pan
         </div>
       </div>
     </div>
@@ -147,14 +169,19 @@ interface TimeRulerProps {
   width: number;
 }
 
-function TimeRuler({ duration, pixelsPerSecond, scrollLeft, width }: TimeRulerProps) {
+function TimeRuler({
+  duration,
+  pixelsPerSecond,
+  scrollLeft,
+  width,
+}: TimeRulerProps) {
   const markers = [];
-  
+
   // Calculate time interval for markers
   const minMarkerSpacing = 80; // pixels
   const timePerPixel = 1 / pixelsPerSecond;
   const minTimeSpacing = minMarkerSpacing * timePerPixel;
-  
+
   // Round to nice intervals
   let interval = 1;
   if (minTimeSpacing > 60) interval = 300; // 5 minutes
@@ -163,10 +190,16 @@ function TimeRuler({ duration, pixelsPerSecond, scrollLeft, width }: TimeRulerPr
   else if (minTimeSpacing > 5) interval = 10; // 10 seconds
   else if (minTimeSpacing > 1) interval = 5; // 5 seconds
 
-  const startTime = Math.floor(scrollLeft / pixelsPerSecond / interval) * interval;
-  const endTime = Math.ceil((scrollLeft + width) / pixelsPerSecond / interval) * interval;
+  const startTime =
+    Math.floor(scrollLeft / pixelsPerSecond / interval) * interval;
+  const endTime =
+    Math.ceil((scrollLeft + width) / pixelsPerSecond / interval) * interval;
 
-  for (let time = startTime; time <= Math.min(endTime, duration); time += interval) {
+  for (
+    let time = startTime;
+    time <= Math.min(endTime, duration);
+    time += interval
+  ) {
     const x = time * pixelsPerSecond - scrollLeft;
     if (x >= -50 && x <= width + 50) {
       markers.push(
@@ -188,5 +221,5 @@ function TimeRuler({ duration, pixelsPerSecond, scrollLeft, width }: TimeRulerPr
 function formatTimeRuler(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
-  return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  return `${minutes}:${secs.toString().padStart(2, "0")}`;
 }
