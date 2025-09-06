@@ -4,8 +4,8 @@
  * Reference: TAURI_V2_COMPREHENSIVE_KNOWLEDGE_BASE.md - Sidecar Binary Configuration
  */
 import { Command } from "@tauri-apps/plugin-shell";
-import { isTauriAvailable } from "./platform";
 import { logger, logSidecarOutput } from "./logging";
+import { isTauriAvailable } from "./platform";
 
 export interface CommandResult {
   code: number;
