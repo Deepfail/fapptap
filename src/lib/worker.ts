@@ -110,17 +110,26 @@ export class PythonWorker {
       // Handle stdout for progress messages (JSONL format)
       this.currentCommand.stdout.on("data", (data: any) => {
         try {
-          // Use TextDecoder for browser compatibility (no Buffer API)
-          const decoder = new TextDecoder("utf-8", { fatal: false });
           let text: string;
 
-          if (data instanceof Uint8Array) {
-            text = decoder.decode(data);
-          } else if (typeof data === "string") {
+          // Ultra-safe text conversion that never throws
+          if (typeof data === "string") {
             text = data;
           } else {
-            // Try to convert to string safely
-            text = String(data);
+            // Convert any data type to string without throwing on invalid UTF-8
+            try {
+              // Try TextDecoder first (most compatible)
+              const decoder = new TextDecoder("utf-8", { fatal: false });
+              if (data instanceof Uint8Array) {
+                text = decoder.decode(data);
+              } else {
+                // Fallback to String() which is safest
+                text = String(data);
+              }
+            } catch {
+              // Ultimate fallback - just stringify it
+              text = String(data);
+            }
           }
 
           const lines = text.split("\n").filter((line: string) => line.trim());
@@ -149,31 +158,42 @@ export class PythonWorker {
             }
           }
         } catch (e) {
-          // Handle UTF-8 decode errors gracefully
-          console.warn(`Worker stdout decode error:`, e);
+          // Handle any decode errors gracefully and continue
+          console.warn(`Worker stdout processing error:`, e);
+          console.warn(`Raw data type:`, typeof data, `Data:`, data);
         }
       });
 
       // Handle stderr
       this.currentCommand.stderr.on("data", (data: any) => {
         try {
-          // Use TextDecoder for browser compatibility (no Buffer API)
-          const decoder = new TextDecoder("utf-8", { fatal: false });
           let text: string;
 
-          if (data instanceof Uint8Array) {
-            text = decoder.decode(data);
-          } else if (typeof data === "string") {
+          // Ultra-safe text conversion that never throws
+          if (typeof data === "string") {
             text = data;
           } else {
-            // Try to convert to string safely
-            text = String(data);
+            // Convert any data type to string without throwing on invalid UTF-8
+            try {
+              // Try TextDecoder first (most compatible)
+              const decoder = new TextDecoder("utf-8", { fatal: false });
+              if (data instanceof Uint8Array) {
+                text = decoder.decode(data);
+              } else {
+                // Fallback to String() which is safest
+                text = String(data);
+              }
+            } catch {
+              // Ultimate fallback - just stringify it
+              text = String(data);
+            }
           }
 
           console.warn(`Worker stderr: ${text}`);
         } catch (e) {
-          // Handle UTF-8 decode errors gracefully
-          console.warn(`Worker stderr decode error:`, e);
+          // Handle any decode errors gracefully and continue
+          console.warn(`Worker stderr processing error:`, e);
+          console.warn(`Raw stderr data type:`, typeof data, `Data:`, data);
         }
       });
 

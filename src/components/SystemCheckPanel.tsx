@@ -135,16 +135,16 @@ export const SystemCheckPanel = () => {
         const result = await runWorker("beats");
         // Worker is functional if it responds, even with an error about missing args
         const responseText = result.stdout + result.stderr;
-        const workerWorking = result.code === 0 || responseText.includes("No song file provided");
+        const workerWorking =
+          result.code === 0 || responseText.includes("No song file provided");
         newChecks.push({
           name: "Python Worker",
           status: workerWorking ? "ok" : "warning",
-          message:
-            workerWorking
-              ? "Worker responsive"
-              : `Exit ${result.code}: ${
-                  (result.stderr || result.stdout).split(/\r?\n/)[0]
-                }`,
+          message: workerWorking
+            ? "Worker responsive"
+            : `Exit ${result.code}: ${
+                (result.stderr || result.stdout).split(/\r?\n/)[0]
+              }`,
           action: {
             label: "Test",
             onClick: async () => {

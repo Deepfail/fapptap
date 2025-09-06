@@ -15,6 +15,17 @@ use std::sync::Arc;
 use tauri::{AppHandle, Manager, State};
 use tokio::sync::RwLock;
 
+// Type definitions for complex return types
+#[derive(serde::Serialize)]
+pub struct VideoMetadata {
+    pub duration: Option<f64>,
+    pub width: Option<u32>,
+    pub height: Option<u32>,
+    pub codec: Option<String>,
+}
+
+pub type JobStats = (u32, u32, u32, u32);
+
 // Application state
 #[derive(Default)]
 pub struct AppState {
@@ -129,12 +140,19 @@ async fn request_proxy(
 async fn get_video_metadata(
     src_path: String,
     state: State<'_, RwLock<AppState>>,
-) -> Result<(Option<f64>, Option<u32>, Option<u32>, Option<String>), String> {
+) -> Result<VideoMetadata, String> {
     let state = state.read().await;
     
     if let Some(generator) = &state.thumbnail_generator {
-        generator.get_video_metadata(PathBuf::from(src_path)).await
-            .map_err(|e| e.to_string())
+        let (duration, width, height, codec) = generator.get_video_metadata(PathBuf::from(src_path)).await
+            .map_err(|e| e.to_string())?;
+        
+        Ok(VideoMetadata {
+            duration,
+            width,
+            height,
+            codec,
+        })
     } else {
         Err("Thumbnail generator not initialized".to_string())
     }
@@ -143,7 +161,7 @@ async fn get_video_metadata(
 #[tauri::command]
 async fn get_job_stats(
     state: State<'_, RwLock<AppState>>,
-) -> Result<(u32, u32, u32, u32), String> {
+) -> Result<JobStats, String> {
     let state = state.read().await;
     
     if let Some(queue) = &state.job_queue {
@@ -169,34 +187,23 @@ async fn cancel_jobs_by_prefix(
 
 fn main() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_log::Builder::new().build())
+        .plugin(tauri_plugin_log::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_store::Builder::default().build())
-        .manage(RwLock::new(AppState::default()))
         .setup(|app| {
-            // Initialize caches and services
-            let app_data_dir = app.path().app_data_dir().expect("Failed to get app data directory");
-            std::fs::create_dir_all(&app_data_dir).expect("Failed to create app data directory");
+            let app_handle = app.handle().clone();
+            let state_arc = Arc::new(RwLock::new(AppState::default()));
+            app.manage(state_arc.clone());
 
-            let cache_db_path = app_data_dir.join("media_cache.db");
-            let job_db_path = app_data_dir.join("jobs.db");
-            let thumbnail_cache_dir = app_data_dir.join("thumbnails");
-
-            let media_cache = Arc::new(MediaCache::new(cache_db_path).expect("Failed to initialize media cache"));
-            let file_scanner = Arc::new(FileScanner::new(Arc::clone(&media_cache)));
-            let thumbnail_generator = Arc::new(ThumbnailGenerator::new(Arc::clone(&media_cache), thumbnail_cache_dir));
-            let job_queue = Arc::new(JobQueue::new(job_db_path).expect("Failed to initialize job queue"));
-
-            // Update app state
-            let state = app.state::<RwLock<AppState>>();
-            let mut state_guard = state.blocking_write();
-            state_guard.media_cache = Some(media_cache);
-            state_guard.file_scanner = Some(file_scanner);
-            state_guard.thumbnail_generator = Some(thumbnail_generator);
-            state_guard.job_queue = Some(job_queue);
+            // Initialize in a separate async task to avoid blocking setup
+            tauri::async_runtime::spawn(async move {
+                if let Err(e) = initialize_app_state(app_handle, state_arc).await {
+                    eprintln!("Failed to initialize app state: {}", e);
+                }
+            });
 
             Ok(())
         })
@@ -211,5 +218,32 @@ fn main() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+async fn initialize_app_state(
+    app_handle: AppHandle,
+    state: Arc<RwLock<AppState>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize caches and services
+    let app_data_dir = app_handle.path().app_data_dir()?;
+    std::fs::create_dir_all(&app_data_dir)?;
+
+    let cache_db_path = app_data_dir.join("media_cache.db");
+    let job_db_path = app_data_dir.join("jobs.db");
+    let thumbnail_cache_dir = app_data_dir.join("thumbnails");
+
+    let media_cache = Arc::new(MediaCache::new(cache_db_path)?);
+    let file_scanner = Arc::new(FileScanner::new(Arc::clone(&media_cache)));
+    let thumbnail_generator = Arc::new(ThumbnailGenerator::new(Arc::clone(&media_cache), thumbnail_cache_dir));
+    let job_queue = Arc::new(JobQueue::new(job_db_path)?);
+
+    // Update app state
+    let mut state_guard = state.write().await;
+    state_guard.media_cache = Some(media_cache);
+    state_guard.file_scanner = Some(file_scanner);
+    state_guard.thumbnail_generator = Some(thumbnail_generator);
+    state_guard.job_queue = Some(job_queue);
+
+    Ok(())
 }
 

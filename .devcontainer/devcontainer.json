@@ -28,7 +28,7 @@
   },
   "postCreateCommand": "npm install && pip install -r requirements.txt",
   "remoteUser": "node",
-  "forwardPorts": [1422, 3000, 5173],
+  "forwardPorts": [1420, 3000, 5173],
   "portsAttributes": {
     "1420": {
       "label": "Tauri Dev Server"

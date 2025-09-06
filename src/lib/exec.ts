@@ -45,10 +45,10 @@ export async function ffmpegVersion(): Promise<CommandResult> {
   try {
     const command = Command.sidecar("binaries/ffmpegbin", ["-version"]);
     const result = await command.execute();
-    
+
     // Log the sidecar output
     logSidecarOutput("ffmpegbin", result.stdout, result.stderr);
-    
+
     if (result.code !== 0) {
       const lines = result.stderr.split(/\r?\n/);
       logger.error("FFmpeg sidecar non-zero exit", {
@@ -85,10 +85,10 @@ export async function ffprobeVersion(): Promise<CommandResult> {
   try {
     const command = Command.sidecar("binaries/ffprobebin", ["-version"]);
     const result = await command.execute();
-    
+
     // Log the sidecar output
     logSidecarOutput("ffprobebin", result.stdout, result.stderr);
-    
+
     if (result.code !== 0) {
       const lines = result.stderr.split(/\r?\n/);
       logger.error("FFprobe sidecar non-zero exit", {
@@ -180,34 +180,44 @@ export async function runWorker(
 
         // Handle stdout streaming with JSONL parsing
         command.stdout.on("data", (data) => {
-          // Handle encoding safely - replace invalid UTF-8 with replacement character
-          const textData = Buffer.from(data as any).toString('utf8');
-          allStdout += textData;
+          try {
+            // Simple and reliable: convert to string with error handling
+            const textData = String(data);
+            allStdout += textData;
 
-          // Process each line for JSONL format
-          const lines = textData.split("\n").filter((line) => line.trim());
+            // Process each line for JSONL format
+            const lines = textData.split("\n").filter((line) => line.trim());
 
-          for (const line of lines) {
-            onLine?.(line);
+            for (const line of lines) {
+              onLine?.(line);
 
-            // Try to parse as JSON for progress updates
-            if (onProgress) {
-              try {
-                const progressData = JSON.parse(line);
-                onProgress(progressData);
-              } catch {
-                // Not JSON, ignore silently
+              // Try to parse as JSON for progress updates
+              if (onProgress) {
+                try {
+                  const progressData = JSON.parse(line);
+                  onProgress(progressData);
+                } catch {
+                  // Not JSON, ignore silently
+                }
               }
             }
+          } catch (error) {
+            logger.warn("Worker stdout processing error:", error);
+            // Continue without crashing
           }
         });
 
         // Handle stderr streaming
         command.stderr.on("data", (data) => {
-          // Handle encoding safely - replace invalid UTF-8 with replacement character
-          const textData = Buffer.from(data as any).toString('utf8');
-          allStderr += textData;
-          logger.warn("Worker stderr:", textData);
+          try {
+            // Simple and reliable: convert to string with error handling
+            const textData = String(data);
+            allStderr += textData;
+            logger.warn("Worker stderr:", textData);
+          } catch (error) {
+            logger.warn("Worker stderr processing error:", error);
+            // Continue without crashing
+          }
         });
 
         // Start the streaming process
@@ -216,10 +226,10 @@ export async function runWorker(
     } else {
       // Execute without streaming (legacy mode)
       const result = await command.execute();
-      
+
       // Log the sidecar output
       logSidecarOutput("worker", result.stdout, result.stderr);
-      
+
       if (result.code !== 0) {
         logger.error("Worker sidecar non-zero exit", { workerArgs, result });
       }

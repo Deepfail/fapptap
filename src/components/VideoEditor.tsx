@@ -13,8 +13,7 @@ interface VideoEditorProps {
 export function VideoEditor({ currentClip, className }: VideoEditorProps) {
   const [showEffectsPanel, setShowEffectsPanel] = useState(false);
 
-  const { duration, currentTime, cuts, selectedCutId } =
-    usePlayerStore();
+  const { duration, currentTime, cuts, selectedCutId } = usePlayerStore();
 
   if (!currentClip) {
     return (

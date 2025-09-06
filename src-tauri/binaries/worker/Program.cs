@@ -73,19 +73,26 @@ class Program
                 return 1;
             }
             
+            Console.Error.WriteLine($"Debug: Using Python: {pythonExe}");
+            
             // Determine working directory - should be project root where cache/ and render/ directories are
             string workingDir = DetermineWorkingDirectory(workerScript);
             Console.Error.WriteLine($"Debug: workingDir = {workingDir}");
             
-            // Prepare arguments for Python
+            // Prepare arguments for Python - escape them properly
             var processArgs = new List<string> { workerScript };
             processArgs.AddRange(args);
+            
+            // Escape arguments properly for Windows
+            string escapedArgs = string.Join(" ", processArgs.Select(EscapeCommandLineArgument));
+            
+            Console.Error.WriteLine($"Debug: Python command: {pythonExe} {escapedArgs}");
             
             // Start Python process
             var startInfo = new ProcessStartInfo
             {
                 FileName = pythonExe,
-                Arguments = string.Join(" ", processArgs.Select(arg => $"\"{arg}\"")),
+                Arguments = escapedArgs,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -95,8 +102,10 @@ class Program
                 StandardErrorEncoding = System.Text.Encoding.UTF8
             };
             
-            // Set environment variable for Python UTF-8 encoding
+            // Set environment variables for Python UTF-8 encoding and error handling
             startInfo.Environment["PYTHONIOENCODING"] = "utf-8:replace";
+            startInfo.Environment["PYTHONUNBUFFERED"] = "1";  // Ensure immediate output
+            startInfo.Environment["PYTHONDONTWRITEBYTECODE"] = "1";  // Avoid .pyc files
             
             using var process = Process.Start(startInfo);
             if (process == null)
@@ -201,5 +210,21 @@ class Program
         }
         
         return dir ?? Directory.GetCurrentDirectory();
+    }
+    
+    static string EscapeCommandLineArgument(string arg)
+    {
+        // Escape command line arguments for Windows
+        if (string.IsNullOrEmpty(arg))
+            return "\"\"";
+            
+        bool needsQuotes = arg.Contains(' ') || arg.Contains('\t') || arg.Contains('\n') || 
+                          arg.Contains('\v') || arg.Contains('"');
+                          
+        if (!needsQuotes)
+            return arg;
+            
+        var escaped = arg.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        return $"\"{escaped}\"";
     }
 }

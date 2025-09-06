@@ -7,9 +7,26 @@ from pathlib import Path
 import os
 os.environ.setdefault('PYTHONIOENCODING', 'utf-8:replace')
 
+def safe_str(obj):
+    """Safely convert any object to a UTF-8 string, handling encoding errors"""
+    try:
+        return str(obj).encode('utf-8', errors='replace').decode('utf-8')
+    except Exception:
+        return "<unprintable>"
+
 def emit(stage, progress=None, **kw):
     msg = {"stage": stage, **({} if progress is None else {"progress": progress}), **kw}
-    print(json.dumps(msg), flush=True)
+    try:
+        # Ensure all message content is safely serializable
+        for key, value in msg.items():
+            if isinstance(value, str):
+                # Replace any problematic characters that could cause encoding issues
+                msg[key] = value.encode('utf-8', errors='replace').decode('utf-8')
+        print(json.dumps(msg, ensure_ascii=False), flush=True)
+    except Exception as e:
+        # Fallback: emit a safe error message
+        safe_msg = {"stage": stage, "error": f"Message encoding error: {str(e)[:100]}"}
+        print(json.dumps(safe_msg, ensure_ascii=True), flush=True)
 
 def run_probe(clips_dir):
     """Probe all media files in clips_dir and cache metadata"""
@@ -41,7 +58,7 @@ def run_probe(clips_dir):
         stderr_output = e.stderr.decode('utf-8', errors='replace') if e.stderr else "No stderr output"
         emit("probe", progress=0.0, error=f"Probe failed: {stderr_output}")
     except Exception as e:
-        emit("probe", progress=0.0, error=f"Probe error: {str(e)}")
+        emit("probe", progress=0.0, error=f"Probe error: {safe_str(e)}")
 
 def run_beats(song, engine="advanced"):
     emit("beats", progress=0.0, message=f"Loading audio and analyzing beats (engine: {engine})...")
@@ -120,7 +137,9 @@ def run_beats(song, engine="advanced"):
              beats_count=len(beats_data.get("beats", [])),
              tempo=beats_data.get("tempo_global", 0))
     except Exception as e:
-        emit("beats", progress=0.0, error=f"Beat detection failed: {str(e)}")
+        # Safely handle error messages that might contain non-UTF-8 characters
+        error_msg = safe_str(e) or f"Unknown {type(e).__name__}"
+        emit("beats", progress=0.0, error=f"Beat detection failed: {error_msg}")
 
 def run_shots(clips_dir):
     emit("shots", progress=0.0)
@@ -427,13 +446,13 @@ def render_direct_filter_complex(events, audio_path, target_width, target_height
             return False
             
     except FileNotFoundError as e:
-        emit("render", progress=0.0, error=f"FFmpeg not found at path: {ffmpeg_path}. Error: {str(e)}")
+        emit("render", progress=0.0, error=f"FFmpeg not found at path: {ffmpeg_path}. Error: {safe_str(e)}")
         return False
     except OSError as e:
-        emit("render", progress=0.0, error=f"OS error running FFmpeg: {str(e)}")
+        emit("render", progress=0.0, error=f"OS error running FFmpeg: {safe_str(e)}")
         return False
     except Exception as e:
-        emit("render", progress=0.0, error=f"Render failed: {str(e)}")
+        emit("render", progress=0.0, error=f"Render failed: {safe_str(e)}")
         return False
 
 
@@ -475,7 +494,7 @@ def render_with_smart_batching(events, audio_path, target_width, target_height, 
             return concatenate_batches_with_audio(batch_files, audio_path, events, render_type, out_path, ffmpeg_path)
                     
     except Exception as e:
-        emit("render", progress=0.0, error=f"Smart batch rendering failed: {str(e)}")
+        emit("render", progress=0.0, error=f"Smart batch rendering failed: {safe_str(e)}")
         return False
 
 

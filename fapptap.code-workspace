@@ -1,10 +1,72 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"python-envs.defaultEnvManager": "ms-python.python:venv"
-	}
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "python-envs.defaultEnvManager": "ms-python.python:venv",
+    "rust-analyzer.cargo.buildScripts.overrideCommand": null,
+    "rust-analyzer.cargo.runBuildScripts": true,
+
+    // TypeScript/JavaScript
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.suggest.autoImports": true,
+    "javascript.suggest.autoImports": true,
+
+    // Tauri specific
+    "rust-analyzer.check.command": "clippy",
+    "rust-analyzer.cargo.features": "all",
+    "files.watcherExclude": {
+      "**/target/**": true,
+      "**/node_modules/**": true,
+      "**/dist/**": true,
+      "**/out/**": true,
+      "**/cache/**": true
+    },
+
+    // Python worker
+    "python.defaultInterpreterPath": "./worker/.venv/Scripts/python.exe",
+    "python.terminal.activateEnvironment": true,
+
+    // File associations
+    "files.associations": {
+      "*.json": "jsonc",
+      "tauri.conf.json": "jsonc",
+      "*.toml": "toml"
+    },
+
+    // Formatting
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit"
+    },
+
+    // Terminal
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+
+    // Search exclusions
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/target": true,
+      "**/dist": true,
+      "**/out": true,
+      "**/cache": true,
+      "**/.git": true
+    },
+    "chat.mcp.autostart": "newAndOutdated"
+  },
+  "extensions": {
+    "recommendations": [
+      "tauri-apps.tauri-vscode",
+      "rust-lang.rust-analyzer",
+      "ms-python.python",
+      "ms-vscode.vscode-typescript-next",
+      "bradlc.vscode-tailwindcss",
+      "esbenp.prettier-vscode",
+      "ms-vscode.powershell"
+    ]
+  }
 }

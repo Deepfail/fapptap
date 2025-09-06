@@ -11,39 +11,23 @@
     {
       "identifier": "fs:scope",
       "allow": [
-        { "path": "$HOME" },
-        { "path": "$HOME/**/*" },
-        { "path": "$DESKTOP" },
-        { "path": "$DESKTOP/**/*" },
-        { "path": "$DOCUMENT" },
-        { "path": "$DOCUMENT/**/*" },
-        { "path": "$DOWNLOAD" },
-        { "path": "$DOWNLOAD/**/*" },
-        { "path": "$VIDEO" },
-        { "path": "$VIDEO/**/*" },
-        { "path": "$PICTURE" },
-        { "path": "$PICTURE/**/*" },
-        { "path": "C:/Users/Virta/Dropbox" },
-        { "path": "C:/Users/Virta/Dropbox/**/*" }
-      ]
-    },
-    {
-      "identifier": "fs:allow-exists",
-      "allow": [
-        { "path": "$HOME/*" },
-        { "path": "$HOME/**/*" },
-        { "path": "$DESKTOP/*" },
-        { "path": "$DESKTOP/**/*" },
-        { "path": "$DOCUMENT/*" },
-        { "path": "$DOCUMENT/**/*" },
-        { "path": "$DOWNLOAD/*" },
-        { "path": "$DOWNLOAD/**/*" },
-        { "path": "$VIDEO/*" },
-        { "path": "$VIDEO/**/*" },
-        { "path": "$PICTURE/*" },
-        { "path": "$PICTURE/**/*" },
-        { "path": "C:/Users/Virta/Dropbox/*" },
-        { "path": "C:/Users/Virta/Dropbox/**/*" }
+        "$HOME",
+        "$HOME/**/*",
+        "$DESKTOP",
+        "$DESKTOP/**/*",
+        "$DOCUMENT",
+        "$DOCUMENT/**/*",
+        "$DOWNLOAD",
+        "$DOWNLOAD/**/*",
+        "$VIDEO",
+        "$VIDEO/**/*",
+        "$PICTURE",
+        "$PICTURE/**/*",
+        "$APPDATA/**/*",
+        "$TEMP/**/*",
+        "C:/Users/Virta/Dropbox",
+        "C:/Users/Virta/Dropbox/**/*",
+        "C:/**/*"
       ]
     },
 

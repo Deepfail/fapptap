@@ -11,7 +11,7 @@ declare global {
 }
 
 // Only attempt in development scenarios; in production bundle this is noise
-const DEV_URL = "http://localhost:1420/__vite_ping";
+const DEV_URL = "http://localhost:5175/__vite_ping";
 
 async function probe() {
   try {

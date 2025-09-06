@@ -121,7 +121,7 @@ impl JobQueue {
             })
         })?;
 
-        Ok(rows.next().transpose()?)
+        rows.next().transpose()
     }
 
     pub fn update_job_status(&self, id: &str, status: JobStatus, result: Option<serde_json::Value>, error: Option<String>) -> SqliteResult<()> {
