@@ -7,6 +7,7 @@ import { LibraryPane } from "@/components/library";
 import { PreviewPlayer } from "@/components/preview";
 import { ActionsPane } from "./components/ActionsPane";
 import { TopBar } from "./components/TopBar";
+import { LiveFFPlayPanel } from "./components/liveFFPlay";
 // state (prefs loader)
 import { useMediaStore, MediaStore } from "./state/mediaStore";
 import { Button } from "./components/ui/button";
@@ -23,12 +24,24 @@ export default function App() {
   const [currentClip, setCurrentClip] = useState<string | undefined>();
   const [lastDir, setLastDir] = useState<string | undefined>();
   const [editorMode, setEditorMode] = useState(false);
+  const [liveFFPlayMode, setLiveFFPlayMode] = useState(false);
 
   useEffect(() => {
     loadPrefs();
   }, [loadPrefs]);
 
   const renderContent = () => {
+    // Live FFPlay Mode - separate from traditional editor
+    if (liveFFPlayMode) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-slate-100 flex flex-col">
+          <LiveFFPlayPanel onBack={() => setLiveFFPlayMode(false)} />
+          <Toaster position="top-right" theme="dark" />
+        </div>
+      );
+    }
+
+    // Traditional Editor Mode
     if (editorMode) {
       return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-slate-100 flex flex-col">
@@ -69,17 +82,27 @@ export default function App() {
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-slate-100 flex flex-col">
-        {/* Top Bar with Editor Mode Toggle */}
+        {/* Top Bar with Mode Toggles */}
         <div className="flex items-center justify-between p-3 border-b border-slate-700/50 bg-slate-800/30 backdrop-blur-md">
           <TopBar />
-          <Button
-            size="sm"
-            variant="default"
-            onClick={() => setEditorMode(true)}
-            className="text-xs bg-fuchsia-600 hover:bg-fuchsia-700 text-white"
-          >
-            Open Editor
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setLiveFFPlayMode(true)}
+              className="text-xs border-green-500/30 text-green-300 hover:bg-green-500/10"
+            >
+              ⚡ Live FFPlay
+            </Button>
+            <Button
+              size="sm"
+              variant="default"
+              onClick={() => setEditorMode(true)}
+              className="text-xs bg-fuchsia-600 hover:bg-fuchsia-700 text-white"
+            >
+              Open Editor
+            </Button>
+          </div>
         </div>
 
         {/* Main Three-Pane Layout - Fixed Height to Prevent Stretching */}

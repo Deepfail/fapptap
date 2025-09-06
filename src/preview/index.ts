@@ -12,5 +12,8 @@ export * from './types';
 export * from './ffgraph';
 export * from './ffplayPreview';
 
+// Timeline generation
+export * from './timelineGenerator';
+
 // React hooks
 export * from './usePreview';
