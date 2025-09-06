@@ -46,7 +46,8 @@
       "allow": [
         { "name": "binaries/worker", "sidecar": true, "args": true },
         { "name": "binaries/ffmpegbin", "sidecar": true, "args": true },
-        { "name": "binaries/ffprobebin", "sidecar": true, "args": true }
+        { "name": "binaries/ffprobebin", "sidecar": true, "args": true },
+        { "name": "binaries/ffplaybin", "sidecar": true, "args": true }
       ]
     },
     {
@@ -54,7 +55,8 @@
       "allow": [
         { "name": "binaries/worker", "sidecar": true, "args": true },
         { "name": "binaries/ffmpegbin", "sidecar": true, "args": true },
-        { "name": "binaries/ffprobebin", "sidecar": true, "args": true }
+        { "name": "binaries/ffprobebin", "sidecar": true, "args": true },
+        { "name": "binaries/ffplaybin", "sidecar": true, "args": true }
       ]
     }
   ]

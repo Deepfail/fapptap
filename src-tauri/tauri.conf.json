@@ -39,7 +39,8 @@
     "externalBin": [
       "binaries/worker",
       "binaries/ffmpegbin",
-      "binaries/ffprobebin"
+      "binaries/ffprobebin",
+      "binaries/ffplaybin"
     ],
     "icon": [
       "icons/32x32.png",

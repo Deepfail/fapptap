@@ -1,8 +1,8 @@
-// src/lib/logging.ts
-import { attachConsole } from "@tauri-apps/plugin-log";
+// Temporarily disabled logging until plugin is available
+// import { attachConsole } from "@tauri-apps/plugin-log";
 import { isTauri } from "./platform";
 
-let consoleAttached = false;
+// let consoleAttached = false; // Disabled for now
 
 /**
  * Initialize logging for the application
@@ -15,12 +15,8 @@ export async function initializeLogging(): Promise<void> {
   }
 
   try {
-    // Only attach console in development mode
-    if (import.meta.env.DEV && !consoleAttached) {
-      await attachConsole();
-      consoleAttached = true;
-      console.log("✅ Console attached to Tauri logs");
-    }
+    // Logging setup disabled for now - plugin not available
+    console.log("✅ Logging initialization skipped - plugin not available");
   } catch (error) {
     console.warn("Failed to attach console:", error);
   }
