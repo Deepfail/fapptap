@@ -450,6 +450,29 @@ def compute_advanced_beats(audio_path, debug=False):
 
 def save_beats(beats_data, output_path="cache/beats.json"):
     """Save beats data to JSON file"""
+    # Defensive: ensure legacy key `beats_sec` exists for older UI readers
+    try:
+        if "beats_sec" not in beats_data:
+            flat = []
+            b = beats_data.get("beats")
+            if isinstance(b, list):
+                for entry in b:
+                    if isinstance(entry, dict) and "time" in entry:
+                        try:
+                            flat.append(float(entry["time"]))
+                        except Exception:
+                            continue
+                    else:
+                        try:
+                            flat.append(float(entry))
+                        except Exception:
+                            continue
+            if len(flat) > 0:
+                beats_data["beats_sec"] = flat
+    except Exception as e:
+        # Avoid breaking saving on unexpected shapes
+        print(f"Warning: failed to construct beats_sec: {e}")
+
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(beats_data, f, indent=2)

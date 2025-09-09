@@ -155,7 +155,7 @@ interface AppState {
 
   // Timeline state (cuts now managed by EditorStore)
   isRandomized: boolean;
-  
+
   // Beat data
   beatData: { time: number; confidence: number }[];
   hasBeatData: boolean;
@@ -206,24 +206,24 @@ export function StaticUnifiedApp() {
   const editor = useEditor();
 
   // Helper that tries several file locations as specified in fix-plan.md
-  const readJsonFromCandidates = useCallback(async (candidates: string[]): Promise<any | null> => {
-    for (const p of candidates) {
-      try {
-        const txt = await readTextFile(p);
-        return JSON.parse(txt);
-      } catch {
-        // keep trying
+  const readJsonFromCandidates = useCallback(
+    async (candidates: string[]): Promise<any | null> => {
+      for (const p of candidates) {
+        try {
+          const txt = await readTextFile(p);
+          return JSON.parse(txt);
+        } catch {
+          // keep trying
+        }
       }
-    }
-    return null;
-  }, []);
+      return null;
+    },
+    []
+  );
 
   // Use the existing probe store
-  const {
-    requestFileProbe,
-    getFileProbeStatus,
-    getFileProbeData,
-  } = useProbeStore();
+  const { requestFileProbe, getFileProbeStatus, getFileProbeData } =
+    useProbeStore();
 
   const [state, setState] = useState<AppState>({
     currentDirectory: "Sample Files",
@@ -550,24 +550,27 @@ export function StaticUnifiedApp() {
   );
 
   // Select audio
-  const selectAudio = useCallback((file: FileItem) => {
-    if (file.type !== "audio") return;
+  const selectAudio = useCallback(
+    (file: FileItem) => {
+      if (file.type !== "audio") return;
 
-    setState((prev) => ({
-      ...prev,
-      selectedAudio: file,
-      // Reset timeline state when new audio is selected
-      hasTimeline: false,
-      hasBeatData: false,
-      beatData: [],
-      isRandomized: false,
-    }));
+      setState((prev) => ({
+        ...prev,
+        selectedAudio: file,
+        // Reset timeline state when new audio is selected
+        hasTimeline: false,
+        hasBeatData: false,
+        beatData: [],
+        isRandomized: false,
+      }));
 
-    // Clear editor timeline as well
-    editor.updateTimelineItems([]);
+      // Clear editor timeline as well
+      editor.updateTimelineItems([]);
 
-    toast.success(`Selected ${file.name} as audio track`);
-  }, [editor]);
+      toast.success(`Selected ${file.name} as audio track`);
+    },
+    [editor]
+  );
 
   // Video player controls
   const playVideo = useCallback(() => {
@@ -616,19 +619,19 @@ export function StaticUnifiedApp() {
   const loadTimelineCuts = useCallback(async (): Promise<TimelineCut[]> => {
     try {
       let cutlistData: any;
-      
+
       if (isTauriAvailable()) {
         // Try common locations we write to during generation
         const appDir = (await appDataDir()).replace(/\\+/g, "/");
-        cutlistData = await readJsonFromCandidates([
+        cutlistData = (await readJsonFromCandidates([
           "render/cutlist.json",
           "cache/cutlist.json",
           `${appDir}/render/cutlist.json`,
           `${appDir}/cache/cutlist.json`,
-        ]) || { events: [] };
+        ])) || { events: [] };
       } else {
         // Browser fallback: read from cache/cutlist.json
-        const response = await fetch('/cache/cutlist.json');
+        const response = await fetch("/cache/cutlist.json");
         if (!response.ok) {
           throw new Error(`Failed to fetch cutlist: ${response.statusText}`);
         }
@@ -661,19 +664,19 @@ export function StaticUnifiedApp() {
   const loadCutlistIntoEditor = useCallback(async () => {
     try {
       let cutlistData: any;
-      
+
       if (isTauriAvailable()) {
         // Try common locations we write to during generation - fix-plan.md implementation
         const appDir = (await appDataDir()).replace(/\\+/g, "/");
-        cutlistData = await readJsonFromCandidates([
+        cutlistData = (await readJsonFromCandidates([
           "render/cutlist.json",
           "cache/cutlist.json",
           `${appDir}/render/cutlist.json`,
           `${appDir}/cache/cutlist.json`,
-        ]) || { events: [] };
+        ])) || { events: [] };
       } else {
         // Browser fallback: read from cache/cutlist.json
-        const response = await fetch('/cache/cutlist.json');
+        const response = await fetch("/cache/cutlist.json");
         if (!response.ok) {
           throw new Error(`Failed to fetch cutlist: ${response.statusText}`);
         }
@@ -683,22 +686,36 @@ export function StaticUnifiedApp() {
 
       if (cutlistData.events && cutlistData.events.length > 0) {
         // Bridge into EditorStore instead of local state - fix-plan.md implementation
-        const timelineItems: TimelineItem[] = cutlistData.events.map((event: any, index: number) => ({
-          id: `item-${index}`,
-          clipId: event.src,
-          start: event.in ?? 0,
-          in: event.in ?? 0,
-          out: event.out ?? 0,
-          effects: event.effects ?? [],
-        }));
+        const timelineItems: TimelineItem[] = cutlistData.events.map(
+          (event: any, index: number) => ({
+            id: `item-${index}`,
+            clipId: event.src,
+            start: event.in ?? 0,
+            in: event.in ?? 0,
+            out: event.out ?? 0,
+            effects: event.effects ?? [],
+          })
+        );
 
         // Update the editor store with the timeline items
         editor.updateTimelineItems(timelineItems);
-        
-        console.log("✅ Loaded", timelineItems.length, "timeline items into EditorStore");
+        // Auto-select the first item to "unlock" effects/buttons as suggested in fix-plan.md
+        if (timelineItems.length > 0) {
+          try {
+            editor.selectTimelineItem(timelineItems[0].id);
+          } catch (e) {
+            // ignore selection errors in test environments
+          }
+        }
+
+        console.log(
+          "✅ Loaded",
+          timelineItems.length,
+          "timeline items into EditorStore"
+        );
         return timelineItems;
       }
-      
+
       return [];
     } catch (error) {
       console.error("Failed to load cutlist into editor:", error);
@@ -820,7 +837,7 @@ export function StaticUnifiedApp() {
         generationStage: "Loading preview video...",
         generationProgress: 95,
       }));
-      
+
       // Load the generated preview video (standard output from worker)
       const previewPath = "render/fapptap_proxy.mp4";
       const previewFile: FileItem = {
@@ -828,7 +845,7 @@ export function StaticUnifiedApp() {
         name: `Generated Preview (${state.videoFormat})`,
         type: "video",
       };
-      
+
       setState((prev) => ({
         ...prev,
         isGenerating: false,
@@ -910,19 +927,37 @@ export function StaticUnifiedApp() {
 
         const worker = new PythonWorker();
 
-        // Apply current effects and settings to cutlist
+        // Serialize the edited editor.timeline into render/cutlist.json so the worker renders the edited cutlist
         setState((prev) => ({ ...prev, exportProgress: 40 }));
-        await worker.runStage("cutlist", {
-          song: state.selectedAudio!.path, // We already checked hasTimeline which requires audio
-          clips: "temp_clips", // Using previously prepared clips
-          preset: state.videoFormat, // Use selected format from dropdown
-          cutting_mode: state.cuttingMode,
-          enable_shot_detection: false,
-          effects: state.effects.join(","), // Convert array to comma-separated string
-          tempo: state.tempo.toString(), // Convert number to string
-        });
+        try {
+          const { writeTextFile } = await import("@tauri-apps/plugin-fs");
+          const appDir = await appDataDir();
+          const cutlist = {
+            version: 1,
+            fps: 60,
+            width: state.videoFormat === "portrait" ? 1080 : 1920,
+            height: state.videoFormat === "portrait" ? 1920 : 1080,
+            audio: state.selectedAudio?.path || "",
+            events: editor.timeline.map((t) => ({
+              src: t.clipId,
+              in: t.in,
+              out: t.out,
+              effects: t.effects || [],
+            })),
+          };
 
-        // Final render with high quality
+          const json = JSON.stringify(cutlist, null, 2);
+          // Write both render/ and appData/render for desktop safety
+          await writeTextFile("render/cutlist.json", json);
+          await writeTextFile(`${appDir}/render/cutlist.json`, json);
+        } catch (err) {
+          console.warn(
+            "Failed to write render/cutlist.json locally, attempting worker stage fallback",
+            err
+          );
+        }
+
+        // Final render with high quality (use existing render stage)
         setState((prev) => ({ ...prev, exportProgress: 70 }));
         await worker.runStage("render", {
           proxy: false,
@@ -959,34 +994,48 @@ export function StaticUnifiedApp() {
   // Note: Old toggleEffect removed - now using toggleTimelineItemEffect with editor store
 
   // NEW: Toggle effect on selected timeline item (EditorStore integration test)
-  const toggleTimelineItemEffect = useCallback((effectId: string) => {
-    if (!editor.selectedTimelineItemId) {
-      toast.error("Please select a timeline item first");
-      return;
-    }
+  const toggleTimelineItemEffect = useCallback(
+    (effectId: string) => {
+      if (!editor.selectedTimelineItemId) {
+        toast.error("Please select a timeline item first");
+        return;
+      }
 
-    const currentEffects = editor.getTimelineItemEffects(editor.selectedTimelineItemId);
-    const hasEffect = currentEffects.some(effect => effect.type === "filter" && effect.id.includes(effectId));
-
-    if (hasEffect) {
-      // Remove the effect
-      const updatedEffects = currentEffects.filter(effect => 
-        !(effect.type === "filter" && effect.id.includes(effectId))
+      const currentEffects = editor.getTimelineItemEffects(
+        editor.selectedTimelineItemId
       );
-      editor.updateTimelineItemEffects(editor.selectedTimelineItemId, updatedEffects);
-      toast.success(`Removed ${effectId} effect from timeline item`);
-    } else {
-      // Add the effect
-      const newEffect = {
-        id: `effect-${effectId}-${Date.now()}`,
-        type: "filter" as const,
-        enabled: true,
-      };
-      const updatedEffects = [...currentEffects, newEffect];
-      editor.updateTimelineItemEffects(editor.selectedTimelineItemId, updatedEffects);
-      toast.success(`Added ${effectId} effect to timeline item`);
-    }
-  }, [editor]);
+      const hasEffect = currentEffects.some(
+        (effect) => effect.type === "filter" && effect.id.includes(effectId)
+      );
+
+      if (hasEffect) {
+        // Remove the effect
+        const updatedEffects = currentEffects.filter(
+          (effect) =>
+            !(effect.type === "filter" && effect.id.includes(effectId))
+        );
+        editor.updateTimelineItemEffects(
+          editor.selectedTimelineItemId,
+          updatedEffects
+        );
+        toast.success(`Removed ${effectId} effect from timeline item`);
+      } else {
+        // Add the effect
+        const newEffect = {
+          id: `effect-${effectId}-${Date.now()}`,
+          type: "filter" as const,
+          enabled: true,
+        };
+        const updatedEffects = [...currentEffects, newEffect];
+        editor.updateTimelineItemEffects(
+          editor.selectedTimelineItemId,
+          updatedEffects
+        );
+        toast.success(`Added ${effectId} effect to timeline item`);
+      }
+    },
+    [editor]
+  );
 
   // Load beat data from cache/beats.json
   const loadBeatData = useCallback(async () => {
@@ -1006,37 +1055,46 @@ export function StaticUnifiedApp() {
 
     try {
       let beatJson: any;
-      
+
       if (isTauriAvailable()) {
         const appDir = (await appDataDir()).replace(/\\+/g, "/");
-        beatJson = await readJsonFromCandidates([
-          "cache/beats.json",
-          `${appDir}/cache/beats.json`,
-          "render/beats.json",
-          `${appDir}/render/beats.json`,
-        ]) || {};
+        beatJson =
+          (await readJsonFromCandidates([
+            "cache/beats.json",
+            `${appDir}/cache/beats.json`,
+            "render/beats.json",
+            `${appDir}/render/beats.json`,
+          ])) || {};
       } else {
         // Browser fallback: read from cache/beats.json
-        const response = await fetch('/cache/beats.json');
+        const response = await fetch("/cache/beats.json");
         if (!response.ok) {
           throw new Error(`Failed to fetch beats: ${response.statusText}`);
         }
         const beatContent = await response.text();
         beatJson = JSON.parse(beatContent);
       }
-      
-      // Extract beat times and confidences
-      const beats = beatJson.beats?.map((beat: any) => ({
-        time: beat.time || beat.onset || 0,
-        confidence: beat.confidence || beat.strength || 1.0,
-      })) || [];
-      
+
+      // Accept multiple shapes: legacy beats_sec: number[] OR beats: number[] OR beats: [{time}] (advanced)
+      let times: number[] = [];
+
+      if (Array.isArray(beatJson.beats_sec) && beatJson.beats_sec.length > 0) {
+        times = beatJson.beats_sec.map((n: any) => Number(n));
+      } else if (Array.isArray(beatJson.beats) && beatJson.beats.length > 0) {
+        // beats may be numbers or objects like {time: number}
+        times = beatJson.beats.map((b: any) =>
+          typeof b === "number" ? Number(b) : Number(b.time)
+        );
+      }
+
+      const beats = times.map((t) => ({ time: t, confidence: 1.0 }));
+
       setState((prev) => ({
         ...prev,
         beatData: beats,
         hasBeatData: beats.length > 0,
       }));
-      
+
       if (beats.length > 0) {
         toast.success(`Loaded ${beats.length} beats from audio analysis`);
       }
@@ -1113,20 +1171,24 @@ export function StaticUnifiedApp() {
                     if (prev.isRandomized) {
                       // Un-randomize: sort by original index (using timeline item id)
                       const sorted = [...editor.timeline].sort((a, b) => {
-                        const aIndex = parseInt(a.id.replace("timeline-item-", ""));
-                        const bIndex = parseInt(b.id.replace("timeline-item-", ""));
+                        const aIndex = parseInt(
+                          a.id.replace("timeline-item-", "")
+                        );
+                        const bIndex = parseInt(
+                          b.id.replace("timeline-item-", "")
+                        );
                         return aIndex - bIndex;
                       });
-                      
+
                       // Update timeline items with sequential start times
                       const reorderedItems = sorted.map((item, index) => {
                         const duration = item.out - item.in;
                         return {
                           ...item,
-                          start: index * duration
+                          start: index * duration,
                         };
                       });
-                      
+
                       editor.updateTimelineItems(reorderedItems);
                       return {
                         ...prev,
@@ -1137,16 +1199,16 @@ export function StaticUnifiedApp() {
                       const shuffled = [...editor.timeline].sort(
                         () => Math.random() - 0.5
                       );
-                      
+
                       // Update timeline items with sequential start times
                       const reorderedItems = shuffled.map((item, index) => {
                         const duration = item.out - item.in;
                         return {
                           ...item,
-                          start: index * duration
+                          start: index * duration,
                         };
                       });
-                      
+
                       editor.updateTimelineItems(reorderedItems);
                       return {
                         ...prev,
@@ -1290,9 +1352,7 @@ export function StaticUnifiedApp() {
                               return (
                                 <div
                                   className={`w-2 h-2 rounded-full ${probeColor}`}
-                                  title={`Probe: ${
-                                    probeStatus || "idle"
-                                  }`}
+                                  title={`Probe: ${probeStatus || "idle"}`}
                                 />
                               );
                             })()}
@@ -1446,7 +1506,8 @@ export function StaticUnifiedApp() {
                 : "aspect-square w-full max-h-full"
             }`}
             style={{
-              maxWidth: state.videoFormat === "portrait" ? "min(60vh, 80vw)" : "100%",
+              maxWidth:
+                state.videoFormat === "portrait" ? "min(60vh, 80vw)" : "100%",
               maxHeight: "calc(100vh - 120px)", // Reserve space for bottom controls
             }}
           >
@@ -1578,7 +1639,9 @@ export function StaticUnifiedApp() {
             ) : state.hasBeatData && state.beatData.length > 0 ? (
               <>
                 Timeline ({state.beatData.length} beats detected)
-                <span className="ml-2 text-green-400">• Ready for preview generation</span>
+                <span className="ml-2 text-green-400">
+                  • Ready for preview generation
+                </span>
               </>
             ) : state.selectedAudio ? (
               "Timeline (analyzing audio beats...)"
@@ -1593,18 +1656,25 @@ export function StaticUnifiedApp() {
               // Show cuts after preview generation
               editor.timeline.map((item, index) => {
                 const duration = item.out - item.in;
-                const fileName = item.clipId.split("/").pop() || item.clipId.split("\\").pop() || `Item ${index + 1}`;
-                
+                const fileName =
+                  item.clipId.split("/").pop() ||
+                  item.clipId.split("\\").pop() ||
+                  `Item ${index + 1}`;
+
                 return (
                   <div
                     key={item.id}
                     className={`flex-shrink-0 bg-slate-700 rounded p-2 min-w-[120px] border ${
-                      editor.selectedTimelineItemId === item.id ? 'border-blue-500' : 'border-slate-600'
+                      editor.selectedTimelineItemId === item.id
+                        ? "border-blue-500"
+                        : "border-slate-600"
                     }`}
                     title={`${fileName}\nDuration: ${duration.toFixed(
                       2
                     )}s\nStart: ${item.start.toFixed(2)}s\nEffects: ${
-                      item.effects && item.effects.length > 0 ? item.effects.length : "None"
+                      item.effects && item.effects.length > 0
+                        ? item.effects.length
+                        : "None"
                     }`}
                     onClick={() => editor.selectTimelineItem(item.id)}
                   >
@@ -1644,13 +1714,15 @@ export function StaticUnifiedApp() {
                   <div
                     key={index}
                     className={`flex-shrink-0 rounded p-1 min-w-[8px] h-12 ${
-                      beat.confidence > 0.9 
-                        ? "bg-green-600" 
-                        : beat.confidence > 0.7 
-                        ? "bg-yellow-500" 
+                      beat.confidence > 0.9
+                        ? "bg-green-600"
+                        : beat.confidence > 0.7
+                        ? "bg-yellow-500"
                         : "bg-slate-600"
                     }`}
-                    title={`Beat ${index + 1}\nTime: ${beat.time.toFixed(2)}s\nConfidence: ${beat.confidence.toFixed(2)}`}
+                    title={`Beat ${index + 1}\nTime: ${beat.time.toFixed(
+                      2
+                    )}s\nConfidence: ${beat.confidence.toFixed(2)}`}
                     style={{
                       height: `${20 + beat.confidence * 28}px`, // Height based on confidence
                     }}
@@ -1667,7 +1739,9 @@ export function StaticUnifiedApp() {
               <div className="flex-1 flex items-center justify-center text-slate-500">
                 <div className="text-center">
                   <div className="text-sm">🎵 Loading beat analysis...</div>
-                  <div className="text-xs mt-1">Audio selected: {state.selectedAudio.name}</div>
+                  <div className="text-xs mt-1">
+                    Audio selected: {state.selectedAudio.name}
+                  </div>
                 </div>
               </div>
             ) : (
@@ -1675,7 +1749,9 @@ export function StaticUnifiedApp() {
               <div className="flex-1 flex items-center justify-center text-slate-500">
                 <div className="text-center">
                   <div className="text-sm">📱 Select audio file</div>
-                  <div className="text-xs mt-1">Audio beats will appear here</div>
+                  <div className="text-xs mt-1">
+                    Audio beats will appear here
+                  </div>
                 </div>
               </div>
             )}
@@ -1714,11 +1790,13 @@ export function StaticUnifiedApp() {
               {AVAILABLE_EFFECTS.map((effect) => {
                 const Icon = effect.icon;
                 // Check if the selected timeline item has this effect
-                const selectedItemEffects = editor.selectedTimelineItemId 
-                  ? editor.getTimelineItemEffects(editor.selectedTimelineItemId) 
+                const selectedItemEffects = editor.selectedTimelineItemId
+                  ? editor.getTimelineItemEffects(editor.selectedTimelineItemId)
                   : [];
-                const isActive = selectedItemEffects.some(e => e.id.includes(effect.id));
-                
+                const isActive = selectedItemEffects.some((e) =>
+                  e.id.includes(effect.id)
+                );
+
                 return (
                   <Button
                     key={effect.id}
@@ -1726,8 +1804,14 @@ export function StaticUnifiedApp() {
                     size="sm"
                     onClick={() => toggleTimelineItemEffect(effect.id)}
                     className={`text-xs px-2 ${isActive ? effect.color : ""}`}
-                    title={editor.selectedTimelineItemId ? `${effect.label} (timeline item)` : `Select timeline item to apply ${effect.label}`}
-                    disabled={!editor.selectedTimelineItemId}
+                    title={
+                      editor.selectedTimelineItemId
+                        ? `${effect.label} (timeline item)`
+                        : `Select timeline item to apply ${effect.label}`
+                    }
+                    disabled={
+                      !editor.selectedTimelineItemId || !state.hasBeatData
+                    }
                   >
                     <Icon className="w-4 h-4" />
                   </Button>
@@ -1740,13 +1824,16 @@ export function StaticUnifiedApp() {
               <>
                 <div className="w-px h-6 bg-slate-600"></div>
                 <div className="flex gap-1">
-                  <span className="text-xs text-yellow-400 mr-2">Item Effects:</span>
+                  <span className="text-xs text-yellow-400 mr-2">
+                    Item Effects:
+                  </span>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => toggleTimelineItemEffect("speed_up")}
                     className="text-xs px-2"
                     title="Toggle Speed Up effect on selected timeline item"
+                    disabled={!state.hasBeatData}
                   >
                     ⚡
                   </Button>
@@ -1756,6 +1843,7 @@ export function StaticUnifiedApp() {
                     onClick={() => toggleTimelineItemEffect("blur")}
                     className="text-xs px-2"
                     title="Toggle Blur effect on selected timeline item"
+                    disabled={!state.hasBeatData}
                   >
                     🌫️
                   </Button>
@@ -1765,6 +1853,7 @@ export function StaticUnifiedApp() {
                     onClick={() => toggleTimelineItemEffect("grayscale")}
                     className="text-xs px-2"
                     title="Toggle Grayscale effect on selected timeline item"
+                    disabled={!state.hasBeatData}
                   >
                     ⚫
                   </Button>
