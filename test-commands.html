@@ -1,41 +1,46 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Test Tauri Commands</title>
     <script type="module">
-        // Test the Tauri commands
-        async function testCommands() {
-            try {
-                const { invoke } = await import('@tauri-apps/api/core');
-                
-                console.log('Testing read_cutlist command...');
-                const cutlistData = await invoke('read_cutlist');
-                console.log('✅ read_cutlist success:', cutlistData.substring(0, 100) + '...');
-                
-                console.log('Testing read_beats_file command...');
-                const beatsData = await invoke('read_beats_file');
-                console.log('✅ read_beats_file success:', beatsData.substring(0, 100) + '...');
-                
-                document.getElementById('result').innerHTML = `
+      // Test the Tauri commands
+      async function testCommands() {
+        try {
+          const { invoke } = await import("@tauri-apps/api/core");
+
+          console.log("Testing read_cutlist command...");
+          const cutlistData = await invoke("read_cutlist");
+          console.log(
+            "✅ read_cutlist success:",
+            cutlistData.substring(0, 100) + "..."
+          );
+
+          console.log("Testing read_beats_file command...");
+          const beatsData = await invoke("read_beats_file");
+          console.log(
+            "✅ read_beats_file success:",
+            beatsData.substring(0, 100) + "..."
+          );
+
+          document.getElementById("result").innerHTML = `
                     <h2>✅ Both commands working!</h2>
                     <p>read_cutlist: ${cutlistData.length} characters</p>
                     <p>read_beats_file: ${beatsData.length} characters</p>
                 `;
-                
-            } catch (error) {
-                console.error('❌ Command test failed:', error);
-                document.getElementById('result').innerHTML = `
+        } catch (error) {
+          console.error("❌ Command test failed:", error);
+          document.getElementById("result").innerHTML = `
                     <h2>❌ Command test failed</h2>
                     <p>Error: ${error.message}</p>
                 `;
-            }
         }
-        
-        window.addEventListener('DOMContentLoaded', testCommands);
+      }
+
+      window.addEventListener("DOMContentLoaded", testCommands);
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Testing Tauri Commands</h1>
     <div id="result">Testing...</div>
-</body>
+  </body>
 </html>

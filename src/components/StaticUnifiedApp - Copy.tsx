@@ -6,8 +6,6 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useEditor, type TimelineItem } from "@/state/editorStore";
-import { readTextFile } from "@tauri-apps/plugin-fs";
-import { appDataDir } from "@tauri-apps/api/path";
 import {
   Select,
   SelectContent,
@@ -20,6 +18,7 @@ import { toast } from "sonner";
 import { toMediaSrc } from "@/lib/mediaUrl";
 import { onDesktopAvailable } from "@/lib/platform";
 import { useProbeStore } from "@/state/probeStore";
+import type { Effect as EditorEffect } from "@/state/editorStore";
 import {
   Play,
   Square,
@@ -39,6 +38,8 @@ import {
 } from "lucide-react";
 import { PythonWorker } from "@/lib/worker";
 import { isTauriAvailable } from "@/lib/platform";
+import { readTextFile, writeTextFile, mkdir, copyFile as fsCopyFile } from "@tauri-apps/plugin-fs";
+import { appDataDir } from "@tauri-apps/api/path";
 
 // File browser item
 interface FileItem {
@@ -201,9 +202,67 @@ const VIDEO_FORMATS = [
 
 export function StaticUnifiedApp() {
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Use the editor store
   const editor = useEditor();
+
+  // ---------- helpers to read/write JSON ----------
+  async function readJsonFromCandidates(paths: string[]) {
+    for (const p of paths) {
+      try {
+        const txt = await readTextFile(p);
+        return JSON.parse(txt);
+      } catch {
+        /* try next */
+      }
+    }
+    return null;
+  }
+
+  async function loadBeats() {
+    const appDir = (await appDataDir()).replace(/\\+/g, "/");
+    const beats =
+      (await readJsonFromCandidates([
+        "cache/beats.json",
+        `${appDir}/cache/beats.json`,
+        "render/beats.json",
+        `${appDir}/render/beats.json`,
+      ])) || null;
+    if (!beats) return { times: [], raw: null };
+    const times = Array.isArray(beats.beats_sec)
+      ? beats.beats_sec
+      : Array.isArray(beats.beats)
+      ? beats.beats.map((b: any) => (typeof b === "number" ? b : Number(b?.time ?? 0)))
+      : [];
+    return { times, raw: beats };
+  }
+
+  async function loadCutlistIntoEditor(): Promise<number> {
+    const appDir = (await appDataDir()).replace(/\\+/g, "/");
+    const cutlist =
+      (await readJsonFromCandidates([
+        "cache/cutlist.json",
+        `${appDir}/cache/cutlist.json`,
+        "render/cutlist.json",
+        `${appDir}/render/cutlist.json`,
+      ])) || { events: [] };
+
+    const items =
+      (cutlist.events || []).map((ev: any, i: number) => ({
+        id: `item-${i}`,
+        clipId: ev.src,
+        start: ev.in ?? 0,
+        in: ev.in ?? 0,
+        out: ev.out ?? 0,
+        effects: (ev.effects || []).map((label: string): EditorEffect => ({
+          id: label, // store raw label; UI toggles enable/disable
+          type: "filter",
+          enabled: true,
+        })),
+      })) ?? [];
+
+    editor.updateTimelineItems(items);
+    if (items.length) editor.selectTimelineItem(items[0].id);
+    return items.length;
+  }
 
   // Helper that tries several file locations as specified in fix-plan.md
   const readJsonFromCandidates = useCallback(async (candidates: string[]): Promise<any | null> => {
@@ -612,44 +671,32 @@ export function StaticUnifiedApp() {
     });
   }, []);
 
-  // Load timeline cuts from cutlist.json following fix-plan.md Option A
+  // (replaced) Load cutlist straight from disk + hydrate editor
   const loadTimelineCuts = useCallback(async (): Promise<TimelineCut[]> => {
     try {
-      let cutlistData: any;
-      
-      if (isTauriAvailable()) {
-        // Try common locations we write to during generation
-        const appDir = (await appDataDir()).replace(/\\+/g, "/");
-        cutlistData = await readJsonFromCandidates([
-          "render/cutlist.json",
+      const count = await loadCutlistIntoEditor();
+      // also maintain the legacy local visualization for now
+      const appDir = (await appDataDir()).replace(/\\+/g, "/");
+      const cutlist =
+        (await readJsonFromCandidates([
           "cache/cutlist.json",
-          `${appDir}/render/cutlist.json`,
           `${appDir}/cache/cutlist.json`,
-        ]) || { events: [] };
-      } else {
-        // Browser fallback: read from cache/cutlist.json
-        const response = await fetch('/cache/cutlist.json');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch cutlist: ${response.statusText}`);
-        }
-        const cutlistContent = await response.text();
-        cutlistData = JSON.parse(cutlistContent);
-      }
-
+          "render/cutlist.json",
+          `${appDir}/render/cutlist.json`,
+        ])) || { events: [] };
       const cuts: TimelineCut[] =
-        cutlistData.events?.map((event: any, index: number) => ({
+        cutlist.events?.map((event: any, index: number) => ({
           id: `cut-${index}`,
           src: event.src,
           fileName:
-            event.src.split("/").pop() ||
-            event.src.split("\\").pop() ||
+            event.src?.split("/").pop() ||
+            event.src?.split("\\").pop() ||
             `Cut ${index + 1}`,
           inTime: event.in || 0,
           outTime: event.out || 0,
           duration: (event.out || 0) - (event.in || 0),
           effects: event.effects || [],
         })) || [];
-
       return cuts;
     } catch (error) {
       console.error("Failed to load timeline cuts:", error);
@@ -706,28 +753,19 @@ export function StaticUnifiedApp() {
     }
   }, [editor]);
 
-  // Effect: Test cutlist reading on mount (for validation)
   useEffect(() => {
     const testCutlistReading = async () => {
-      if (isTauriAvailable()) {
-        try {
-          // Load into editor store instead of state.timelineCuts
-          const timelineItems = await loadCutlistIntoEditor();
-          console.log(
-            "✅ Cutlist loading test successful:",
-            timelineItems.length,
-            "timeline items loaded into editor"
-          );
-          if (timelineItems.length > 0) {
-            setState((prev) => ({
-              ...prev,
-              hasTimeline: true,
-              // timelineCuts now managed by EditorStore
-            }));
-          }
-        } catch (error) {
-          console.log("❌ Cutlist reading test failed:", error);
-        }
+      if (!isTauriAvailable()) return;
+      try {
+        const [beats, cuts] = await Promise.all([loadBeats(), loadTimelineCuts()]);
+        console.log("✅ Cutlist load:", cuts.length, " | beats:", beats.times.length);
+        setState((prev) => ({
+          ...prev,
+          hasTimeline: cuts.length > 0,
+          timelineCuts: cuts, // legacy view; main source is editor.timeline
+        }));
+      } catch (error) {
+        console.log("❌ Cutlist/Beats load failed:", error);
       }
     };
     testCutlistReading();
@@ -796,13 +834,13 @@ export function StaticUnifiedApp() {
         enable_shot_detection: false,
       });
 
-      // Step 4: Load timeline cuts into EditorStore
+      // Step 4: Load timeline cuts from cutlist.json (and hydrate editor)
       setState((prev) => ({
         ...prev,
         generationStage: "Loading timeline...",
         generationProgress: 85,
       }));
-      await loadCutlistIntoEditor();
+      const timelineCuts = await loadTimelineCuts();
 
       // Step 5: Create preview video (low quality, fast)
       setState((prev) => ({
@@ -834,6 +872,7 @@ export function StaticUnifiedApp() {
         isGenerating: false,
         generationProgress: 100,
         hasTimeline: true,
+        timelineCuts: timelineCuts,
         currentVideo: previewFile,
         currentVideoIndex: 0,
         generationStage: "Preview ready!",
@@ -897,7 +936,6 @@ export function StaticUnifiedApp() {
       setState((prev) => ({ ...prev, isExporting: true, exportProgress: 0 }));
 
       const { save } = await import("@tauri-apps/plugin-dialog");
-      const { copyFile } = await import("@tauri-apps/plugin-fs");
 
       const savePath = await save({
         filters: [{ name: "Video Files", extensions: ["mp4"] }],
@@ -905,32 +943,62 @@ export function StaticUnifiedApp() {
       });
 
       if (savePath) {
-        // Run final high-quality render
+        // 1) Serialize the *edited* editor timeline into render/cutlist.json
         setState((prev) => ({ ...prev, exportProgress: 20 }));
+        const appDir = (await appDataDir()).replace(/\\+/g, "/");
+        const existing =
+          (await readJsonFromCandidates([
+            "cache/cutlist.json",
+            `${appDir}/cache/cutlist.json`,
+            "render/cutlist.json",
+            `${appDir}/render/cutlist.json`,
+          ])) || {};
 
-        const worker = new PythonWorker();
+        // derive dimensions from selected format if missing
+        const dims =
+          state.videoFormat === "portrait"
+            ? { width: 1080, height: 1920 }
+            : state.videoFormat === "square"
+            ? { width: 1080, height: 1080 }
+            : { width: 1920, height: 1080 };
 
-        // Apply current effects and settings to cutlist
-        setState((prev) => ({ ...prev, exportProgress: 40 }));
-        await worker.runStage("cutlist", {
-          song: state.selectedAudio!.path, // We already checked hasTimeline which requires audio
-          clips: "temp_clips", // Using previously prepared clips
-          preset: state.videoFormat, // Use selected format from dropdown
-          cutting_mode: state.cuttingMode,
-          enable_shot_detection: false,
-          effects: state.effects.join(","), // Convert array to comma-separated string
-          tempo: state.tempo.toString(), // Convert number to string
-        });
+        const timelineEvents = editor.timeline.map((t) => ({
+          src: t.clipId,
+          in: Number(t.in ?? 0),
+          out: Number(t.out ?? 0),
+          effects: (t.effects || [])
+            .filter((e) => e.enabled !== false)
+            .map((e) => (typeof e.id === "string" ? e.id : "effect")),
+        }));
 
-        // Final render with high quality
+        const finalCutlist = {
+          version: existing.version ?? 1,
+          fps: existing.fps ?? 60,
+          width: existing.width ?? dims.width,
+          height: existing.height ?? dims.height,
+          audio:
+            existing.audio ??
+            state.selectedAudio?.path ??
+            (state.selectedVideos[0]?.path ?? ""),
+          total_duration:
+            Math.max(
+              0,
+              timelineEvents.reduce((s: number, ev: any) => s + (ev.out - ev.in), 0)
+            ) || existing.total_duration || 0,
+          events: timelineEvents,
+        };
+
+        await mkdir("render", { recursive: true }).catch(() => {});
+        await writeTextFile("render/cutlist.json", JSON.stringify(finalCutlist, null, 2));
+
+        // 2) Final render with high quality (no re-running cutlist that would overwrite edits)
         setState((prev) => ({ ...prev, exportProgress: 70 }));
-        await worker.runStage("render", {
-          proxy: false,
-        });
+        const worker = new PythonWorker();
+        await worker.runStage("render", { proxy: false });
 
         // Copy to user's chosen location
         setState((prev) => ({ ...prev, exportProgress: 90 }));
-        await copyFile("render/fapptap_final.mp4", savePath);
+        await fsCopyFile("render/fapptap_final.mp4", savePath);
 
         setState((prev) => ({
           ...prev,
@@ -951,9 +1019,9 @@ export function StaticUnifiedApp() {
     state.hasTimeline,
     state.selectedAudio,
     state.cuttingMode,
-    state.effects,
     state.tempo,
     state.videoFormat,
+    editor.timeline,
   ]);
 
   // Note: Old toggleEffect removed - now using toggleTimelineItemEffect with editor store
@@ -1280,18 +1348,19 @@ export function StaticUnifiedApp() {
                             {(() => {
                               const probeStatus = getFileProbeStatus(file.path);
                               const probeColor =
-                                probeStatus === "completed"
+                                probeStatus?.status === "cached-fast" ||
+                                probeStatus?.status === "cached-deep"
                                   ? "bg-green-400"
-                                  : probeStatus === "pending"
+                                  : probeStatus?.status === "probing"
                                   ? "bg-yellow-400"
-                                  : probeStatus === "failed"
+                                  : probeStatus?.status === "error"
                                   ? "bg-red-400"
                                   : "bg-gray-400";
                               return (
                                 <div
                                   className={`w-2 h-2 rounded-full ${probeColor}`}
                                   title={`Probe: ${
-                                    probeStatus || "idle"
+                                    probeStatus?.status || "pending"
                                   }`}
                                 />
                               );
@@ -1307,9 +1376,9 @@ export function StaticUnifiedApp() {
                       {file.type === "video" &&
                         (() => {
                           const probeData = getFileProbeData(file.path);
-                          return probeData?.duration ? (
+                          return probeData?.duration_sec ? (
                             <div className="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-1 rounded">
-                              {Math.round(probeData.duration)}s
+                              {Math.round(probeData.duration_sec)}s
                             </div>
                           ) : null;
                         })()}
@@ -1708,26 +1777,25 @@ export function StaticUnifiedApp() {
             {/* Divider */}
             <div className="w-px h-6 bg-slate-600"></div>
 
-            {/* Effects */}
+            {/* Effects (enabled when an item is selected) */}
             <div className="flex gap-1">
               <span className="text-xs text-slate-400 mr-2">Effects:</span>
               {AVAILABLE_EFFECTS.map((effect) => {
                 const Icon = effect.icon;
-                // Check if the selected timeline item has this effect
-                const selectedItemEffects = editor.selectedTimelineItemId 
-                  ? editor.getTimelineItemEffects(editor.selectedTimelineItemId) 
-                  : [];
-                const isActive = selectedItemEffects.some(e => e.id.includes(effect.id));
-                
+                const isActive = isEffectActive(effect.id);
                 return (
                   <Button
                     key={effect.id}
                     variant={isActive ? "default" : "outline"}
                     size="sm"
-                    onClick={() => toggleTimelineItemEffect(effect.id)}
+                    onClick={() => toggleEffect(effect.id)}
                     className={`text-xs px-2 ${isActive ? effect.color : ""}`}
-                    title={editor.selectedTimelineItemId ? `${effect.label} (timeline item)` : `Select timeline item to apply ${effect.label}`}
-                    disabled={!editor.selectedTimelineItemId}
+                    title={
+                      selectedItemId
+                        ? effect.label
+                        : "Select a clip on the timeline to enable"
+                    }
+                    disabled={!selectedItemId}
                   >
                     <Icon className="w-4 h-4" />
                   </Button>
