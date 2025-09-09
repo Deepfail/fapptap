@@ -4,8 +4,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import { logger } from "./logging";
-import { isTauri } from "./platform";
+import { isTauriAvailable } from "./platform";
 
 export interface ProbeRecord {
   path: string;
@@ -43,15 +42,15 @@ export const probeCache = {
     sizeBytes: number,
     mtimeNs: number
   ): Promise<ProbeRecord | null> {
-    if (!isTauri()) {
-      logger.warn(
+    if (!isTauriAvailable()) {
+      console.warn(
         "Probe cache operations not available in browser mode."
       );
       return null;
     }
 
     try {
-      logger.debug(`Checking probe cache for: ${path}`);
+      console.debug(`Checking probe cache for: ${path}`);
 
       const result = await invoke<ProbeRecord | null>("check_probe_cache", {
         path,
@@ -60,14 +59,14 @@ export const probeCache = {
       });
 
       if (result) {
-        logger.debug(`Found cached probe for: ${path}`);
+        console.debug(`Found cached probe for: ${path}`);
         return result;
       }
 
-      logger.debug(`No cached probe found for: ${path}`);
+      console.debug(`No cached probe found for: ${path}`);
       return null;
     } catch (error) {
-      logger.error(`Failed to check probe cache for ${path}:`, error);
+      console.error(`Failed to check probe cache for ${path}:`, error);
       return null;
     }
   },
@@ -78,13 +77,13 @@ export const probeCache = {
   async saveProbeCache(
     record: Omit<ProbeRecord, "probed_at"> & { probed_at?: number }
   ): Promise<boolean> {
-    if (!isTauri()) {
-      logger.warn("Probe cache operations not available in browser mode.");
+    if (!isTauriAvailable()) {
+      console.warn("Probe cache operations not available in browser mode.");
       return false;
     }
 
     try {
-      logger.debug(`Saving probe cache for: ${record.path}`);
+      console.debug(`Saving probe cache for: ${record.path}`);
 
       const probed_at = record.probed_at || Math.floor(Date.now() / 1000);
 
@@ -98,10 +97,10 @@ export const probeCache = {
         record: fullRecord,
       });
 
-      logger.debug(`Successfully saved probe cache for: ${record.path}`);
+      console.debug(`Successfully saved probe cache for: ${record.path}`);
       return true;
     } catch (error) {
-      logger.error(`Failed to save probe cache for ${record.path}:`, error);
+      console.error(`Failed to save probe cache for ${record.path}:`, error);
       return false;
     }
   },
@@ -110,20 +109,20 @@ export const probeCache = {
    * Get all cached probe records
    */
   async getAllProbeCache(): Promise<ProbeRecord[]> {
-    if (!isTauri()) {
-      logger.warn("Probe cache operations not available in browser mode.");
+    if (!isTauriAvailable()) {
+      console.warn("Probe cache operations not available in browser mode.");
       return [];
     }
 
     try {
-      logger.debug("Fetching all probe cache records");
+      console.debug("Fetching all probe cache records");
 
       const records = await invoke<ProbeRecord[]>("get_all_probe_cache");
 
-      logger.debug(`Found ${records.length} cached probe records`);
+      console.debug(`Found ${records.length} cached probe records`);
       return records;
     } catch (error) {
-      logger.error("Failed to fetch all probe cache:", error);
+      console.error("Failed to fetch all probe cache:", error);
       return [];
     }
   },
@@ -138,7 +137,7 @@ export const memory = {
    * Get a memory value by key
    */
   async get(_key: string): Promise<string | null> {
-    logger.warn("Memory operations not implemented in Tauri mode.");
+    console.warn("Memory operations not implemented in Tauri mode.");
     return null;
   },
 
@@ -146,7 +145,7 @@ export const memory = {
    * Set a memory value
    */
   async set(_key: string, _value: string): Promise<boolean> {
-    logger.warn("Memory operations not implemented in Tauri mode.");
+    console.warn("Memory operations not implemented in Tauri mode.");
     return false;
   },
 
@@ -154,7 +153,7 @@ export const memory = {
    * Get multiple memory values by keys
    */
   async getMultiple(_keys: string[]): Promise<Record<string, string>> {
-    logger.warn("Memory operations not implemented in Tauri mode.");
+    console.warn("Memory operations not implemented in Tauri mode.");
     return {};
   },
 };
