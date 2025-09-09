@@ -1,7 +1,7 @@
 use crate::media_cache::{MediaCache, MediaFile, current_timestamp};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::collections::HashSet;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{AppHandle, Emitter};
 use tokio::sync::mpsc;
@@ -52,7 +52,6 @@ impl FileScanner {
         app_handle: AppHandle,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let (tx, mut rx) = mpsc::channel::<Vec<MediaFile>>(32);
-        let cache = Arc::clone(&self.cache);
         let app_handle_clone = app_handle.clone();
 
         // Emit scan start event

@@ -1,10 +1,87 @@
+# -*- coding: utf-8 -*-
 import sys, json, time, argparse, subprocess, shlex
 import numpy as np
 from pathlib import Path
 
+# Set default encoding for Python 3 and force UTF-8 handling
+import os
+import locale
+
+# Force UTF-8 encoding for all I/O operations
+os.environ.setdefault('PYTHONIOENCODING', 'utf-8:replace')
+
+# Try to set system locale to UTF-8
+try:
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+except locale.Error:
+    try:
+        locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+    except locale.Error:
+        try:
+            # Windows fallback
+            locale.setlocale(locale.LC_ALL, 'English_United States.utf8')
+        except locale.Error:
+            pass  # Use system default
+
+# Ensure stdout/stderr use UTF-8
+try:
+    if hasattr(sys.stdout, 'reconfigure') and callable(getattr(sys.stdout, 'reconfigure', None)):
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+except (AttributeError, OSError, TypeError):
+    pass  # Not available on this Python version or system
+
+try:
+    if hasattr(sys.stderr, 'reconfigure') and callable(getattr(sys.stderr, 'reconfigure', None)):
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+except (AttributeError, OSError, TypeError):
+    pass  # Not available on this Python version or system
+
+def safe_str(obj):
+    """Safely convert any object to a UTF-8 string, handling encoding errors"""
+    try:
+        if isinstance(obj, bytes):
+            return obj.decode('utf-8', errors='replace')
+        elif isinstance(obj, str):
+            # Ensure string is properly encoded/decoded
+            return obj.encode('utf-8', errors='replace').decode('utf-8')
+        else:
+            return str(obj).encode('utf-8', errors='replace').decode('utf-8')
+    except Exception:
+        return "<unprintable>"
+
 def emit(stage, progress=None, **kw):
+    """Emit a JSON message with robust UTF-8 handling"""
     msg = {"stage": stage, **({} if progress is None else {"progress": progress}), **kw}
-    print(json.dumps(msg), flush=True)
+    try:
+        # Recursively clean all string values in the message
+        def clean_value(value):
+            if isinstance(value, str):
+                return safe_str(value)
+            elif isinstance(value, bytes):
+                return safe_str(value)
+            elif isinstance(value, dict):
+                return {k: clean_value(v) for k, v in value.items()}
+            elif isinstance(value, (list, tuple)):
+                return [clean_value(v) for v in value]
+            else:
+                return value
+        
+        cleaned_msg = clean_value(msg)
+        
+        # Use ensure_ascii=False to allow UTF-8 characters, but ensure everything is properly encoded
+        json_str = json.dumps(cleaned_msg, ensure_ascii=False, separators=(',', ':'))
+        
+        # Ensure the JSON string itself is UTF-8 safe
+        safe_json = safe_str(json_str)
+        print(safe_json, flush=True)
+        
+    except Exception as e:
+        # Fallback: emit a safe error message using ASCII only
+        fallback_msg = {
+            "stage": safe_str(stage), 
+            "error": f"Message encoding error: {safe_str(str(e))[:100]}"
+        }
+        print(json.dumps(fallback_msg, ensure_ascii=True), flush=True)
 
 def run_probe(clips_dir):
     """Probe all media files in clips_dir and cache metadata"""
@@ -36,10 +113,17 @@ def run_probe(clips_dir):
         stderr_output = e.stderr.decode('utf-8', errors='replace') if e.stderr else "No stderr output"
         emit("probe", progress=0.0, error=f"Probe failed: {stderr_output}")
     except Exception as e:
-        emit("probe", progress=0.0, error=f"Probe error: {str(e)}")
+        emit("probe", progress=0.0, error=f"Probe error: {safe_str(e)}")
 
 def run_beats(song, engine="advanced"):
     emit("beats", progress=0.0, message=f"Loading audio and analyzing beats (engine: {engine})...")
+    
+    # Ensure song path is properly decoded as UTF-8
+    if isinstance(song, bytes):
+        try:
+            song = song.decode('utf-8')
+        except UnicodeDecodeError:
+            song = song.decode('utf-8', errors='replace')
     
     # Validate input file
     if not song or not song.strip():
@@ -47,7 +131,15 @@ def run_beats(song, engine="advanced"):
         return
         
     from pathlib import Path
-    song_path = Path(song)
+    import os
+    
+    # Normalize path and ensure proper encoding
+    try:
+        song_path = Path(os.path.normpath(song))
+    except (OSError, ValueError) as e:
+        emit("beats", progress=0.0, error=f"Invalid file path: {safe_str(str(e))}")
+        return
+        
     if not song_path.exists():
         emit("beats", progress=0.0, error=f"Audio file not found: {song}")
         return
@@ -61,7 +153,8 @@ def run_beats(song, engine="advanced"):
             # Use basic beat detection
             import librosa
             emit("beats", progress=0.2, message="Loading audio file...")
-            y, sr = librosa.load(song, sr=None, mono=True)
+            # Use string path to ensure compatibility with librosa
+            y, sr = librosa.load(str(song_path), sr=None, mono=True)
             emit("beats", progress=0.5, message="Detecting beats...")
             tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, units='frames')
             beat_times = librosa.frames_to_time(beat_frames, sr=sr)
@@ -101,7 +194,7 @@ def run_beats(song, engine="advanced"):
             # Use advanced beat detection (default)
             emit("beats", progress=0.2, message="Loading advanced beat detection...")
             from beats_adv import compute_advanced_beats
-            beats_data = compute_advanced_beats(song, debug=True)
+            beats_data = compute_advanced_beats(str(song_path), debug=True)
         
         # Save the results
         emit("beats", progress=0.8, message="Saving beat analysis...")
@@ -115,7 +208,9 @@ def run_beats(song, engine="advanced"):
              beats_count=len(beats_data.get("beats", [])),
              tempo=beats_data.get("tempo_global", 0))
     except Exception as e:
-        emit("beats", progress=0.0, error=f"Beat detection failed: {str(e)}")
+        # Safely handle error messages that might contain non-UTF-8 characters
+        error_msg = safe_str(e) or f"Unknown {type(e).__name__}"
+        emit("beats", progress=0.0, error=f"Beat detection failed: {error_msg}")
 
 def run_shots(clips_dir):
     emit("shots", progress=0.0)
@@ -283,7 +378,7 @@ def render_direct_filter_complex(events, audio_path, target_width, target_height
         emit("render", progress=0.15, msg=f"Building filter complex for {len(events)} clips from {len(file_usage)} source files...")
         
         # For too many clips, we might hit command line limits, so batch if needed
-        if len(events) > 50:  # Conservative limit
+        if len(events) > 200:  # Increased limit - most systems can handle 200+ clips
             return render_with_smart_batching(events, audio_path, target_width, target_height, target_fps, proxy, render_type, out_path, ffmpeg_path)
         
         # Build FFmpeg command with filter_complex
@@ -422,13 +517,13 @@ def render_direct_filter_complex(events, audio_path, target_width, target_height
             return False
             
     except FileNotFoundError as e:
-        emit("render", progress=0.0, error=f"FFmpeg not found at path: {ffmpeg_path}. Error: {str(e)}")
+        emit("render", progress=0.0, error=f"FFmpeg not found at path: {ffmpeg_path}. Error: {safe_str(e)}")
         return False
     except OSError as e:
-        emit("render", progress=0.0, error=f"OS error running FFmpeg: {str(e)}")
+        emit("render", progress=0.0, error=f"OS error running FFmpeg: {safe_str(e)}")
         return False
     except Exception as e:
-        emit("render", progress=0.0, error=f"Render failed: {str(e)}")
+        emit("render", progress=0.0, error=f"Render failed: {safe_str(e)}")
         return False
 
 
@@ -440,7 +535,7 @@ def render_with_smart_batching(events, audio_path, target_width, target_height, 
     import shutil
     from pathlib import Path
     
-    max_clips_per_batch = 30  # Higher limit for direct rendering
+    max_clips_per_batch = 100  # Increased limit for better performance with many clips
     batch_files = []
     
     try:
@@ -470,7 +565,7 @@ def render_with_smart_batching(events, audio_path, target_width, target_height, 
             return concatenate_batches_with_audio(batch_files, audio_path, events, render_type, out_path, ffmpeg_path)
                     
     except Exception as e:
-        emit("render", progress=0.0, error=f"Smart batch rendering failed: {str(e)}")
+        emit("render", progress=0.0, error=f"Smart batch rendering failed: {safe_str(e)}")
         return False
 
 
@@ -624,6 +719,30 @@ def concatenate_batches_with_audio(batch_files, audio_path, events, render_type,
 
 
 if __name__ == "__main__":
+    # Ensure proper UTF-8 handling for command line arguments
+    import locale
+    import sys
+    
+    # Set locale to handle UTF-8 properly
+    try:
+        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    except locale.Error:
+        try:
+            locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+        except locale.Error:
+            pass  # Use system default
+    
+    # Ensure sys.argv is properly decoded as UTF-8
+    if sys.version_info >= (3, 0):
+        # In Python 3, sys.argv should already be properly decoded
+        # But we can ensure it's properly handled
+        for i, arg in enumerate(sys.argv):
+            if isinstance(arg, bytes):
+                try:
+                    sys.argv[i] = arg.decode('utf-8', errors='replace')
+                except (UnicodeDecodeError, AttributeError):
+                    sys.argv[i] = str(arg)
+    
     ap = argparse.ArgumentParser()
     ap.add_argument("stage", choices=["probe","beats","shots","cutlist","render"])
     ap.add_argument("--song", default="")
@@ -633,7 +752,23 @@ if __name__ == "__main__":
     ap.add_argument("--cutting_mode", default="medium", choices=["slow", "medium", "fast", "ultra_fast", "random", "auto"])
     ap.add_argument("--engine", default="advanced", choices=["basic", "advanced"])
     ap.add_argument("--enable_shot_detection", action="store_true", help="Enable shot detection for cutlist generation")
+    
+    # Cut settings arguments (from UI)
+    ap.add_argument("--min_clip_length", type=float, default=0.5, help="Minimum clip length in seconds")
+    ap.add_argument("--max_clip_length", type=float, default=8.0, help="Maximum clip length in seconds")
+    ap.add_argument("--min_beats", type=int, default=4, help="Minimum beats per clip")
+    ap.add_argument("--crossfade_duration", type=float, default=0.1, help="Crossfade duration in seconds")
+    ap.add_argument("--prefer_downbeats", action="store_true", help="Prefer cutting on downbeats")
+    ap.add_argument("--respect_shot_boundaries", action="store_true", help="Respect shot boundaries when cutting")
+    ap.add_argument("--energy_threshold", type=float, default=0.5, help="Energy threshold for clip selection")
+    
     args = ap.parse_args()
+
+    # Clean and validate UTF-8 encoding for path arguments
+    if hasattr(args, 'song') and args.song:
+        args.song = safe_str(args.song)
+    if hasattr(args, 'clips') and args.clips:
+        args.clips = safe_str(args.clips)
 
     # Debug: Show all arguments received
     import sys

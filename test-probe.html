@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Probe Test</title>
+</head>
+<body>
+    <h1>Probe Cache Test</h1>
+    <button id="testBtn">Test Probe Cache</button>
+    <div id="output"></div>
+    
+    <script type="module">
+        import { invoke } from '@tauri-apps/api/core';
+        
+        document.getElementById('testBtn').onclick = async () => {
+            const output = document.getElementById('output');
+            output.innerHTML = 'Testing probe cache...';
+            
+            try {
+                // Test a known media file
+                const testFile = 'C:\\Files\\Projects\\fapptap\\media_samples\\video.mp4';
+                
+                output.innerHTML += `<br>Testing file: ${testFile}`;
+                
+                // Try to check probe cache
+                const cacheResult = await invoke('check_probe_cache', { path: testFile });
+                output.innerHTML += `<br>Cache check result: ${JSON.stringify(cacheResult)}`;
+                
+            } catch (error) {
+                output.innerHTML += `<br>Error: ${error}`;
+            }
+        };
+    </script>
+</body>
+</html>

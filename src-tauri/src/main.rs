@@ -10,9 +10,8 @@ use media_cache::{MediaCache, MediaFile};
 use file_scanner::FileScanner;
 use thumbnail_generator::ThumbnailGenerator;
 use job_queue::{JobQueue, JobKind, JobStatus};
-use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use tauri::{AppHandle, Manager, State};
 use tokio::sync::RwLock;
 
@@ -83,9 +82,10 @@ async fn request_thumbnail(
         ).map_err(|e| e.to_string())?;
 
         // Start processing job immediately if possible
+        let job_id_clone = job_id.clone();
         tokio::spawn(async move {
             if let Ok(Some(job)) = queue.get_next_job() {
-                if job.id == job_id {
+                if job.id == job_id_clone {
                     let _ = queue.update_job_status(&job.id, JobStatus::Running, None, None);
                     
                     match generator.generate_thumbnail(PathBuf::from(&job.path), app_handle).await {
