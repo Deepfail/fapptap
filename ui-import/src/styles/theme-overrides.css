@@ -1,0 +1,267 @@
+/* Neon / Fuchsia theme overrides to make the theme more obvious */
+:root {
+  --neon-fuchsia: #ff00c8;
+  --neon-magenta: #ff2fa8;
+  --neon-bg: #0b1220; /* deep navy */
+  --panel-bg: rgba(12, 18, 30, 0.7);
+  --panel-border: rgba(255, 255, 255, 0.06);
+  --timeline-bg: rgba(255, 255, 255, 0.02);
+  --accent-neon: linear-gradient(
+    90deg,
+    var(--neon-fuchsia),
+    var(--neon-magenta)
+  );
+  --btn-primary-bg: var(--neon-fuchsia);
+  --btn-primary-fg: #fff;
+  --badge-bg: rgba(255, 0, 200, 0.15);
+  --badge-fg: #fff;
+}
+
+/* Global app background */
+body,
+#root,
+#spark-app {
+  background: var(--neon-bg) !important;
+  color: #e6eef8;
+}
+
+/* Cards and panels */
+.card,
+.bg-timeline-bg,
+.border-panel-border {
+  background: var(--panel-bg) !important;
+  border-color: var(--panel-border) !important;
+}
+
+/* Primary buttons */
+.bg-primary,
+.btn-primary,
+.button-primary,
+.primary {
+  background: var(--btn-primary-bg) !important;
+  color: var(--btn-primary-fg) !important;
+  box-shadow: 0 4px 18px rgba(255, 0, 200, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Badge / Pill */
+.badge,
+.bg-accent,
+.bg-accent\/20 {
+  background: var(--badge-bg) !important;
+  color: var(--badge-fg) !important;
+  border: 1px solid rgba(255, 0, 200, 0.08);
+}
+
+/* Effects toolbar floating buttons */
+.effects-toolbar .btn,
+.effects-toolbar .button {
+  background: var(--neon-fuchsia) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 20px rgba(255, 0, 200, 0.18);
+  border-radius: 9999px;
+}
+
+/* Timeline and waveform */
+.timeline,
+.waveform,
+.bg-timeline-bg {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.01),
+    rgba(255, 255, 255, 0.02)
+  ) !important;
+}
+
+/* Make thumbnails slightly neon outline on hover */
+.thumbnail:hover {
+  outline: 2px solid rgba(255, 0, 200, 0.18);
+  transform: translateY(-2px);
+}
+
+/* Canvas overlay blend */
+canvas.mix-blend-screen {
+  mix-blend-mode: screen !important;
+}
+
+/* Ensure text contrast in headers */
+.text-foreground,
+.text-muted-foreground {
+  color: #dfefff !important;
+}
+
+/* Strong overrides for common Tailwind utility classes and core layout */
+html body,
+#root,
+#spark-app,
+.app-root {
+  background: var(--neon-bg) !important;
+  color: #e6eef8 !important;
+}
+
+/* Left sidebar / library */
+.sidebar,
+.left-pane,
+.library,
+.file-browser,
+.panel-left {
+  background: rgba(8, 12, 20, 0.82) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.03) !important;
+  color: #dbeeff !important;
+}
+
+/* Top bar / header */
+.topbar,
+.header,
+.app-header,
+.toolbar {
+  background: linear-gradient(
+    90deg,
+    rgba(10, 12, 20, 0.95),
+    rgba(14, 18, 28, 0.95)
+  ) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Buttons and interactive controls (broad selector to capture variants) */
+button,
+.button,
+.btn,
+.btn-sm,
+.btn-ghost,
+.btn-primary,
+[class*="btn-"] {
+  background: var(--btn-primary-bg) !important;
+  color: var(--btn-primary-fg) !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+  box-shadow: 0 6px 24px rgba(255, 0, 180, 0.12) !important;
+}
+
+/* Utility classes that commonly cause blue accents in the UI */
+.bg-blue-500,
+.text-blue-500,
+.border-blue-500,
+.hover\:bg-blue-600 {
+  background: var(--btn-primary-bg) !important;
+  color: var(--btn-primary-fg) !important;
+  border-color: rgba(255, 0, 160, 0.12) !important;
+}
+
+/* Ensure icons and svg strokes pick up neon */
+svg,
+.icon,
+.phosphor-icon,
+.lucide-react {
+  color: var(--neon-fuchsia) !important;
+  stroke: var(--neon-fuchsia) !important;
+}
+
+/* Panels and cards get subtle neon inner border */
+.card,
+.panel,
+.panel-body,
+.panel-header,
+.bg-card {
+  background: var(--panel-bg) !important;
+  border: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+/* File thumbnails - remove default blue overlays */
+.thumbnail .overlay,
+.thumbnail .duration,
+.thumbnail .badge {
+  background: rgba(0, 0, 0, 0.35) !important;
+  color: #fff !important;
+}
+
+/* Specific Sonner / toast styling */
+.sonner,
+.toast,
+.toast-success,
+.toast-error {
+  background: rgba(12, 14, 20, 0.9) !important;
+  color: #eaf6ff !important;
+  border: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Force timeline background */
+.timeline,
+.timeline-track,
+.beats-track,
+.bg-timeline-bg {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.01)
+  ) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Ensure inputs are legible */
+input,
+select,
+textarea {
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: #eaf6ff !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Effects toolbar professional styling */
+.effects-toolbar {
+  pointer-events: auto;
+  backdrop-filter: blur(6px);
+  background: rgba(6, 10, 20, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 6px 10px;
+  gap: 10px;
+  border-radius: 9999px;
+}
+
+.effects-btn {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 20, 140, 1),
+    rgba(255, 0, 200, 1)
+  );
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  box-shadow: 0 8px 28px rgba(255, 0, 180, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Dot timeline */
+.dot-timeline {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.01)
+  );
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  align-items: center;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  flex: 0 0 auto;
+  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
+}
+
+.dot:hover {
+  transform: scale(1.35);
+  background: rgba(255, 0, 180, 0.95);
+  box-shadow: 0 8px 18px rgba(255, 0, 160, 0.16);
+}
+.dot-active {
+  transform: scale(1.6);
+  background: linear-gradient(90deg, var(--neon-fuchsia), var(--neon-magenta));
+  box-shadow: 0 10px 28px rgba(255, 0, 160, 0.25);
+}

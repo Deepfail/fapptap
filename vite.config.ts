@@ -15,12 +15,12 @@ export default defineConfig({
 
   // Tauri-friendly defaults
   clearScreen: false,
+  // Force stable IPv4 localhost and fixed port for deterministic Tauri dev
   server: {
-    port: 5173,
+    host: "127.0.0.1",
+    port: 5175,
     strictPort: true,
-    host: host || false, // false -> localhost only; or string/IP if TAURI_DEV_HOST is set
-    // Keep HMR on same port so CSP `connect-src` with ws://localhost:5173 stays valid
-    hmr: host ? { protocol: "ws", host, port: 5173 } : undefined,
+    hmr: { protocol: "ws", host: "127.0.0.1", port: 5175 },
     watch: { ignored: ["**/src-tauri/**"] },
   },
 });

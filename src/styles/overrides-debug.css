@@ -1,0 +1,42 @@
+/* High-specificity debug overrides to verify theme loading */
+:root.debug-theme-loaded {
+  --debug-banner-bg: #ff00c8;
+  --debug-banner-fg: #ffffff;
+}
+
+/* Very specific selector to ensure it wins over other CSS */
+html body.debug-theme-loaded #fapptap-debug-banner {
+  position: fixed;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  background: var(--debug-banner-bg);
+  color: var(--debug-banner-fg);
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: 0 8px 30px rgba(255,0,160,0.18);
+  pointer-events: none;
+}
+
+/* Force many common UI colors to neon to catch any missing imports */
+html body.debug-theme-loaded, html body.debug-theme-loaded .sidebar, html body.debug-theme-loaded .panel, html body.debug-theme-loaded .card {
+  background: #0b1220 !important;
+  color: #eaf6ff !important;
+}
+
+/* Make primary buttons neon */
+html body.debug-theme-loaded button, html body.debug-theme-loaded .btn, html body.debug-theme-loaded .bg-blue-500 {
+  background: #ff00c8 !important;
+  color: #fff !important;
+  border-color: rgba(255,255,255,0.04) !important;
+}
+
+/* Ensure icons glow */
+html body.debug-theme-loaded svg, html body.debug-theme-loaded .icon {
+  color: #ff00c8 !important;
+  stroke: #ff00c8 !important;
+}
+
+/* End debug overrides */

@@ -181,3 +181,76 @@ button {
     color: var(--foreground);
   }
 }
+
+/* === Neon / Fuchsia Theme Overrides (main app) === */
+:root {
+  --neon-fuchsia: #ff00c8;
+  --neon-magenta: #ff2fa8;
+  --neon-bg: #0b1220;
+  --panel-bg: rgba(12,18,30,0.85);
+  --panel-border: rgba(255,255,255,0.04);
+  --btn-primary-bg: var(--neon-fuchsia);
+  --btn-primary-fg: #fff;
+}
+
+/* Force main background and text */
+html body, #root, .app-root {
+  background: var(--neon-bg) !important;
+  color: #e6eef8 !important;
+}
+
+/* Replace primary blue with neon fuchsia */
+:root, .dark, body {
+  --primary: var(--neon-fuchsia) !important;
+  --primary-foreground: var(--btn-primary-fg) !important;
+  --ring: rgba(255,0,200,0.22) !important;
+  --sidebar-primary: var(--neon-fuchsia) !important;
+}
+
+/* Panels, sidebar, header */
+.sidebar, .left-pane, .panel, .card, .topbar, .header {
+  background: var(--panel-bg) !important;
+  border-color: var(--panel-border) !important;
+  color: #eaf6ff !important;
+}
+
+/* Buttons and utility blue classes */
+button, .btn, .bg-blue-500, .text-blue-500, .border-blue-500 {
+  background: var(--btn-primary-bg) !important;
+  color: var(--btn-primary-fg) !important;
+  border-color: rgba(255,255,255,0.04) !important;
+  box-shadow: 0 6px 22px rgba(255,0,160,0.12) !important;
+}
+
+/* Thumbnails and overlays */
+.thumbnail, .thumbnail .overlay, .thumbnail .duration {
+  background: rgba(0,0,0,0.35) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.02) !important;
+}
+
+/* Timeline background */
+.timeline, .timeline-track, .bg-timeline-bg {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)) !important;
+  border-top: 1px solid rgba(255,255,255,0.02) !important;
+}
+
+/* Icons */
+svg, .icon, .lucide-react, .phosphor-icon {
+  color: var(--neon-fuchsia) !important;
+  stroke: var(--neon-fuchsia) !important;
+}
+
+/* Ensure inputs are legible */
+input, select, textarea {
+  background: rgba(255,255,255,0.02) !important;
+  color: #eaf6ff !important;
+  border: 1px solid rgba(255,255,255,0.04) !important;
+}
+
+/* Small polish: neon glow for active elements */
+.active, .dot-active, .btn:focus, button:focus {
+  box-shadow: 0 8px 30px rgba(255,0,160,0.18) !important;
+}
+
+/* End overrides */
