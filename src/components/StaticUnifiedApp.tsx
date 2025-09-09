@@ -38,6 +38,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { PythonWorker } from "@/lib/worker";
+import "@/styles/theme.css";
 import { isTauriAvailable } from "@/lib/platform";
 
 // File browser item
@@ -1510,7 +1511,7 @@ export function StaticUnifiedApp() {
               state.selectedVideos.length === 0 ||
               state.isGenerating
             }
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-brand-fuchsia hover:bg-brand-fuchsia-600"
           >
             <Wand2 className="w-4 h-4 mr-2" />
             {state.isGenerating ? "Generating..." : "Generate Preview"}
@@ -1519,7 +1520,7 @@ export function StaticUnifiedApp() {
           <Button
             onClick={handleExport}
             disabled={!state.hasTimeline || state.isExporting}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-neon-amber hover:brightness-95"
           >
             <Download className="w-4 h-4 mr-2" />
             {state.isExporting ? "Exporting..." : "Export Final"}
@@ -1736,15 +1737,15 @@ export function StaticUnifiedApp() {
               );
 
               return (
-                <button
+                  <button
                   key={effect.id}
                   onClick={() => toggleTimelineItemEffect(effect.id)}
                   disabled={!editor.selectedTimelineItemId}
                   title={effect.label}
-                  className={`w-14 h-14 rounded-full flex items-center justify-center transition-transform transform ${
+                    className={`w-14 h-14 rounded-full flex items-center justify-center transition-transform transform ${
                     isActive
-                      ? "scale-110 bg-fuchsia-600 text-black shadow-[0_8px_24px_rgba(255,0,200,0.25)]"
-                      : "bg-fuchsia-500/90 hover:scale-105"
+                      ? "scale-110 bg-[var(--brand-fuchsia)] text-black shadow-neon-fuchsia ring-2 ring-[var(--neon-amber)]"
+                      : "bg-[var(--brand-fuchsia)]/90 hover:scale-105"
                   }`}
                 >
                   <Icon className="w-6 h-6 text-white" />
@@ -1794,8 +1795,8 @@ export function StaticUnifiedApp() {
                     title={`Cut ${index + 1} — ${duration.toFixed(2)}s`}
                     className={`w-6 h-6 rounded-full mx-1 flex-shrink-0 transition-transform transform ${
                       isSelected
-                        ? "scale-125 bg-fuchsia-500 ring-2 ring-amber-300"
-                        : "bg-fuchsia-400/70 hover:scale-110"
+                        ? "scale-125 bg-[var(--brand-fuchsia)] ring-2 ring-[var(--neon-amber)]"
+                        : "bg-[var(--brand-fuchsia)]/80 hover:scale-110"
                     }`}
                   />
                 );
@@ -1806,17 +1807,13 @@ export function StaticUnifiedApp() {
                 {state.beatData.slice(0, 200).map((beat, index) => {
                   const intensity = Math.min(1, beat.confidence || 0.5);
                   const size = 6 + intensity * 10;
-                  const colorClass =
-                    intensity > 0.9
-                      ? "bg-emerald-400"
-                      : intensity > 0.75
-                      ? "bg-amber-300"
-                      : "bg-slate-500";
                   return (
                     <div
                       key={index}
                       title={`Beat ${index + 1} — ${beat.time.toFixed(2)}s`}
-                      className={`rounded-full flex-shrink-0 ${colorClass}`}
+                      className={`rounded-full flex-shrink-0 ${
+                        intensity > 0.9 ? 'bg-[var(--neon-green)]' : intensity > 0.75 ? 'bg-[var(--neon-amber)]' : 'bg-slate-500'
+                      }`}
                       style={{ width: `${size}px`, height: `${size}px` }}
                     />
                   );

@@ -1,0 +1,12 @@
+/* Theme variables for fapptap theme port */
+:root{
+  --brand-fuchsia: #FF00C8;
+  --brand-fuchsia-600: #FF0099;
+  --neon-green: #C7FF00;
+  --neon-amber: #FFD400;
+}
+
+/* Utility to make text glow slightly */
+.text-neon {
+  text-shadow: 0 2px 6px rgba(255,0,200,0.12), 0 0 8px rgba(255,0,200,0.06);
+}
