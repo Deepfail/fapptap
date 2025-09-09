@@ -94,10 +94,19 @@ export const CutlistExporter = () => {
       const json = JSON.stringify(cutlist, null, 2);
 
       if (IS_DESKTOP) {
-        // Desktop: Save to render/cutlist.json
+        // Desktop: Save to appDataDir/render/cutlist.json to avoid permission issues
         const { writeTextFile } = await import("@tauri-apps/plugin-fs");
-        await writeTextFile("render/cutlist.json", json);
-        setLastExport("render/cutlist.json");
+        try {
+          const { appDataDir } = await import("@tauri-apps/api/path");
+          const rawAppDir = await appDataDir();
+          const appDir = rawAppDir.replace(/\\+/g, "/");
+          await writeTextFile(`${appDir}/render/cutlist.json`, json);
+          setLastExport(`${appDir}/render/cutlist.json`);
+        } catch (err) {
+          // Fallback to repo-root if something unexpected happens
+          await writeTextFile("render/cutlist.json", json);
+          setLastExport("render/cutlist.json");
+        }
       } else {
         // Browser: Download as file
         const blob = new Blob([json], { type: "application/json" });

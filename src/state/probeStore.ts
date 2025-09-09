@@ -41,7 +41,7 @@ export const useProbeStore = create<ProbeState>((set, get) => {
     requestFileProbe: async (path: string) => {
       try {
         console.log(`Requesting probe for: ${path}`);
-        
+
         // Set status to pending
         get().updateProbeStatus(path, "pending");
 
@@ -50,16 +50,17 @@ export const useProbeStore = create<ProbeState>((set, get) => {
         setTimeout(() => {
           const mockData: ProbeMeta = {
             path,
-            duration: 60,
+            // Don't return a hardcoded duration here -- leave undefined until a real probe runs.
+            // Returning a fixed value (like 60) made every thumbnail show "60s".
+            // duration: 60,
             width: 1920,
             height: 1080,
-            format: "mp4"
+            format: "mp4",
           };
-          
+
           get().updateProbeData(path, mockData);
           get().updateProbeStatus(path, "completed");
         }, 1000);
-
       } catch (error) {
         console.error(`Failed to request probe for ${path}:`, error);
         get().updateProbeStatus(path, "failed");
@@ -76,13 +77,13 @@ export const useProbeStore = create<ProbeState>((set, get) => {
 
     updateProbeStatus: (path: string, status: ProbeStatus) => {
       set((state) => ({
-        probeStatuses: new Map(state.probeStatuses.set(path, status))
+        probeStatuses: new Map(state.probeStatuses.set(path, status)),
       }));
     },
 
     updateProbeData: (path: string, data: ProbeMeta) => {
       set((state) => ({
-        probeCache: new Map(state.probeCache.set(path, data))
+        probeCache: new Map(state.probeCache.set(path, data)),
       }));
     },
   };

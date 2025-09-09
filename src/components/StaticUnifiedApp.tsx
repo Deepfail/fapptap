@@ -152,6 +152,11 @@ interface AppState {
   cuttingMode: "slow" | "medium" | "fast" | "ultra_fast";
   effects: string[];
   videoFormat: "landscape" | "portrait" | "square";
+  // New cut settings exposed to UI
+  minCutLength: number; // override in seconds; 0 means use mode default
+  beatStride: number;
+  snapToShots: boolean;
+  snapTolerance: number;
 
   // Timeline state (cuts now managed by EditorStore)
   isRandomized: boolean;
@@ -161,15 +166,7 @@ interface AppState {
   hasBeatData: boolean;
 }
 
-interface TimelineCut {
-  id: string;
-  src: string;
-  fileName: string;
-  inTime: number;
-  outTime: number;
-  duration: number;
-  effects: string[];
-}
+// TimelineCut type removed - timeline is now managed by EditorStore
 
 // Effects available
 const AVAILABLE_EFFECTS = [
@@ -217,6 +214,65 @@ export function StaticUnifiedApp() {
         }
       }
       return null;
+    },
+    []
+  );
+
+  // Prepare a fresh session clips directory containing only the selected clips.
+  // Returns { sessionId, sessionRoot, clipsDir }
+  const prepareSessionClipsDir = useCallback(
+    async (selectedPaths: string[]) => {
+      if (!isTauriAvailable()) {
+        // In browser/dev mode fall back to a stable temp path (not persistent)
+        return {
+          sessionId: String(Date.now()),
+          sessionRoot: "temp",
+          clipsDir: "temp_clips",
+        };
+      }
+
+      const { mkdir, remove, copyFile, writeTextFile } = await import(
+        "@tauri-apps/plugin-fs"
+      );
+      const sessionId = String(Date.now());
+
+      // Use appDataDir for session storage to avoid permission issues in CWD
+      const appDir = (await appDataDir()).replace(/\\+/g, "/");
+      const root = `${appDir}/sessions/${sessionId}`;
+      const clipsDir = `${root}/clips`;
+
+      try {
+        await remove(root, { recursive: true });
+      } catch (e) {
+        // ignore
+      }
+
+      await mkdir(clipsDir, { recursive: true });
+
+      for (const src of selectedPaths) {
+        try {
+          const base = src.split("/").pop() || src.split("\\").pop()!;
+          await copyFile(src, `${clipsDir}/${base}`);
+        } catch (err) {
+          console.warn("Failed to copy clip to session dir:", src, err);
+        }
+      }
+
+      try {
+        await writeTextFile(
+          `${root}/manifest.json`,
+          JSON.stringify(
+            { createdAt: new Date().toISOString(), sources: selectedPaths },
+            null,
+            2
+          )
+        );
+      } catch (err) {
+        // non-critical
+        console.warn("Failed to write session manifest:", err);
+      }
+
+      return { sessionId, sessionRoot: root, clipsDir };
     },
     []
   );
@@ -269,12 +325,32 @@ export function StaticUnifiedApp() {
     exportProgress: 0,
     tempo: 100,
     cuttingMode: "medium",
+    // New UI-exposed cut settings
+    minCutLength: 0, // 0 means use mode default
+    beatStride: 1,
+    snapToShots: false,
+    snapTolerance: 0.08,
     effects: [],
     videoFormat: "landscape",
     isRandomized: false,
     beatData: [],
     hasBeatData: false,
   });
+
+  // Helper to read effective min duration (mode default vs override)
+  const getEffectiveMinDuration = useCallback(
+    (mode: string, override: number) => {
+      const MODE_MIN: Record<string, number> = {
+        slow: 0.6,
+        medium: 0.4,
+        fast: 0.25,
+        ultra_fast: 0.15,
+      };
+      if (override && override > 0) return override;
+      return MODE_MIN[mode] ?? 0.4;
+    },
+    []
+  );
 
   // Effect: Update UI when probe data becomes available
   // Note: Removed problematic setState that caused infinite loop
@@ -615,50 +691,9 @@ export function StaticUnifiedApp() {
     });
   }, []);
 
-  // Load timeline cuts from cutlist.json following fix-plan.md Option A
-  const loadTimelineCuts = useCallback(async (): Promise<TimelineCut[]> => {
-    try {
-      let cutlistData: any;
-
-      if (isTauriAvailable()) {
-        // Try common locations we write to during generation
-        const appDir = (await appDataDir()).replace(/\\+/g, "/");
-        cutlistData = (await readJsonFromCandidates([
-          "render/cutlist.json",
-          "cache/cutlist.json",
-          `${appDir}/render/cutlist.json`,
-          `${appDir}/cache/cutlist.json`,
-        ])) || { events: [] };
-      } else {
-        // Browser fallback: read from cache/cutlist.json
-        const response = await fetch("/cache/cutlist.json");
-        if (!response.ok) {
-          throw new Error(`Failed to fetch cutlist: ${response.statusText}`);
-        }
-        const cutlistContent = await response.text();
-        cutlistData = JSON.parse(cutlistContent);
-      }
-
-      const cuts: TimelineCut[] =
-        cutlistData.events?.map((event: any, index: number) => ({
-          id: `cut-${index}`,
-          src: event.src,
-          fileName:
-            event.src.split("/").pop() ||
-            event.src.split("\\").pop() ||
-            `Cut ${index + 1}`,
-          inTime: event.in || 0,
-          outTime: event.out || 0,
-          duration: (event.out || 0) - (event.in || 0),
-          effects: event.effects || [],
-        })) || [];
-
-      return cuts;
-    } catch (error) {
-      console.error("Failed to load timeline cuts:", error);
-      return [];
-    }
-  }, []);
+  // Note: loadTimelineCuts was intentionally removed to avoid auto-loading
+  // timeline data on mount (which produced stale UI). Use the explicit
+  // 'Load Last Cutlist' button to load cutlists into the Editor store.
 
   // Convert cutlist events to EditorStore timeline items
   const loadCutlistIntoEditor = useCallback(async () => {
@@ -666,11 +701,9 @@ export function StaticUnifiedApp() {
       let cutlistData: any;
 
       if (isTauriAvailable()) {
-        // Try common locations we write to during generation - fix-plan.md implementation
+        // Read cutlist from appDataDir only - we only write there now
         const appDir = (await appDataDir()).replace(/\\+/g, "/");
         cutlistData = (await readJsonFromCandidates([
-          "render/cutlist.json",
-          "cache/cutlist.json",
           `${appDir}/render/cutlist.json`,
           `${appDir}/cache/cutlist.json`,
         ])) || { events: [] };
@@ -723,32 +756,9 @@ export function StaticUnifiedApp() {
     }
   }, [editor]);
 
-  // Effect: Test cutlist reading on mount (for validation)
-  useEffect(() => {
-    const testCutlistReading = async () => {
-      if (isTauriAvailable()) {
-        try {
-          // Load into editor store instead of state.timelineCuts
-          const timelineItems = await loadCutlistIntoEditor();
-          console.log(
-            "✅ Cutlist loading test successful:",
-            timelineItems.length,
-            "timeline items loaded into editor"
-          );
-          if (timelineItems.length > 0) {
-            setState((prev) => ({
-              ...prev,
-              hasTimeline: true,
-              // timelineCuts now managed by EditorStore
-            }));
-          }
-        } catch (error) {
-          console.log("❌ Cutlist reading test failed:", error);
-        }
-      }
-    };
-    testCutlistReading();
-  }, [loadTimelineCuts]);
+  // NOTE: We used to auto-load the last cutlist on mount which caused stale data
+  // to appear in the timeline unexpectedly. That behavior was removed. Users
+  // can now explicitly load the last cutlist using the 'Load Last Cutlist' button.
 
   // Generate preview (not final render)
   const handleGenerate = useCallback(async () => {
@@ -772,9 +782,13 @@ export function StaticUnifiedApp() {
         generationStage: "Analyzing audio...",
         generationProgress: 20,
       }));
+      // Prefer passing appDataDir as base_dir so worker writes outputs to the same place the UI reads
+      const rawAppDirForWorker = isTauriAvailable() ? await appDataDir() : ".";
+      const appDirForWorker = rawAppDirForWorker.replace(/\\+/g, "/");
       await worker.runStage("beats", {
         song: state.selectedAudio.path, // Already checked that it's not null
         engine: "advanced",
+        base_dir: appDirForWorker,
       });
 
       // Step 2: Prepare clips
@@ -784,20 +798,10 @@ export function StaticUnifiedApp() {
         generationProgress: 40,
       }));
 
-      const { mkdir, copyFile } = await import("@tauri-apps/plugin-fs");
-      const { appDataDir } = await import("@tauri-apps/api/path");
-
-      const appDir = await appDataDir();
-      const tempDir = `${appDir}/temp_clips`;
-
-      await mkdir(tempDir, { recursive: true });
-
-      // Copy videos with safe names
-      for (let i = 0; i < state.selectedVideos.length; i++) {
-        const video = state.selectedVideos[i];
-        const destPath = `${tempDir}/video_${i + 1}.mp4`;
-        await copyFile(video.path, destPath);
-      }
+      // Prepare a session-scoped clips directory containing only the currently selected files
+      const { clipsDir } = await prepareSessionClipsDir(
+        state.selectedVideos.map((v) => v.path)
+      );
 
       // Step 3: Generate cutlist (preview mode)
       setState((prev) => ({
@@ -805,13 +809,22 @@ export function StaticUnifiedApp() {
         generationStage: "Generating preview...",
         generationProgress: 70,
       }));
-      await worker.runStage("cutlist", {
+      // Prepare cutlist params from UI settings
+      const cutlistParams: any = {
         song: state.selectedAudio.path,
-        clips: tempDir,
-        preset: state.videoFormat, // Use selected format instead of hardcoded 'landscape'
+        clips: clipsDir,
+        preset: state.videoFormat,
         cutting_mode: state.cuttingMode,
-        enable_shot_detection: false,
-      });
+        enable_shot_detection: state.snapToShots,
+        snap_tol: Number(state.snapTolerance) || 0.08,
+        beat_stride: Number(state.beatStride) || 1,
+        min_duration: Number(
+          getEffectiveMinDuration(state.cuttingMode, state.minCutLength)
+        ),
+        base_dir: appDirForWorker,
+      };
+
+      await worker.runStage("cutlist", cutlistParams);
 
       // Step 4: Load timeline cuts into EditorStore
       setState((prev) => ({
@@ -829,6 +842,7 @@ export function StaticUnifiedApp() {
       }));
       await worker.runStage("render", {
         proxy: true,
+        base_dir: appDirForWorker,
       });
 
       // Step 6: Load the generated preview video into the player
@@ -839,7 +853,16 @@ export function StaticUnifiedApp() {
       }));
 
       // Load the generated preview video (standard output from worker)
-      const previewPath = "render/fapptap_proxy.mp4";
+      let previewPath = "render/fapptap_proxy.mp4";
+      if (isTauriAvailable()) {
+        try {
+          const rawAppDir = await appDataDir();
+          const appDir = rawAppDir.replace(/\\+/g, "/");
+          previewPath = `${appDir}/render/fapptap_proxy.mp4`;
+        } catch (e) {
+          // ignore and use fallback
+        }
+      }
       const previewFile: FileItem = {
         path: previewPath,
         name: `Generated Preview (${state.videoFormat})`,
@@ -927,29 +950,47 @@ export function StaticUnifiedApp() {
 
         const worker = new PythonWorker();
 
-        // Serialize the edited editor.timeline into render/cutlist.json so the worker renders the edited cutlist
+        // Resolve app data directory up-front so it's available outside the try/catch
+        const rawAppDir = await appDataDir();
+        const appDir = rawAppDir.replace(/\\+/g, "/");
+
+        // Serialize the edited editor.timeline into a fresh render/cutlist.json so the worker renders the edited cutlist
         setState((prev) => ({ ...prev, exportProgress: 40 }));
         try {
           const { writeTextFile } = await import("@tauri-apps/plugin-fs");
-          const appDir = await appDataDir();
+
+          // Build fresh events list (no merging)
+          const events = editor.timeline.map((t) => ({
+            src: t.clipId,
+            in: Number(t.in ?? 0),
+            out: Number(t.out ?? 0),
+            effects: (t.effects || [])
+              .filter((e) => e.enabled !== false)
+              .map((e) => String(e.id)),
+          }));
+
+          const total = events.reduce(
+            (s, e) => s + (Number(e.out) - Number(e.in)),
+            0
+          );
+
           const cutlist = {
             version: 1,
             fps: 60,
             width: state.videoFormat === "portrait" ? 1080 : 1920,
             height: state.videoFormat === "portrait" ? 1920 : 1080,
             audio: state.selectedAudio?.path || "",
-            events: editor.timeline.map((t) => ({
-              src: t.clipId,
-              in: t.in,
-              out: t.out,
-              effects: t.effects || [],
-            })),
+            total_duration: Math.max(0, total),
+            events,
           };
 
           const json = JSON.stringify(cutlist, null, 2);
-          // Write both render/ and appData/render for desktop safety
-          await writeTextFile("render/cutlist.json", json);
+
+          // Only write cutlist into appDataDir render path to avoid repo-root writes
           await writeTextFile(`${appDir}/render/cutlist.json`, json);
+
+          // Prepare a session clips dir with selected videos and pass it to worker via session
+          await prepareSessionClipsDir(state.selectedVideos.map((v) => v.path));
         } catch (err) {
           console.warn(
             "Failed to write render/cutlist.json locally, attempting worker stage fallback",
@@ -961,11 +1002,19 @@ export function StaticUnifiedApp() {
         setState((prev) => ({ ...prev, exportProgress: 70 }));
         await worker.runStage("render", {
           proxy: false,
+          base_dir: appDir,
         });
 
-        // Copy to user's chosen location
+        // Copy to user's chosen location - read final render from appDataDir
         setState((prev) => ({ ...prev, exportProgress: 90 }));
-        await copyFile("render/fapptap_final.mp4", savePath);
+        try {
+          const rawAppDir2 = await appDataDir();
+          const appDir2 = rawAppDir2.replace(/\\+/g, "/");
+          await copyFile(`${appDir2}/render/fapptap_final.mp4`, savePath);
+        } catch (err) {
+          // Fallback to repo-root render if appData copy missing
+          await copyFile("render/fapptap_final.mp4", savePath);
+        }
 
         setState((prev) => ({
           ...prev,
@@ -1475,6 +1524,54 @@ export function StaticUnifiedApp() {
             <Download className="w-4 h-4 mr-2" />
             {state.isExporting ? "Exporting..." : "Export Final"}
           </Button>
+
+          {/* Explicit controls to avoid auto-loading stale timelines on mount */}
+          <Button
+            onClick={async () => {
+              try {
+                const items = await loadCutlistIntoEditor();
+                setState((prev) => ({
+                  ...prev,
+                  hasTimeline: items.length > 0,
+                }));
+                if (items.length > 0)
+                  toast.success(`Loaded ${items.length} cuts`);
+                else toast.info("No cutlist found to load");
+              } catch (err) {
+                console.error("Failed to load last cutlist:", err);
+                toast.error("Failed to load last cutlist");
+              }
+            }}
+            disabled={state.isGenerating}
+            variant="outline"
+            size="sm"
+            className="text-xs"
+          >
+            Load Last Cutlist
+          </Button>
+
+          <Button
+            onClick={async () => {
+              // Clear editor timeline and UI state explicitly
+              try {
+                editor.updateTimelineItems([]);
+                editor.selectTimelineItem("");
+              } catch (e) {
+                // ignore selection errors
+              }
+              setState((prev) => ({
+                ...prev,
+                hasTimeline: false,
+                isRandomized: false,
+              }));
+              toast.success("Cleared timeline");
+            }}
+            variant="outline"
+            size="sm"
+            className="text-xs"
+          >
+            Clear Timeline
+          </Button>
         </div>
 
         {/* Generation Progress Overlay */}
@@ -1625,6 +1722,38 @@ export function StaticUnifiedApp() {
           </div>
         </div>
 
+        {/* New Effects Toolbar - prominent, below the video */}
+        <div className="w-full flex items-center justify-center py-3 bg-slate-900 border-t border-slate-800">
+          <div className="flex items-center gap-3">
+            {AVAILABLE_EFFECTS.map((effect) => {
+              const Icon = effect.icon;
+              const selectedItemEffects = editor.selectedTimelineItemId
+                ? editor.getTimelineItemEffects(editor.selectedTimelineItemId)
+                : [];
+              const isActive = selectedItemEffects.some(
+                (e) =>
+                  !!e && typeof e.id === "string" && e.id.includes(effect.id)
+              );
+
+              return (
+                <button
+                  key={effect.id}
+                  onClick={() => toggleTimelineItemEffect(effect.id)}
+                  disabled={!editor.selectedTimelineItemId}
+                  title={effect.label}
+                  className={`w-14 h-14 rounded-full flex items-center justify-center transition-transform transform ${
+                    isActive
+                      ? "scale-110 bg-fuchsia-600 text-black shadow-[0_8px_24px_rgba(255,0,200,0.25)]"
+                      : "bg-fuchsia-500/90 hover:scale-105"
+                  }`}
+                >
+                  <Icon className="w-6 h-6 text-white" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Timeline - Always Visible */}
         <div className="bg-slate-800 border-t border-slate-700 p-3">
           {/* Timeline Header */}
@@ -1650,87 +1779,51 @@ export function StaticUnifiedApp() {
             )}
           </div>
 
-          {/* Timeline Content */}
-          <div className="flex gap-1 overflow-x-auto pb-2 min-h-[60px]">
+          {/* Timeline Content - Dot visualization for beats/cuts */}
+          <div className="flex gap-1 overflow-x-auto pb-2 min-h-[60px] items-center">
             {state.hasTimeline && editor.timeline.length > 0 ? (
               // Show cuts after preview generation
+              // Render timeline as dots (cuts)
               editor.timeline.map((item, index) => {
                 const duration = item.out - item.in;
-                const fileName =
-                  item.clipId.split("/").pop() ||
-                  item.clipId.split("\\").pop() ||
-                  `Item ${index + 1}`;
-
+                const isSelected = editor.selectedTimelineItemId === item.id;
                 return (
-                  <div
+                  <button
                     key={item.id}
-                    className={`flex-shrink-0 bg-slate-700 rounded p-2 min-w-[120px] border ${
-                      editor.selectedTimelineItemId === item.id
-                        ? "border-blue-500"
-                        : "border-slate-600"
-                    }`}
-                    title={`${fileName}\nDuration: ${duration.toFixed(
-                      2
-                    )}s\nStart: ${item.start.toFixed(2)}s\nEffects: ${
-                      item.effects && item.effects.length > 0
-                        ? item.effects.length
-                        : "None"
-                    }`}
                     onClick={() => editor.selectTimelineItem(item.id)}
-                  >
-                    <div className="text-xs font-medium text-white truncate">
-                      {fileName}
-                    </div>
-                    <div className="text-xs text-slate-400">
-                      {duration.toFixed(2)}s
-                    </div>
-                    {item.effects && item.effects.length > 0 && (
-                      <div className="flex gap-1 mt-1">
-                        {item.effects.slice(0, 3).map((effect, i) => (
-                          <div
-                            key={i}
-                            className="text-xs bg-purple-600 text-white px-1 rounded"
-                          >
-                            {effect.type}
-                          </div>
-                        ))}
-                        {item.effects && item.effects.length > 3 && (
-                          <div className="text-xs text-slate-400">
-                            +{item.effects.length - 3}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    <div className="text-xs text-slate-500 mt-1">
-                      #{index + 1}
-                    </div>
-                  </div>
+                    title={`Cut ${index + 1} — ${duration.toFixed(2)}s`}
+                    className={`w-6 h-6 rounded-full mx-1 flex-shrink-0 transition-transform transform ${
+                      isSelected
+                        ? "scale-125 bg-fuchsia-500 ring-2 ring-amber-300"
+                        : "bg-fuchsia-400/70 hover:scale-110"
+                    }`}
+                  />
                 );
               })
             ) : state.hasBeatData && state.beatData.length > 0 ? (
-              // Show beat visualization
-              <div className="flex gap-1">
-                {state.beatData.slice(0, 50).map((beat, index) => (
-                  <div
-                    key={index}
-                    className={`flex-shrink-0 rounded p-1 min-w-[8px] h-12 ${
-                      beat.confidence > 0.9
-                        ? "bg-green-600"
-                        : beat.confidence > 0.7
-                        ? "bg-yellow-500"
-                        : "bg-slate-600"
-                    }`}
-                    title={`Beat ${index + 1}\nTime: ${beat.time.toFixed(
-                      2
-                    )}s\nConfidence: ${beat.confidence.toFixed(2)}`}
-                    style={{
-                      height: `${20 + beat.confidence * 28}px`, // Height based on confidence
-                    }}
-                  />
-                ))}
-                {state.beatData.length > 50 && (
-                  <div className="text-xs text-slate-400 flex items-center ml-2">
-                    +{state.beatData.length - 50} more beats
+              // Show beats as dots
+              <div className="flex items-center gap-2 px-2">
+                {state.beatData.slice(0, 200).map((beat, index) => {
+                  const intensity = Math.min(1, beat.confidence || 0.5);
+                  const size = 6 + intensity * 10;
+                  const colorClass =
+                    intensity > 0.9
+                      ? "bg-emerald-400"
+                      : intensity > 0.75
+                      ? "bg-amber-300"
+                      : "bg-slate-500";
+                  return (
+                    <div
+                      key={index}
+                      title={`Beat ${index + 1} — ${beat.time.toFixed(2)}s`}
+                      className={`rounded-full flex-shrink-0 ${colorClass}`}
+                      style={{ width: `${size}px`, height: `${size}px` }}
+                    />
+                  );
+                })}
+                {state.beatData.length > 200 && (
+                  <div className="text-xs text-slate-400 ml-2">
+                    +{state.beatData.length - 200} more
                   </div>
                 )}
               </div>
@@ -1781,43 +1874,82 @@ export function StaticUnifiedApp() {
               ))}
             </div>
 
+            {/* Cut Settings Panel */}
+            <div className="flex items-center gap-3">
+              <div className="text-xs text-slate-400">Cut Settings:</div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-slate-300">Min cut (s)</label>
+                <input
+                  type="number"
+                  step="0.05"
+                  min="0"
+                  className="w-20 bg-slate-700 text-white text-xs px-2 py-1 rounded"
+                  value={state.minCutLength}
+                  onChange={(e) =>
+                    setState((prev) => ({
+                      ...prev,
+                      minCutLength: Number(e.target.value || 0),
+                    }))
+                  }
+                  title="Override minimum cut duration (0 = use mode default)"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-slate-300">Beat stride</label>
+                <select
+                  className="bg-slate-700 text-white text-xs px-2 py-1 rounded"
+                  value={state.beatStride}
+                  onChange={(e) =>
+                    setState((prev) => ({
+                      ...prev,
+                      beatStride: Number(e.target.value || 1),
+                    }))
+                  }
+                >
+                  <option value={1}>1</option>
+                  <option value={2}>2</option>
+                  <option value={3}>3</option>
+                  <option value={4}>4</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-slate-300">Snap to shots</label>
+                <input
+                  type="checkbox"
+                  checked={state.snapToShots}
+                  onChange={(e) =>
+                    setState((prev) => ({
+                      ...prev,
+                      snapToShots: e.target.checked,
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-slate-300">Snap tol (s)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  className="w-20 bg-slate-700 text-white text-xs px-2 py-1 rounded"
+                  value={state.snapTolerance}
+                  onChange={(e) =>
+                    setState((prev) => ({
+                      ...prev,
+                      snapTolerance: Number(e.target.value || 0.08),
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
             {/* Divider */}
             <div className="w-px h-6 bg-slate-600"></div>
 
-            {/* Effects */}
-            <div className="flex gap-1">
-              <span className="text-xs text-slate-400 mr-2">Effects:</span>
-              {AVAILABLE_EFFECTS.map((effect) => {
-                const Icon = effect.icon;
-                // Check if the selected timeline item has this effect
-                const selectedItemEffects = editor.selectedTimelineItemId
-                  ? editor.getTimelineItemEffects(editor.selectedTimelineItemId)
-                  : [];
-                const isActive = selectedItemEffects.some((e) =>
-                  e.id.includes(effect.id)
-                );
-
-                return (
-                  <Button
-                    key={effect.id}
-                    variant={isActive ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => toggleTimelineItemEffect(effect.id)}
-                    className={`text-xs px-2 ${isActive ? effect.color : ""}`}
-                    title={
-                      editor.selectedTimelineItemId
-                        ? `${effect.label} (timeline item)`
-                        : `Select timeline item to apply ${effect.label}`
-                    }
-                    disabled={
-                      !editor.selectedTimelineItemId || !state.hasBeatData
-                    }
-                  >
-                    <Icon className="w-4 h-4" />
-                  </Button>
-                );
-              })}
-            </div>
+            {/* Effects placeholder removed from bottom bar - rendered below video */}
 
             {/* Timeline Item Effects (EditorStore Test) */}
             {editor.selectedTimelineItemId && (
@@ -1833,7 +1965,7 @@ export function StaticUnifiedApp() {
                     onClick={() => toggleTimelineItemEffect("speed_up")}
                     className="text-xs px-2"
                     title="Toggle Speed Up effect on selected timeline item"
-                    disabled={!state.hasBeatData}
+                    disabled={!editor.selectedTimelineItemId}
                   >
                     ⚡
                   </Button>
@@ -1843,7 +1975,7 @@ export function StaticUnifiedApp() {
                     onClick={() => toggleTimelineItemEffect("blur")}
                     className="text-xs px-2"
                     title="Toggle Blur effect on selected timeline item"
-                    disabled={!state.hasBeatData}
+                    disabled={!editor.selectedTimelineItemId}
                   >
                     🌫️
                   </Button>
@@ -1853,7 +1985,7 @@ export function StaticUnifiedApp() {
                     onClick={() => toggleTimelineItemEffect("grayscale")}
                     className="text-xs px-2"
                     title="Toggle Grayscale effect on selected timeline item"
-                    disabled={!state.hasBeatData}
+                    disabled={!editor.selectedTimelineItemId}
                   >
                     ⚫
                   </Button>

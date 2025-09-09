@@ -115,7 +115,7 @@ def run_probe(clips_dir):
     except Exception as e:
         emit("probe", progress=0.0, error=f"Probe error: {safe_str(e)}")
 
-def run_beats(song, engine="advanced"):
+def run_beats(song, engine="advanced", base_dir='.'):
     emit("beats", progress=0.0, message=f"Loading audio and analyzing beats (engine: {engine})...")
     
     # Ensure song path is properly decoded as UTF-8
@@ -196,13 +196,18 @@ def run_beats(song, engine="advanced"):
             from beats_adv import compute_advanced_beats
             beats_data = compute_advanced_beats(str(song_path), debug=True)
         
-        # Save the results
+        # Save the results into base_dir/cache/beats.json
         emit("beats", progress=0.8, message="Saving beat analysis...")
         from pathlib import Path
-        output_path = "cache/beats.json"
-        Path("cache").mkdir(exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(beats_data, f, indent=2)
+        try:
+            base = Path(base_dir)
+            cache_dir = base / "cache"
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            output_path = cache_dir / "beats.json"
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(beats_data, f, indent=2)
+        except Exception as e:
+            emit("beats", progress=0.0, error=f"Failed to save beats: {safe_str(e)}")
         
         emit("beats", progress=1.0, message=f"{engine.title()} beat detection completed", 
              beats_count=len(beats_data.get("beats", [])),
@@ -212,18 +217,20 @@ def run_beats(song, engine="advanced"):
         error_msg = safe_str(e) or f"Unknown {type(e).__name__}"
         emit("beats", progress=0.0, error=f"Beat detection failed: {error_msg}")
 
-def run_shots(clips_dir):
+def run_shots(clips_dir, base_dir='.'):
     emit("shots", progress=0.0)
     try:
         # Use fast shot detection instead of slow PySceneDetect
-        output_path = "cache/shots.json"
         from pathlib import Path
-        Path("cache").mkdir(exist_ok=True)
-        
+        base = Path(base_dir)
+        cache_dir = base / "cache"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        output_path = str(cache_dir / "shots.json")
+
         emit("shots", progress=0.5, message="Running fast shot detection...")
-        result = subprocess.run([sys.executable, "analysis/detect_shots_fast.py", clips_dir, output_path, "2.0"], 
-                              capture_output=True, text=False, check=True)
-        
+        result = subprocess.run([sys.executable, "analysis/detect_shots_fast.py", clips_dir, output_path, "2.0"],
+                                capture_output=True, text=False, check=True)
+
         # Decode output manually with error handling
         stdout = result.stdout.decode('utf-8', errors='replace') if result.stdout else ""
         stderr = result.stderr.decode('utf-8', errors='replace') if result.stderr else ""
@@ -232,32 +239,36 @@ def run_shots(clips_dir):
         # Decode stderr with error handling
         stderr_output = e.stderr.decode('utf-8', errors='replace') if e.stderr else "No stderr output"
         emit("shots", progress=0.0, error=f"Shot detection failed: {stderr_output}")
+    except Exception as e:
+        emit("shots", progress=0.0, error=f"Shot detection error: {safe_str(e)}")
 
-def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium", enable_shot_detection=True):
+def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium", enable_shot_detection=True, base_dir='.'):
     emit("cutlist", progress=0.0)
     try:
         # Call the existing build_cutlist.py script with correct arguments
-        beats_json = "cache/beats.json"
-        shots_json = "cache/shots.json"
-        output_path = "cache/cutlist.json"
         from pathlib import Path
-        Path("cache").mkdir(exist_ok=True)
-        
+        base = Path(base_dir)
+        cache_dir = base / "cache"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        beats_json = str(cache_dir / "beats.json")
+        shots_json = str(cache_dir / "shots.json")
+        output_path = str(cache_dir / "cutlist.json")
+
         # Delete old cutlist to prevent using stale data if generation fails
         cutlist_path = Path(output_path)
         if cutlist_path.exists():
             cutlist_path.unlink()
-        
+
         # Build arguments for build_cutlist.py, passing the shot detection flag
         args = [sys.executable, "analysis/build_cutlist.py", 
                 beats_json, shots_json, song, output_path, clips_dir, preset, cutting_mode]
-        
+
         # Add the skip-shots flag if shot detection is disabled
         if not enable_shot_detection:
             args.append("--skip-shots")
-        
+
         result = subprocess.run(args, capture_output=True, text=False, check=True)
-        
+
         # Decode output manually with error handling
         stdout = result.stdout.decode('utf-8', errors='replace') if result.stdout else ""
         stderr = result.stderr.decode('utf-8', errors='replace') if result.stderr else ""
@@ -266,7 +277,7 @@ def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium", enab
         # Decode stderr with error handling
         stderr_output = e.stderr.decode('utf-8', errors='replace') if e.stderr else "No stderr output"
         stdout_output = e.stdout.decode('utf-8', errors='replace') if e.stdout else "No stdout output"
-        
+
         emit("cutlist", progress=0.0, error=f"Cutlist generation failed: {stderr_output}")
         # Also emit stdout for debugging
         if stdout_output:
@@ -281,7 +292,7 @@ def parse_progress_line(line):
         return {k: v}
     return {}
 
-def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape"):
+def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape", base_dir='.'):
     """Render final video using cutlist and settings with direct FFmpeg filter_complex"""
     import json
     import subprocess
@@ -302,9 +313,15 @@ def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape"
     render_type = "proxy" if proxy else "final"
     
     # All presets use the same cutlist file generated by the workflow
-    cutlist_path = "cache/cutlist.json"
-    out_path = f"render/fapptap_{render_type}.mp4"
-    Path("render").mkdir(exist_ok=True)
+    from pathlib import Path
+    base = Path(base_dir)
+    cache_dir = base / "cache"
+    render_dir = base / "render"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    render_dir.mkdir(parents=True, exist_ok=True)
+
+    cutlist_path = str(cache_dir / "cutlist.json")
+    out_path = str(render_dir / f"fapptap_{render_type}.mp4")
     
     # Delete existing output file to ensure clean render
     try:
@@ -323,7 +340,7 @@ def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape"
         with open(cutlist_path, 'r', encoding='utf-8') as f:
             cutlist = json.load(f)
     except Exception as e:
-        emit("render", progress=0.0, error=f"Failed to read cutlist: {e}")
+        emit("render", progress=0.0, error=f"Failed to read cutlist: {safe_str(e)}")
         return
     
     events = cutlist.get("events", [])
@@ -747,6 +764,7 @@ if __name__ == "__main__":
     ap.add_argument("stage", choices=["probe","beats","shots","cutlist","render"])
     ap.add_argument("--song", default="")
     ap.add_argument("--clips", default="")
+    ap.add_argument("--base_dir", default=".", help="Base directory for cache/render output")
     ap.add_argument("--proxy", action="store_true")
     ap.add_argument("--preset", default="landscape", choices=["landscape", "portrait", "square"])
     ap.add_argument("--cutting_mode", default="medium", choices=["slow", "medium", "fast", "ultra_fast", "random", "auto"])
@@ -769,6 +787,8 @@ if __name__ == "__main__":
         args.song = safe_str(args.song)
     if hasattr(args, 'clips') and args.clips:
         args.clips = safe_str(args.clips)
+    if hasattr(args, 'base_dir') and args.base_dir:
+        args.base_dir = safe_str(args.base_dir)
 
     # Debug: Show all arguments received
     import sys
@@ -784,11 +804,11 @@ if __name__ == "__main__":
         if not args.song:
             emit("beats", progress=0.0, error="No song file provided. Please select an audio file first.")
         else:
-            run_beats(args.song, args.engine)
+            run_beats(args.song, args.engine, base_dir=getattr(args, 'base_dir', '.'))
     if args.stage == "shots":
         if not args.clips:
             emit("shots", progress=0.0, error="No clips directory provided. Please select a clips directory first.")
         else:
-            run_shots(args.clips)
-    if args.stage == "cutlist": run_cutlist(args.song, args.clips, args.preset, args.cutting_mode, args.enable_shot_detection)
-    if args.stage == "render":  run_render(proxy=args.proxy, preset=args.preset)
+            run_shots(args.clips, base_dir=getattr(args, 'base_dir', '.'))
+    if args.stage == "cutlist": run_cutlist(args.song, args.clips, args.preset, args.cutting_mode, args.enable_shot_detection, base_dir=getattr(args, 'base_dir', '.'))
+    if args.stage == "render":  run_render(proxy=args.proxy, preset=args.preset, base_dir=getattr(args, 'base_dir', '.'))

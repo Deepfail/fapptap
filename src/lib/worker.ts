@@ -55,10 +55,7 @@ export class PythonWorker {
   /**
    * Run a worker stage
    */
-  async runStage(
-    stage: string,
-    args: Record<string, string | boolean> = {}
-  ): Promise<void> {
+  async runStage(stage: string, args: Record<string, any> = {}): Promise<void> {
     if (!isTauriAvailable()) {
       throw new Error(
         "Python worker execution is only available in desktop mode"
@@ -66,15 +63,42 @@ export class PythonWorker {
     }
 
     // Build command arguments
-    const workerArgs = [stage];
+    const workerArgs: string[] = [stage];
     for (const [key, value] of Object.entries(args)) {
+      // Skip undefined/null
+      if (value === undefined || value === null) continue;
+
+      // Normalize flag name: convert underscores to dashes for CLI
+      const flagName = key.replace(/_/g, "-");
+
+      // Boolean true becomes a flag; boolean false is skipped
       if (value === true) {
-        // Boolean true becomes a flag
-        workerArgs.push(`--${key}`);
-      } else if (value && typeof value === "string") {
-        // String values get added with their value
-        workerArgs.push(`--${key}`, value);
+        workerArgs.push(`--${flagName}`);
+        continue;
       }
+
+      // Arrays: repeat the flag for each entry
+      if (Array.isArray(value)) {
+        for (const v of value) {
+          workerArgs.push(`--${flagName}`, String(v));
+        }
+        continue;
+      }
+
+      // Objects: JSON-encode as single argument
+      if (typeof value === "object") {
+        workerArgs.push(`--${flagName}`, JSON.stringify(value));
+        continue;
+      }
+
+      // Numbers and strings: include flag + value (allow 0)
+      if (typeof value === "number" || typeof value === "string") {
+        workerArgs.push(`--${flagName}`, String(value));
+        continue;
+      }
+
+      // Fallback: stringify
+      workerArgs.push(`--${flagName}`, String(value));
     }
 
     console.log(`Running worker stage: ${stage} with args:`, workerArgs);

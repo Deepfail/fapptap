@@ -274,7 +274,7 @@ def apply_cutting_mode(beat_times, cutting_mode="medium", audio_path=None):
         
         return new_beat_times
 
-def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ratio=None, cutting_mode=None, skip_shots=False):
+def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ratio=None, cutting_mode=None, skip_shots=False, min_duration_override=None, beat_stride_override=None, snap_tol_override=None):
     beats = load_json(beats_json)
     
     # Handle different beats.json formats
@@ -322,6 +322,28 @@ def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ra
     WIDTH, HEIGHT = preset["width"], preset["height"]
     print(f"Aspect ratio preset: {aspect_preset} ({WIDTH}x{HEIGHT})")
 
+    # Apply overrides if provided (UI may pass these)
+    # Use local copies to avoid modifying module-level globals and keep scope clear
+    if min_duration_override is not None:
+        try:
+            MIN_DUR = float(min_duration_override)
+        except Exception:
+            pass
+
+    local_beat_stride = BEAT_STRIDE
+    if beat_stride_override is not None:
+        try:
+            local_beat_stride = int(beat_stride_override)
+        except Exception:
+            pass
+
+    local_snap_tol = SNAP_TOL
+    if snap_tol_override is not None:
+        try:
+            local_snap_tol = float(snap_tol_override)
+        except Exception:
+            pass
+
     # ---- Auto-pick stride so each segment ≥ MIN_DUR (AFTER cutting mode) ----
     intervals = [b - a for a, b in zip(beat_times, beat_times[1:])]
     median_iv = statistics.median(intervals) if intervals else 0.5
@@ -331,7 +353,7 @@ def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ra
     print(f"After striding: {len(beat_times)} beats remaining")
 
     # Optional extra stride on top
-    beat_times = beat_times[::BEAT_STRIDE]
+    beat_times = beat_times[::local_beat_stride]
     print(f"After beat stride: {len(beat_times)} beats remaining")
 
     # ---- Get clips dir from parameter or default to media_samples/ ----
@@ -460,13 +482,13 @@ def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ra
         
         def snap_edge(t):
             if not shots or skip_shots: return t
-            best = t; best_d = SNAP_TOL + 1
+            best = t; best_d = local_snap_tol + 1
             for sh in shots:
                 for edge in (sh["start"], sh["end"]):
                     d = abs(t - edge)
                     if d < best_d:
                         best_d, best = d, edge
-            return best if best_d <= SNAP_TOL else t
+            return best if best_d <= local_snap_tol else t
 
         s_snap = snap_edge(start)
         e_snap = snap_edge(end)
@@ -519,6 +541,9 @@ if __name__ == "__main__":
     parser.add_argument("aspect_ratio", nargs="?", default="wide", help="Aspect ratio preset")
     parser.add_argument("cutting_mode", nargs="?", default="medium", help="Cutting mode")
     parser.add_argument("--skip-shots", action="store_true", help="Skip shot detection and use time-based cutting only")
+    parser.add_argument("--min-duration", type=float, default=None, help="Override minimum cut duration (seconds)")
+    parser.add_argument("--beat-stride", type=int, default=None, help="Extra beat stride (1 = every beat, 2 = every other)")
+    parser.add_argument("--snap-tol", type=float, default=None, help="Shot snap tolerance in seconds")
     
     args = parser.parse_args()
     
@@ -534,8 +559,19 @@ if __name__ == "__main__":
         cutting_mode = sys.argv[7] if len(sys.argv) > 7 else None
         skip_shots = "--skip-shots" in sys.argv
         
-        main(beats_json, shots_json, audio_path, out_json, clips_dir, aspect_ratio, cutting_mode, skip_shots)
+        main(beats_json, shots_json, audio_path, out_json, clips_dir, aspect_ratio, cutting_mode, skip_shots, min_duration_override=None, beat_stride_override=None, snap_tol_override=None)
     else:
         # New argparse style
-        main(args.beats_json, args.shots_json, args.audio_path, args.out_json, 
-             args.clips_dir, args.aspect_ratio, args.cutting_mode, args.skip_shots)
+        main(
+            args.beats_json,
+            args.shots_json,
+            args.audio_path,
+            args.out_json,
+            args.clips_dir,
+            args.aspect_ratio,
+            args.cutting_mode,
+            args.skip_shots,
+            min_duration_override=args.min_duration,
+            beat_stride_override=args.beat_stride,
+            snap_tol_override=args.snap_tol,
+        )
