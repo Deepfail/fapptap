@@ -1,12 +1,8 @@
-import React from "react";
+import { Button, Chip } from "@/ui/kit";
 
 export function HeaderStatus({ text }: { text?: string }) {
   if (!text) return null;
-  return (
-    <div className="text-xs text-slate-400 px-2 py-1 rounded bg-slate-800/70 border border-slate-700">
-      {text}
-    </div>
-  );
+  return <Chip>{text}</Chip>;
 }
 
 export function HeaderButtons({
@@ -19,21 +15,13 @@ export function HeaderButtons({
   busy?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2">
-      <button
-        disabled={busy}
-        onClick={onGenerate}
-        className="px-3 py-1 rounded bg-purple-600 hover:bg-purple-500 disabled:opacity-50"
-      >
+    <div className="flex gap-2">
+      <Button onClick={onGenerate} disabled={busy}>
         Generate
-      </button>
-      <button
-        disabled={busy}
-        onClick={onExport}
-        className="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50"
-      >
+      </Button>
+      <Button variant="ok" onClick={onExport} disabled={busy}>
         Export
-      </button>
+      </Button>
     </div>
   );
 }

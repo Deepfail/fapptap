@@ -1,4 +1,5 @@
 import React from "react";
+import { SectionLabel, Chip } from "@/ui/kit";
 
 export default function Sidebar({
   children,
@@ -12,17 +13,24 @@ export default function Sidebar({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="text-xs uppercase text-slate-400 mb-2">Library</div>
+        <SectionLabel>Library</SectionLabel>
+        <Chip>Browse</Chip>
         <div className="space-y-1">{children}</div>
       </div>
 
       <div>
-        <div className="text-xs uppercase text-slate-400 mb-2">Session</div>
-        <div className="text-sm text-slate-300">
-          Videos selected: <span className="font-semibold">{selectionCount}</span>
+        <SectionLabel>Session</SectionLabel>
+        <div className="text-sm">
+          Videos selected:{" "}
+          <span className="font-semibold">{selectionCount}</span>
         </div>
-        <div className="text-sm text-slate-300">
-          Audio: <span className={audioSet ? "text-emerald-400" : "text-amber-400"}>{audioSet ? "Set" : "Missing"}</span>
+        <div className="text-sm">
+          Audio:{" "}
+          <span
+            className={audioSet ? "text-[var(--ok)]" : "text-[var(--warn)]"}
+          >
+            {audioSet ? "Set" : "Missing"}
+          </span>
         </div>
       </div>
     </div>

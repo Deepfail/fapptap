@@ -1,4 +1,5 @@
 import React from "react";
+import { Panel } from "@/ui/kit";
 
 export default function PlayerPanel({
   videoRef,
@@ -9,10 +10,15 @@ export default function PlayerPanel({
 }) {
   return (
     <div className="h-full w-full flex flex-col gap-3">
-      <div className="rounded-xl overflow-hidden bg-black border border-slate-800 aspect-video">
-        <video ref={videoRef} className="w-full h-full" controls preload="metadata" />
-      </div>
-      <div className="text-xs text-slate-400">{status}</div>
+      <Panel className="rounded-xl overflow-hidden aspect-video">
+        <video
+          ref={videoRef}
+          className="w-full h-full"
+          controls
+          preload="metadata"
+        />
+      </Panel>
+      <div className="text-xs muted">{status}</div>
     </div>
   );
 }

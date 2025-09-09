@@ -834,3 +834,142 @@ which script you’re running (dev vs dev:app),
 a screenshot of DevTools Elements showing the <header>/<aside> presence,
 
 and I’ll give you a micro-diff tailored to your main.tsx/entry so it mounts the correct component and provider.
+
+# STEP 3
+
+do this (copy/paste)
+
+1. add theme tokens/utilities
+
+src/ui/theme-neon.css (new)
+
+:root.theme-neon {
+/_ base _/
+--bg: #0c0f1a;
+--panel: #111427;
+--panel-2: #0f1322;
+--border: #252b43;
+--text: #e6e8ef;
+--muted: #9aa3b2;
+
+/_ accents from ui-example vibe _/
+--accent: #ff39b0; /_ primary neon _/
+--accent-600: #e1329d;
+--accent-700: #c6298b;
+--accent-800: #a81f76;
+--accent-ghost: rgba(255, 57, 176, 0.14);
+--ok: #10b981; /_ emerald _/
+--warn: #f59e0b;
+
+/_ chips _/
+--chip-bg: rgba(255, 57, 176, 0.16);
+--chip-border: rgba(255, 57, 176, 0.45);
+}
+
+/_ global surface _/
+.theme-neon,
+.theme-neon body { background: var(--bg); color: var(--text); }
+
+/_ panels _/
+.theme-neon .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; }
+.theme-neon .panel-ghost { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; }
+
+/_ buttons _/
+.theme-neon .btn { padding: 6px 10px; border-radius: 10px; font-weight: 600; line-height: 1; }
+.theme-neon .btn-accent { background: var(--accent); color: #fff; }
+.theme-neon .btn-accent:hover { background: var(--accent-600); }
+.theme-neon .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.theme-neon .btn-outline:hover { border-color: var(--accent); color: #fff; }
+.theme-neon .btn-ok { background: var(--ok); color: #041012; }
+.theme-neon .btn-ok:hover { filter: brightness(1.05); }
+
+/_ chips / tags _/
+.theme-neon .chip { background: var(--chip-bg); border: 1px solid var(--chip-border); color: #fff; padding: 6px 10px; border-radius: 999px; font-weight: 700; letter-spacing: .02em; }
+
+/_ header _/
+.theme-neon .brand-dot { width: 28px; height: 28px; border-radius: 9px; background: var(--accent); box-shadow: 0 0 28px var(--accent-ghost); }
+
+/_ timeline cards _/
+.theme-neon .tl-item { background: rgba(255,255,255,.02); border: 1px solid var(--border); border-radius: 10px; }
+.theme-neon .tl-item.is-selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(255,57,176,.25); }
+
+/_ subtle text _/
+.theme-neon .muted { color: var(--muted); }
+
+2. apply the theme at startup
+
+src/main.tsx (top of file; make sure you import your global CSS once)
+
+import "./App.css";
+import "./ui/theme-neon.css";
+
+// ensure theme is on <html> for cascade
+document.documentElement.classList.add("theme-neon");
+
+// (optional) clear any old debug flags/classes you may have set previously
+["neon","hotpink","neon-theme"].forEach(c => document.documentElement.classList.remove(c));
+localStorage.removeItem("uiTheme");
+
+3. use the theme utilities in the chrome
+
+src/ui/Header.tsx
+
+export function HeaderButtons({ onGenerate, onExport, busy }: { onGenerate?: () => void; onExport?: () => void; busy?: boolean; }) {
+return (
+<div className="flex items-center gap-2">
+<button disabled={busy} onClick={onGenerate} className="btn btn-accent disabled:opacity-50">Generate</button>
+<button disabled={busy} onClick={onExport} className="btn btn-ok disabled:opacity-50">Export</button>
+</div>
+);
+}
+
+src/ui/AppShell.tsx — swap a few classes to use the theme helpers
+
+<header className="h-14 border-b border-[var(--border)] bg-[var(--panel-2)]/80 backdrop-blur sticky top-0 z-40">
+  <div className="h-full px-4 flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      <div className="brand-dot" />
+      <div className="font-semibold tracking-wide">FAPPTap</div>
+      {headerLeft && <div className="chip">{headerLeft}</div>}
+    </div>
+    <div className="flex items-center gap-2">{headerRight}</div>
+  </div>
+</header>
+
+<aside className="col-span-2 min-h-[calc(100vh-3.5rem)] p-3 sticky top-14 border-r border-[var(--border)]">{sidebar}</aside>
+<main className="col-span-7 min-h-[calc(100vh-3.5rem)] flex flex-col"><div className="flex-1 p-4">{children}</div></main>
+<aside className="col-span-3 min-h-[calc(100vh-3.5rem)] p-4 sticky top-14 border-l border-[var(--border)]">{inspector}</aside>
+
+<footer className="h-28 border-t border-[var(--border)] bg-[var(--panel-2)]/80 backdrop-blur">
+  <div className="h-full px-4 py-2">{timeline}</div>
+</footer>
+
+src/ui/TimelineBar.tsx — make the cards adopt the theme
+
+<button
+key={it.id}
+onClick={() => editor.selectTimelineItem(it.id)}
+className={`min-w-[140px] text-left px-2 py-2 tl-item ${isSel ? "is-selected" : ""}`}
+
+> …
+> </button>
+
+src/ui/PlayerPanel.tsx — give the player a panel surface
+
+<div className="rounded-xl overflow-hidden panel aspect-video">
+  <video ref={videoRef} className="w-full h-full" controls preload="metadata" />
+</div>
+<div className="text-xs muted">{status}</div>
+
+src/ui/Sidebar.tsx — use chips for labels, muted text for meta
+
+<div className="text-xs uppercase muted mb-2">Library</div>
+<div className="chip inline-block">Browse</div>
+…
+<div className="text-xs uppercase muted mb-2">Session</div>
+<div className="text-sm">Videos selected: <span className="font-semibold">{selectionCount}</span></div>
+<div className="text-sm">Audio: <span className={audioSet ? "text-[var(--ok)]" : "text-[var(--warn)]"}>{audioSet ? "Set" : "Missing"}</span></div>
+
+4. remove the old “NEON THEME ACTIVE (STATIC BANNER)”
+
+If you hard-coded that banner anywhere (likely in StaticUnifiedApp.tsx during testing), delete it. The chip in the header now serves as the subtle status if you want one (just pass text into headerLeft), or pass null for no chip.
