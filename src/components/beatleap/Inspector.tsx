@@ -15,6 +15,8 @@ import {
 import { useEditor } from "@/state/editorStore";
 import { defaultTransitions, getTransitionLabel } from "@/types/transitions";
 import { Scissors, ArrowRight, Settings } from "lucide-react";
+import { toast } from "sonner";
+import { isTauriAvailable } from "@/lib/platform";
 
 interface InspectorProps {
   selectedItemId: string | null;
@@ -52,16 +54,7 @@ export function Inspector({ selectedItemId }: InspectorProps) {
     }
   }, [selectedItem]);
 
-  const handleTrimApply = () => {
-    if (!selectedItem) return;
-    
-    const newIn = Math.max(0, parseFloat(trimIn) || 0);
-    const newOut = Math.max(newIn + 0.1, parseFloat(trimOut) || newIn + 0.1);
-    
-    trimTimelineItem(selectedItem.id, newIn, newOut);
-  };
-
-  const handleTransitionChange = (value: string) => {
+  const handleTransitionChange = async (value: string) => {
     if (!selectedItem) return;
     
     setSelectedTransition(value);
@@ -73,6 +66,52 @@ export function Inspector({ selectedItemId }: InspectorProps) {
       if (transition) {
         updateTransitionOut(selectedItem.id, transition);
       }
+    }
+
+    // Trigger debounced proxy update
+    triggerProxyUpdate();
+  };
+
+  const handleTrimApply = () => {
+    if (!selectedItem) return;
+    
+    const newIn = Math.max(0, parseFloat(trimIn) || 0);
+    const newOut = Math.max(newIn + 0.1, parseFloat(trimOut) || newIn + 0.1);
+    
+    trimTimelineItem(selectedItem.id, newIn, newOut);
+    
+    // Trigger debounced proxy update
+    triggerProxyUpdate();
+  };
+
+  // Debounced proxy update function
+  const triggerProxyUpdate = async () => {
+    if (!isTauriAvailable()) {
+      return; // Skip updates in browser mode
+    }
+
+    const baseCutlist = {
+      audio: "", // This should come from the current session
+      fps: 60,
+      width: 1920,
+      height: 1080,
+    };
+
+    try {
+      const { debouncedCutlistUpdate } = await import("@/services/cutlist");
+      const { runRenderStage } = await import("@/services/stages");
+      
+      debouncedCutlistUpdate(timeline, baseCutlist, async () => {
+        try {
+          // Re-render proxy when cutlist updates
+          await runRenderStage(true, "landscape");
+          toast.success("Preview updated");
+        } catch (error) {
+          console.warn("Failed to update preview:", error);
+        }
+      });
+    } catch (error) {
+      console.warn("Failed to trigger proxy update:", error);
     }
   };
 

@@ -1,7 +1,6 @@
 /**
  * Library Panel - Audio picker + Video picker + Style/Settings
  */
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { open } from "@tauri-apps/plugin-dialog";
 import { isTauriAvailable } from "@/lib/platform";
+import { getStyleDescription } from "@/services/styles";
 import { 
   Music, 
   Video,
@@ -26,6 +26,14 @@ interface LibraryPanelProps {
   onAudioSelect: (path: string) => void;
   selectedVideos: string[];
   onVideosSelect: (paths: string[]) => void;
+  style: string;
+  onStyleChange: (style: string) => void;
+  intensity: number;
+  onIntensityChange: (intensity: number) => void;
+  aspect: string;
+  onAspectChange: (aspect: string) => void;
+  cuttingMode: string;
+  onCuttingModeChange: (mode: string) => void;
 }
 
 export function LibraryPanel({
@@ -33,11 +41,15 @@ export function LibraryPanel({
   onAudioSelect,
   selectedVideos,
   onVideosSelect,
+  style,
+  onStyleChange,
+  intensity,
+  onIntensityChange,
+  aspect,
+  onAspectChange,
+  cuttingMode,
+  onCuttingModeChange,
 }: LibraryPanelProps) {
-  const [style, setStyle] = useState<string>("flashy");
-  const [intensity, setIntensity] = useState([75]);
-  const [aspect, setAspect] = useState<string>("landscape");
-  const [cuttingMode, setCuttingMode] = useState<string>("medium");
 
   const handleSelectAudio = async () => {
     if (!isTauriAvailable()) {
@@ -167,7 +179,7 @@ export function LibraryPanel({
       {/* Style Preset */}
       <div className="space-y-3">
         <Label className="text-sm font-medium text-gray-200">Style Preset</Label>
-        <Select value={style} onValueChange={setStyle}>
+        <Select value={style} onValueChange={onStyleChange}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -179,21 +191,18 @@ export function LibraryPanel({
           </SelectContent>
         </Select>
         <div className="text-xs text-gray-400">
-          {style === "flashy" && "Flash cuts on beats with whip pans"}
-          {style === "smooth" && "Crossfades everywhere"}
-          {style === "punchy" && "Hard cuts with flash on downbeats"}
-          {style === "whip" && "Whip pans on all boundaries"}
+          {getStyleDescription(style as any)}
         </div>
       </div>
 
       {/* Intensity */}
       <div className="space-y-3">
         <Label className="text-sm font-medium text-gray-200">
-          Intensity: {intensity[0]}%
+          Intensity: {intensity}%
         </Label>
         <Slider
-          value={intensity}
-          onValueChange={setIntensity}
+          value={[intensity]}
+          onValueChange={([value]) => onIntensityChange(value)}
           max={100}
           step={5}
           className="w-full"
@@ -203,7 +212,7 @@ export function LibraryPanel({
       {/* Aspect Ratio */}
       <div className="space-y-3">
         <Label className="text-sm font-medium text-gray-200">Aspect</Label>
-        <Select value={aspect} onValueChange={setAspect}>
+        <Select value={aspect} onValueChange={onAspectChange}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -218,7 +227,7 @@ export function LibraryPanel({
       {/* Cutting Mode */}
       <div className="space-y-3">
         <Label className="text-sm font-medium text-gray-200">Cutting Mode</Label>
-        <Select value={cuttingMode} onValueChange={setCuttingMode}>
+        <Select value={cuttingMode} onValueChange={onCuttingModeChange}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>

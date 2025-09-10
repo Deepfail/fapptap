@@ -28,8 +28,9 @@ export function PreviewPlayer() {
     const loadPreview = async () => {
       try {
         setIsLoading(true);
-        // Try to load the proxy preview
-        const previewSrc = await toMediaSrc("render/fapptap_proxy.mp4");
+        // Try to load the proxy preview with cache buster
+        const timestamp = Date.now();
+        const previewSrc = await toMediaSrc(`render/fapptap_proxy.mp4?t=${timestamp}`);
         setCurrentSrc(previewSrc);
       } catch (error) {
         console.log("No proxy preview available yet");
