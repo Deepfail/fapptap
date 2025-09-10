@@ -24,7 +24,9 @@
         { "path": "$PICTURE" },
         { "path": "$PICTURE/**/*" },
         { "path": "C:/Users/Virta/Dropbox" },
-        { "path": "C:/Users/Virta/Dropbox/**/*" }
+        { "path": "C:/Users/Virta/Dropbox/**/*" },
+        { "path": "sessions" },
+        { "path": "sessions/**/*" }
       ]
     },
     {
@@ -43,7 +45,9 @@
         { "path": "$PICTURE/*" },
         { "path": "$PICTURE/**/*" },
         { "path": "C:/Users/Virta/Dropbox/*" },
-        { "path": "C:/Users/Virta/Dropbox/**/*" }
+        { "path": "C:/Users/Virta/Dropbox/**/*" },
+        { "path": "sessions/*" },
+        { "path": "sessions/**/*" }
       ]
     },
 

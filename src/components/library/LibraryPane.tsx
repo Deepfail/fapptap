@@ -476,11 +476,12 @@ function ClipTile({
                 muted={!isPlaying}
                 playsInline
                 loop
-                className={`w-full object-cover bg-black ${
-                  thumbnail ? "aspect-square" : "aspect-video"
-                }`}
+                className="w-full bg-black"
                 style={{
-                  objectPosition: "center center", // Center videos vertically
+                  objectFit: "contain",
+                  maxHeight: thumbnail ? "200px" : "300px",
+                  aspectRatio: thumbnail ? "1" : "16/9",
+                  objectPosition: "center center",
                 }}
                 controls={false}
                 onClick={(e) => {
@@ -490,9 +491,11 @@ function ClipTile({
               />
             ) : (
               <div
-                className={`w-full grid place-items-center text-neutral-500 text-xs bg-black ${
-                  thumbnail ? "aspect-square" : "aspect-video"
-                }`}
+                className="w-full grid place-items-center text-neutral-500 text-xs bg-black"
+                style={{
+                  maxHeight: thumbnail ? "200px" : "300px",
+                  aspectRatio: thumbnail ? "1" : "16/9",
+                }}
               >
                 Loading...
               </div>
@@ -521,22 +524,23 @@ function ClipTile({
                 preload="metadata"
                 muted
                 playsInline
-                className={`w-full object-cover bg-black ${
-                  thumbnail ? "aspect-square" : "aspect-video"
-                }`}
+                className="w-full bg-black"
                 style={{
-                  objectPosition: "center center", // Center videos vertically
+                  objectFit: "contain",
+                  maxHeight: thumbnail ? "200px" : "300px",
+                  aspectRatio: thumbnail ? "1" : "16/9",
+                  objectPosition: "center center",
                 }}
               />
             ) : (
               <div
                 className={`w-full grid place-items-center text-neutral-500 bg-black ${
-                  thumbnail
-                    ? "aspect-square text-xs"
-                    : compact
-                    ? "aspect-video text-xs"
-                    : "aspect-video text-sm"
+                  thumbnail ? "text-xs" : compact ? "text-xs" : "text-sm"
                 }`}
+                style={{
+                  maxHeight: thumbnail ? "200px" : "300px",
+                  aspectRatio: thumbnail ? "1" : "16/9",
+                }}
               >
                 no preview
               </div>

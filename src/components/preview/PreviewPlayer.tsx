@@ -342,7 +342,7 @@ export default function PreviewPlayer({
       }}
     >
       {/* Video region */}
-      <div className="relative flex-1 bg-black">
+      <div className="relative flex-1 bg-black" style={{ maxHeight: '80vh' }}>
         {resolvedSrc ? (
           <video
             ref={videoRef}
