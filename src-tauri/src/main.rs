@@ -176,6 +176,14 @@ fn main() {
         .plugin(tauri_plugin_store::Builder::default().build())
         .manage(RwLock::new(AppState::default()))
         .setup(|app| {
+            // Open devtools in development mode to help with debugging
+            #[cfg(debug_assertions)]
+            {
+                let window = app.get_webview_window("main").expect("Failed to get main window");
+                window.open_devtools();
+                println!("Development mode: DevTools opened automatically");
+            }
+            
             // Initialize caches and services
             let app_data_dir = app.path().app_data_dir().expect("Failed to get app data directory");
             std::fs::create_dir_all(&app_data_dir).expect("Failed to create app data directory");

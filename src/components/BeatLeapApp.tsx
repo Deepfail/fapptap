@@ -15,7 +15,6 @@ import {
   ResizableHandle,
 } from "@/components/ui/resizable";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 
 // Icons
 import {
@@ -41,7 +40,8 @@ import {
 interface VideoItem {
   id: string;
   name: string;
-  url: string;
+  url: string; // Display URL (blob URL for thumbnail generation)
+  filePath?: string; // Actual file path for Tauri operations
   duration: number;
   size: number;
   createdAt: number;
@@ -65,8 +65,18 @@ interface SmartCut {
 export default function BeatLeapApp() {
   console.log("BeatLeapApp: Rendering new modern UI component");
 
-  // Test toast on first load
+  // Add startup logging
   useEffect(() => {
+    console.log("=".repeat(60));
+    console.log("FAPPTAP APP STARTED - " + new Date().toISOString());
+    console.log("=".repeat(60));
+    console.log("User Agent:", navigator.userAgent);
+    console.log("Platform:", navigator.platform);
+    console.log("Language:", navigator.language);
+    console.log("Screen:", window.screen.width + "x" + window.screen.height);
+    console.log("Viewport:", window.innerWidth + "x" + window.innerHeight);
+    console.log("=".repeat(60));
+
     toast.success("BeatLeap UI loaded successfully!");
   }, []);
 
@@ -95,8 +105,6 @@ export default function BeatLeapApp() {
 
   // Refs
   const videoRef = useRef<HTMLVideoElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const audioInputRef = useRef<HTMLInputElement>(null);
 
   // Fixed thumbnail size for consistent 2-column layout
   const thumbnailSize = 150;
@@ -178,73 +186,109 @@ export default function BeatLeapApp() {
     []
   );
 
-  // Handle audio file selection
-  const handleAudioUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && file.type.startsWith("audio/")) {
-      const url = URL.createObjectURL(file);
-      setSelectedAudio(url);
-      toast.success(`Audio selected: ${file.name}`);
-    }
-    if (audioInputRef.current) {
-      audioInputRef.current.value = "";
+  // Handle audio file selection using Tauri dialog
+  const handleAudioUpload = async () => {
+    try {
+      const { open } = await import("@tauri-apps/plugin-dialog");
+
+      const selected = await open({
+        multiple: false,
+        filters: [
+          {
+            name: "Audio",
+            extensions: ["mp3", "wav", "flac", "m4a", "aac", "ogg", "wma"],
+          },
+        ],
+      });
+
+      if (selected && typeof selected === "string") {
+        console.log("Audio file selected:", selected);
+        setSelectedAudio(selected); // Store the actual file path
+
+        // Extract filename for display
+        const filename = selected.split(/[\\/]/).pop() || "Unknown file";
+        toast.success(`Audio selected: ${filename}`);
+      }
+    } catch (error) {
+      console.error("Audio selection failed:", error);
+      toast.error("Failed to select audio file");
     }
   };
 
-  // Handle file upload
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const files = event.target.files;
-    if (!files) return;
+  // Handle file upload using Tauri file dialog
+  const handleFileUpload = async () => {
+    try {
+      const { open } = await import("@tauri-apps/plugin-dialog");
+      const { readFile } = await import("@tauri-apps/plugin-fs");
 
-    setIsUploading(true);
+      const selected = await open({
+        multiple: true,
+        filters: [
+          {
+            name: "Video",
+            extensions: ["mp4", "mov", "avi", "mkv", "webm", "m4v"],
+          },
+        ],
+      });
 
-    for (const file of Array.from(files)) {
-      if (!file.type.startsWith("video/")) continue;
-
-      try {
-        const url = URL.createObjectURL(file);
-        const video = document.createElement("video");
-
-        await new Promise<void>((resolve, reject) => {
-          video.onloadedmetadata = async () => {
-            try {
-              const thumbnail = await generateThumbnail(video);
-
-              const videoItem: VideoItem = {
-                id:
-                  Date.now().toString() +
-                  Math.random().toString(36).substr(2, 9),
-                name: file.name,
-                url,
-                duration: video.duration,
-                size: file.size,
-                createdAt: Date.now(),
-                thumbnail,
-                selected: false,
-              };
-
-              setVideos((currentVideos) => [...currentVideos, videoItem]);
-              resolve();
-            } catch (error) {
-              reject(error);
-            }
-          };
-          video.onerror = reject;
-          video.src = url;
-        });
-      } catch (error) {
-        console.error("Error processing video file:", error);
-        toast.error(`Failed to process ${file.name}`);
+      if (!selected || (Array.isArray(selected) && selected.length === 0)) {
+        return;
       }
-    }
 
-    setIsUploading(false);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      const filePaths = Array.isArray(selected) ? selected : [selected];
+      setIsUploading(true);
+
+      for (const filePath of filePaths) {
+        try {
+          // Read file and create blob URL for display (preserves thumbnail generation)
+          const fileBytes = await readFile(filePath);
+          const blob = new Blob([fileBytes], { type: "video/mp4" });
+          const blobUrl = URL.createObjectURL(blob);
+
+          const video = document.createElement("video");
+
+          await new Promise<void>((resolve, reject) => {
+            video.onloadedmetadata = async () => {
+              try {
+                const thumbnail = await generateThumbnail(video);
+                const fileName = filePath.split(/[\\/]/).pop() || "unknown.mp4";
+
+                const videoItem: VideoItem = {
+                  id:
+                    Date.now().toString() +
+                    Math.random().toString(36).substr(2, 9),
+                  name: fileName,
+                  url: blobUrl, // Blob URL for display/thumbnails
+                  filePath: filePath, // Real file path for Tauri operations
+                  duration: video.duration,
+                  size: fileBytes.length,
+                  createdAt: Date.now(),
+                  thumbnail,
+                  selected: false,
+                };
+
+                setVideos((currentVideos) => [...currentVideos, videoItem]);
+                resolve();
+              } catch (error) {
+                reject(error);
+              }
+            };
+            video.onerror = reject;
+            video.src = blobUrl; // Use blob URL for loading metadata
+          });
+        } catch (error) {
+          console.error("Error processing video file:", error);
+          toast.error(`Failed to process ${filePath}`);
+        }
+      }
+
+      setIsUploading(false);
+      toast.success(`Added ${filePaths.length} videos to library`);
+    } catch (error) {
+      console.error("Error opening file dialog:", error);
+      toast.error("Failed to open file dialog");
+      setIsUploading(false);
     }
-    toast.success(`Added ${Array.from(files).length} videos to library`);
   };
 
   // Toggle video selection
@@ -326,48 +370,119 @@ export default function BeatLeapApp() {
     try {
       setIsGenerating(true);
       setGenerationProgress(0);
-      setGenerationStage("Creating session...");
+
+      console.log("=== GENERATION STARTED ===");
 
       // Get selected videos
       const selectedVideos = videos.filter((v) => v.selected);
+      console.log("Selected videos:", selectedVideos.length);
+      console.log("Audio file:", selectedAudio);
 
-      // 1. Create session
-      const session = await createSession(
-        selectedVideos.map((v) => v.url), // Using URLs for now
+      setGenerationStage("Creating session...");
+      console.log("Stage: Creating session");
+
+      // 1. Create session with timeout protection
+      const sessionPromise = createSession(
+        selectedVideos.map((v) => v.filePath || v.url), // Use filePath if available, fallback to url
         selectedAudio
       );
 
+      const session = (await Promise.race([
+        sessionPromise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Session creation timeout")), 30000)
+        ),
+      ])) as any;
+
+      console.log("Session created:", session);
       setGenerationProgress(20);
+
       setGenerationStage("Analyzing beats...");
+      console.log("Stage: Analyzing beats");
 
-      // 2. Run beats analysis
-      await runStage("beats", { audio: session.audio });
+      // 2. Run beats analysis with timeout
+      const beatsPromise = runStage("beats", { audio: session.audio });
+      await Promise.race([
+        beatsPromise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Beats analysis timeout")), 60000)
+        ),
+      ]);
 
+      console.log("Beats analysis completed");
       setGenerationProgress(50);
-      setGenerationStage("Building cutlist...");
 
-      // 3. Build cutlist
-      await runStage("cutlist", {
+      setGenerationStage("Building cutlist...");
+      console.log("Stage: Building cutlist");
+
+      // 3. Build cutlist with timeout
+      const cutlistPromise = runStage("cutlist", {
         song: session.audio,
         clips: session.clipsDir,
-        style: "auto", // Default style
-        cutting_mode: "smart",
+        preset: "landscape",
+        cutting_mode: "medium",
+        engine: "advanced",
+        enable_shot_detection: true,
       });
 
+      await Promise.race([
+        cutlistPromise,
+        new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Cutlist generation timeout")),
+            120000
+          )
+        ),
+      ]);
+
+      console.log("Cutlist completed");
       setGenerationProgress(80);
+
       setGenerationStage("Generating preview...");
+      console.log("Stage: Generating preview");
 
-      // 4. Generate proxy render
-      await runStage("render", { proxy: true });
+      // 4. Generate proxy render with timeout
+      const renderPromise = runStage("render", { proxy: true });
+      await Promise.race([
+        renderPromise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Render timeout")), 120000)
+        ),
+      ]);
 
+      console.log("Render completed");
       setGenerationProgress(100);
       setGenerationStage("Complete!");
 
+      console.log("=== GENERATION COMPLETED SUCCESSFULLY ===");
       toast.success("Generated edit successfully!");
     } catch (error) {
+      console.error("=== GENERATION FAILED ===");
       console.error("Generate error:", error);
-      toast.error(`Generation failed: ${error}`);
+
+      const err = error as Error;
+      console.error("Error details:", {
+        message: err?.message,
+        stack: err?.stack,
+        name: err?.name,
+      });
+
+      // More specific error messages
+      let errorMessage = "Generation failed";
+      if (err?.message?.includes("timeout")) {
+        errorMessage = `Generation timed out during: ${err.message}`;
+      } else if (err?.message?.includes("Worker binary not available")) {
+        errorMessage =
+          "Worker binary is not available or not properly configured";
+      } else if (err?.message?.includes("exit code")) {
+        errorMessage = `Worker process failed: ${err.message}`;
+      } else {
+        errorMessage = `Generation failed: ${err?.message || String(error)}`;
+      }
+
+      toast.error(errorMessage);
     } finally {
+      console.log("=== GENERATION CLEANUP ===");
       setIsGenerating(false);
       setTimeout(() => {
         setGenerationProgress(0);
@@ -518,18 +633,11 @@ export default function BeatLeapApp() {
                 {/* Select Audio Button */}
                 <Button
                   className="w-full gap-2 mb-3 bg-accent hover:bg-accent/90 text-accent-foreground"
-                  onClick={() => audioInputRef.current?.click()}
+                  onClick={handleAudioUpload}
                 >
                   <Music size={16} />
                   {selectedAudio ? "Change Audio" : "Select Audio"}
                 </Button>
-                <Input
-                  ref={audioInputRef}
-                  type="file"
-                  accept="audio/*"
-                  onChange={handleAudioUpload}
-                  className="hidden"
-                />
 
                 {/* Select All Button */}
                 {videos.length > 0 && (
@@ -550,20 +658,13 @@ export default function BeatLeapApp() {
 
                 <Button
                   className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={handleFileUpload}
                   disabled={isUploading}
                 >
                   <Upload size={16} />
                   {isUploading ? "Importing..." : "Import Videos"}
                 </Button>
-                <Input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="video/*"
-                  multiple
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
+                {/* File input removed - using Tauri dialog instead */}
               </div>
 
               <ScrollArea className="flex-1">
@@ -656,7 +757,7 @@ export default function BeatLeapApp() {
                       width: `${thumbnailSize}px`,
                       height: `${thumbnailSize}px`,
                     }}
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={handleFileUpload}
                   >
                     <div className="text-center">
                       <Plus
@@ -802,7 +903,7 @@ export default function BeatLeapApp() {
                           videos
                         </p>
                         <Button
-                          onClick={() => fileInputRef.current?.click()}
+                          onClick={handleFileUpload}
                           className="bg-primary hover:bg-primary/90"
                         >
                           <Upload size={16} className="mr-2" />
