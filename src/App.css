@@ -1,54 +1,147 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    @apply border-border;
   }
 }
 
 :root {
   /* BeatLeap Dark Theme with Neon Fuchsia Accents */
-  --background: 210 40% 8%; /* Deep Black */
-  --foreground: 210 6% 93%; /* Pure White */
+  --background: oklch(0.1 0 0); /* Deep Black */
+  --foreground: oklch(0.95 0 0); /* Pure White */
 
-  --card: 210 40% 12%; /* Dark Charcoal */
-  --card-foreground: 210 6% 88%; /* Light Gray */
-  --popover: 210 40% 12%;
-  --popover-foreground: 210 6% 88%;
+  --card: oklch(0.15 0 0); /* Dark Charcoal */
+  --card-foreground: oklch(0.9 0 0); /* Light Gray */
+  --popover: oklch(0.15 0 0);
+  --popover-foreground: oklch(0.9 0 0);
 
   /* Primary - Electric Fuchsia for main actions */
-  --primary: 330 100% 54%; /* Electric Fuchsia */
-  --primary-foreground: 210 40% 8%; /* Black text */
-
+  --primary: oklch(0.7 0.3 330); /* Electric Fuchsia */
+  --primary-foreground: oklch(0.1 0 0); /* Black text */
+  
   /* Secondary - Medium grays for supporting elements */
-  --secondary: 210 6% 30%; /* Medium Gray */
-  --secondary-foreground: 210 6% 88%; /* Light Gray text */
-
+  --secondary: oklch(0.3 0 0); /* Medium Gray */
+  --secondary-foreground: oklch(0.9 0 0); /* Light Gray text */
+  
   /* Muted - Subtle backgrounds */
-  --muted: 210 40% 18%; /* Darker Gray */
-  --muted-foreground: 210 6% 65%; /* Medium Gray text */
-
+  --muted: oklch(0.2 0 0); /* Darker Gray */
+  --muted-foreground: oklch(0.7 0 0); /* Medium Gray text */
+  
   /* Accent - Bright Pink for highlights */
-  --accent: 340 100% 68%; /* Bright Pink */
-  --accent-foreground: 210 40% 8%; /* Black text */
-
+  --accent: oklch(0.8 0.25 340); /* Bright Pink */
+  --accent-foreground: oklch(0.1 0 0); /* Black text */
+  
   /* Destructive - Red for dangerous actions */
-  --destructive: 0 84% 60%; /* Bright Red */
-  --destructive-foreground: 210 6% 93%; /* White text */
+  --destructive: oklch(0.6 0.3 15); /* Bright Red */
+  --destructive-foreground: oklch(0.95 0 0); /* White text */
 
   /* UI Elements */
-  --border: 210 40% 20%; /* Subtle border */
-  --input: 210 40% 20%; /* Input border */
-  --ring: 330 100% 54%; /* Focus ring - matches primary */
+  --border: oklch(0.25 0 0); /* Subtle border */
+  --input: oklch(0.25 0 0); /* Input border */
+  --ring: oklch(0.7 0.3 330); /* Focus ring - matches primary */
 
   /* Custom BeatLeap colors */
-  --beat-active: 340 100% 68%; /* Active beat marker */
-  --beat-inactive: 340 50% 40%; /* Inactive beat marker */
-  --timeline-bg: 210 40% 10%; /* Timeline background */
-  --panel-border: 210 40% 18%; /* Panel separators */
+  --beat-active: oklch(0.8 0.25 340); /* Active beat marker */
+  --beat-inactive: oklch(0.4 0.1 340); /* Inactive beat marker */
+  --timeline-bg: oklch(0.12 0 0); /* Timeline background */
+  --panel-border: oklch(0.2 0 0); /* Panel separators */
 
   /* Border radius for sleek, modern feel */
   --radius: 0.5rem;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Custom color mappings */
+  --color-beat-active: var(--beat-active);
+  --color-beat-inactive: var(--beat-inactive);
+  --color-timeline-bg: var(--timeline-bg);
+  --color-panel-border: var(--panel-border);
+
+  /* Radius system */
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 1.5);
+  --radius-xl: calc(var(--radius) * 2);
+  --radius-2xl: calc(var(--radius) * 3);
+  --radius-full: 9999px;
+}
+
+/* Global styles */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Custom scrollbars for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: oklch(0.15 0 0);
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.3 0 0);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.4 0 0);
+}
+
+/* Beat pulse animation */
+@keyframes beat-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% { 
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+.beat-pulse {
+  animation: beat-pulse 0.3s ease-in-out;
+}
+
+/* Glow effects for neon accents */
+.glow-primary {
+  box-shadow: 0 0 20px oklch(0.7 0.3 330 / 0.3);
+}
+
+.glow-accent {
+  box-shadow: 0 0 15px oklch(0.8 0.25 340 / 0.4);
 }
 
 /* Global styles */
