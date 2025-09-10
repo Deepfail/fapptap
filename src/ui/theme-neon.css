@@ -1,14 +1,14 @@
 /* Neon Theme with Radix UI Colors - Professional Design System */
 
-/* Import Radix UI color palettes */
-@import "@radix-ui/colors/slate.css";
-@import "@radix-ui/colors/slate-alpha.css";
-@import "@radix-ui/colors/violet.css";
-@import "@radix-ui/colors/violet-alpha.css";
-@import "@radix-ui/colors/green.css";
-@import "@radix-ui/colors/green-alpha.css";
-@import "@radix-ui/colors/amber.css";
-@import "@radix-ui/colors/amber-alpha.css";
+/* Import Radix UI color palettes with proper layer management */
+@import "@radix-ui/colors/slate.css" layer(base);
+@import "@radix-ui/colors/slate-alpha.css" layer(base);
+@import "@radix-ui/colors/violet.css" layer(base);
+@import "@radix-ui/colors/violet-alpha.css" layer(base);
+@import "@radix-ui/colors/green.css" layer(base);
+@import "@radix-ui/colors/green-alpha.css" layer(base);
+@import "@radix-ui/colors/amber.css" layer(base);
+@import "@radix-ui/colors/amber-alpha.css" layer(base);
 
 /* Dark theme mappings with neon accents */
 :root {
@@ -122,72 +122,104 @@
   --radius-2xl: 1rem;
   --radius-full: 9999px;
 
-  /* Legacy compatibility for existing components */
-  --panel: var(--slate-2);
-  --panel-2: var(--slate-3);
-  --fg: var(--slate-12);
-  --border: var(--slate-6);
+  /* Bright vibrant theme to match reference image */
+  --panel: #f8f9fa;
+  --panel-2: #ffffff;
+  --fg: #1a1a1a;
+  --border: #e5e7eb;
   --accent: #ff00c8;
-  --accent-600: #ff0099;
+  --accent-600: #e91e63;
   --ok: #10b981;
   --warn: #f59e0b;
-  --muted: var(--slate-11);
-  --chip-bg: rgba(255, 0, 200, 0.16);
-  --chip-bd: rgba(255, 0, 200, 0.45);
+  --muted: #6b7280;
+  --chip-bg: rgba(255, 0, 200, 0.1);
+  --chip-bd: rgba(255, 0, 200, 0.3);
 }
 
-/* Apply theme to root by default (no class selector needed) */
-:root.theme-neon {
-  /* Legacy theme variables for backward compatibility */
-  --panel: var(--slate-2);
-  --panel-2: var(--slate-3);
-  --fg: var(--slate-12);
-  --border: var(--slate-6);
-  --accent: #ff39b0; /* Keep existing accent for compatibility */
-  --accent-600: #e1329d;
-  --ok: #10b981;
-  --warn: #f59e0b;
-  --muted: var(--slate-11);
-  --chip-bg: rgba(255, 57, 176, 0.16);
-  --chip-bd: rgba(255, 57, 176, 0.45);
+/* Dark theme with vibrant accents - matching ui-example */
+:root,
+html.theme-neon,
+body.theme-neon,
+.theme-neon {
+  /* Dark theme variables - matching ui-example */
+  --panel: var(--slate-2) !important;
+  --panel-2: var(--slate-3) !important;
+  --fg: var(--slate-12) !important;
+  --border: var(--slate-6) !important;
+  --accent: #ff00c8 !important;
+  --accent-600: #e91e63 !important;
+  --ok: #10b981 !important;
+  --warn: #f59e0b !important;
+  --muted: var(--slate-11) !important;
+  --chip-bg: rgba(255, 0, 200, 0.16) !important;
+  --chip-bd: rgba(255, 0, 200, 0.45) !important;
+
+  /* Dark theme Radix variables - matching ui-example dark theme */
+  --slate-1: #0c0c0d !important;
+  --slate-2: #111113 !important;
+  --slate-3: #16161a !important;
+  --slate-6: #2a2a2f !important;
+  --slate-11: #9ca3af !important;
+  --slate-12: #f9fafb !important;
+
+  /* Background colors matching ui-example dark theme */
+  --color-bg: var(--slate-1) !important;
+  --color-bg-inset: #000000 !important;
+  --color-bg-overlay: var(--slate-3) !important;
 }
 
-/* Legacy utility classes (preserved for backward compatibility) */
+/* Legacy utility classes with forced specificity */
+html.theme-neon .panel,
+body.theme-neon .panel,
 .theme-neon .panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--panel) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
 }
+html.theme-neon .panel-ghost,
+body.theme-neon .panel-ghost,
 .theme-neon .panel-ghost {
-  background: var(--panel-2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--panel-2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
 }
+html.theme-neon .btn,
+body.theme-neon .btn,
 .theme-neon .btn {
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-weight: 600;
-  line-height: 1;
+  padding: 8px 12px !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
 }
+html.theme-neon .btn-accent,
+body.theme-neon .btn-accent,
 .theme-neon .btn-accent {
-  background: var(--accent);
-  color: #fff;
+  background: var(--accent) !important;
+  color: #fff !important;
 }
+html.theme-neon .btn-accent:hover,
+body.theme-neon .btn-accent:hover,
 .theme-neon .btn-accent:hover {
-  background: var(--accent-600);
+  background: var(--accent-600) !important;
 }
+html.theme-neon .btn-ok,
+body.theme-neon .btn-ok,
 .theme-neon .btn-ok {
-  background: var(--ok);
-  color: #041012;
+  background: var(--ok) !important;
+  color: #041012 !important;
 }
+html.theme-neon .btn-outline,
+body.theme-neon .btn-outline,
 .theme-neon .btn-outline {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--fg);
+  background: transparent !important;
+  border: 1px solid var(--border) !important;
+  color: var(--fg) !important;
 }
+html.theme-neon .btn-outline:hover,
+body.theme-neon .btn-outline:hover,
 .theme-neon .btn-outline:hover {
-  border-color: var(--accent);
-  color: #fff;
+  border-color: var(--accent) !important;
+  color: #fff !important;
 }
 .theme-neon .chip {
   background: var(--chip-bg);
@@ -393,24 +425,24 @@ button {
   }
 }
 
-/* Utility classes for Tailwind integration */
+/* Utility classes for Tailwind integration - matching ui-example */
 .bg-app {
   background-color: var(--color-bg);
 }
 .bg-panel {
-  background-color: var(--color-bg-inset);
+  background-color: var(--panel-2);
 }
 .bg-darker {
   background-color: var(--color-bg);
 }
 .text-primary {
-  color: var(--color-fg);
+  color: var(--fg);
 }
 .text-secondary {
-  color: var(--color-fg-secondary);
+  color: var(--muted);
 }
 .text-accent {
-  color: var(--color-accent-9);
+  color: var(--accent);
 }
 .text-neon-green {
   color: var(--color-accent-secondary-9);
@@ -419,8 +451,25 @@ button {
   color: #ffd400;
 }
 .border-custom {
-  border-color: var(--color-neutral-6);
+  border-color: var(--border);
 }
 .border-custom-hover {
   border-color: var(--color-neutral-7);
+}
+
+/* Additional semantic classes matching ui-example */
+.bg-background {
+  background-color: var(--color-bg);
+}
+.text-foreground {
+  color: var(--fg);
+}
+.text-muted-foreground {
+  color: var(--muted);
+}
+.bg-card {
+  background-color: var(--panel-2);
+}
+.border-panel-border {
+  border-color: var(--border);
 }

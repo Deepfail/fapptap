@@ -10,7 +10,7 @@ import Inspector from "@/ui/Inspector";
 import TimelineBar from "@/ui/TimelineBar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { useEditor } from "@/state/editorStore";
+
 import { readTextFile } from "@tauri-apps/plugin-fs";
 import { appDataDir } from "@tauri-apps/api/path";
 import {
@@ -43,6 +43,12 @@ import {
 } from "lucide-react";
 // theme variables are imported globally from App entry so remove local import here
 import { isTauriAvailable } from "@/lib/platform";
+import { createSession } from "@/services/session";
+import { runStage } from "@/services/stages";
+import { cutlistToItems, itemsToCutlist } from "@/adapters/cutlist";
+import { useEditorStore } from "@/store/timeline";
+import { getStyleTransitions, type StylePreset } from "@/services/styles";
+import { BeatStrip } from "@/components/BeatStrip";
 
 // File browser item
 interface FileItem {
@@ -156,6 +162,9 @@ interface AppState {
   cuttingMode: "slow" | "medium" | "fast" | "ultra_fast";
   effects: string[];
   videoFormat: "landscape" | "portrait" | "square";
+  // Style settings
+  stylePreset: StylePreset;
+  intensity: number; // 0-100
   // New cut settings exposed to UI
   minCutLength: number; // override in seconds; 0 means use mode default
   beatStride: number;
@@ -204,7 +213,7 @@ export function StaticUnifiedApp() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Use the editor store
-  const editor = useEditor();
+  const editor = useEditorStore();
 
   // Local UI state (minimal defaults)
   const initialState: AppState = {
@@ -234,6 +243,8 @@ export function StaticUnifiedApp() {
     cuttingMode: "medium",
     effects: [],
     videoFormat: "landscape",
+    stylePreset: "flashy",
+    intensity: 50,
     minCutLength: 0,
     beatStride: 1,
     snapToShots: false,
@@ -245,12 +256,44 @@ export function StaticUnifiedApp() {
 
   const [state, setState] = useState<AppState>(initialState);
 
-  // Minimal helper stubs to keep the UI building while we wire the new shell
+  // File browser functionality using Tauri dialog
   const browseFolder = async () => {
-    console.debug("browseFolder - stub");
+    try {
+      // Check if we're in Tauri environment
+      if (typeof window.__TAURI__ === "undefined") {
+        console.warn("Tauri not available - cannot open folder dialog");
+        return;
+      }
+
+      const { open } = await import("@tauri-apps/plugin-dialog");
+      const picked = await open({ directory: true, multiple: false });
+      if (typeof picked === "string" && picked.length) {
+        console.debug("Selected folder:", picked);
+        // TODO: Handle the selected directory - load videos from this folder
+      }
+    } catch (error) {
+      console.error("Failed to open folder dialog:", error);
+    }
   };
   const selectAudioFile = async () => {
-    console.debug("selectAudioFile - stub");
+    try {
+      const { open } = await import("@tauri-apps/plugin-dialog");
+      const picked = await open({
+        multiple: false,
+        filters: [
+          {
+            name: "Audio",
+            extensions: ["mp3", "wav", "flac", "aac", "ogg", "m4a"],
+          },
+        ],
+      });
+      if (typeof picked === "string" && picked.length) {
+        console.debug("Selected audio file:", picked);
+        // TODO: Handle the selected audio file
+      }
+    } catch (error) {
+      console.error("Failed to open audio file dialog:", error);
+    }
   };
   const selectVideo = (file: FileItem) => {
     setState((prev) => ({ ...prev, currentVideo: file, currentVideoUrl: "" }));
@@ -272,14 +315,203 @@ export function StaticUnifiedApp() {
     Math.ceil(state.totalFiles / state.itemsPerPage)
   );
   const handleGenerate = async () => {
-    console.debug("handleGenerate - stub");
+    if (!state.selectedAudio || state.selectedVideos.length === 0) {
+      toast.error("Select audio and video files first");
+      return;
+    }
+
+    try {
+      setState((prev) => ({
+        ...prev,
+        isGenerating: true,
+        generationProgress: 0,
+        generationStage: "Creating session...",
+      }));
+
+      // 1. Create session
+      const session = await createSession(
+        state.selectedVideos.map((v) => v.path),
+        state.selectedAudio.path
+      );
+
+      setState((prev) => ({
+        ...prev,
+        generationProgress: 20,
+        generationStage: "Analyzing beats...",
+      }));
+
+      // 2. Run beats analysis
+      await runStage("beats", { audio: session.audio });
+
+      setState((prev) => ({
+        ...prev,
+        generationProgress: 50,
+        generationStage: "Building cutlist...",
+      }));
+
+      // 3. Build cutlist
+      await runStage("cutlist", {
+        song: session.audio,
+        clips: session.clipsDir,
+        style: state.stylePreset,
+        cutting_mode: state.cuttingMode,
+      });
+
+      setState((prev) => ({
+        ...prev,
+        generationProgress: 70,
+        generationStage: "Loading timeline...",
+      }));
+
+      // 4. Load cutlist into editor
+      const cutlistContent = await readTextFile("cache/cutlist.json");
+      const cutlist = JSON.parse(cutlistContent);
+      const timelineItems = cutlistToItems(cutlist);
+
+      // 5. Apply style-based transitions
+      const styleTransitions = getStyleTransitions(
+        state.stylePreset,
+        timelineItems.length
+      );
+      const itemsWithTransitions = timelineItems.map((item, i) => ({
+        ...item,
+        transitionOut: styleTransitions[i] || undefined,
+      }));
+
+      // 6. Update editor store
+      editor.updateTimeline(itemsWithTransitions);
+      if (itemsWithTransitions.length > 0) {
+        editor.select(itemsWithTransitions[0].id);
+      }
+
+      setState((prev) => ({
+        ...prev,
+        generationProgress: 80,
+        generationStage: "Writing canonical cutlist...",
+      }));
+
+      // 7. Write canonical cutlist to render/ with transitions
+      const { writeTextFile } = await import("@tauri-apps/plugin-fs");
+      const canonicalCutlist = itemsToCutlist(itemsWithTransitions, cutlist);
+      await writeTextFile(
+        "render/cutlist.json",
+        JSON.stringify(canonicalCutlist, null, 2)
+      );
+
+      setState((prev) => ({
+        ...prev,
+        generationProgress: 90,
+        generationStage: "Rendering proxy...",
+      }));
+
+      // 8. Render proxy
+      await runStage("render", { proxy: true });
+
+      setState((prev) => ({
+        ...prev,
+        generationProgress: 100,
+        generationStage: "Complete!",
+        hasTimeline: true,
+      }));
+
+      // 9. Auto-play proxy with cache buster
+      const timestamp = Date.now();
+      const proxyUrl = `render/fapptap_proxy.mp4?t=${timestamp}`;
+      setState((prev) => ({
+        ...prev,
+        currentVideoUrl: proxyUrl,
+        isPreviewPlaying: true,
+      }));
+
+      toast.success(
+        `Generated ${itemsWithTransitions.length} cuts with ${
+          styleTransitions.filter((t) => t).length
+        } transitions!`
+      );
+    } catch (error) {
+      console.error("Generation failed:", error);
+      toast.error("Generation failed: " + (error as Error).message);
+    } finally {
+      setState((prev) => ({
+        ...prev,
+        isGenerating: false,
+        generationProgress: 0,
+        generationStage: "",
+      }));
+    }
   };
   const handleExport = async () => {
-    console.debug("handleExport - stub");
+    if (editor.timeline.length === 0) {
+      toast.error("No timeline to export");
+      return;
+    }
+
+    try {
+      setState((prev) => ({ ...prev, isExporting: true, exportProgress: 0 }));
+
+      // 1. Write canonical cutlist
+      const { writeTextFile } = await import("@tauri-apps/plugin-fs");
+      const cutlist = itemsToCutlist(editor.timeline, {
+        fps: 60,
+        width: 1920,
+        height: 1080,
+        audio: state.selectedAudio?.path || "",
+      });
+      await writeTextFile(
+        "render/cutlist.json",
+        JSON.stringify(cutlist, null, 2)
+      );
+
+      setState((prev) => ({ ...prev, exportProgress: 30 }));
+
+      // 2. Render final (no proxy flag)
+      await runStage("render", { proxy: false });
+
+      setState((prev) => ({ ...prev, exportProgress: 90 }));
+
+      // 3. Save As dialog
+      const { save } = await import("@tauri-apps/plugin-dialog");
+      const outputPath = await save({
+        defaultPath: `fapptap_export_${Date.now()}.mp4`,
+        filters: [
+          {
+            name: "Video",
+            extensions: ["mp4", "mov", "mkv"],
+          },
+        ],
+      });
+
+      if (outputPath) {
+        // TODO: Copy final render to selected location
+        const { copyFile } = await import("@tauri-apps/plugin-fs");
+        await copyFile("render/fapptap_final.mp4", outputPath);
+        toast.success(`Exported to ${outputPath}`);
+      }
+
+      setState((prev) => ({ ...prev, exportProgress: 100 }));
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Export failed: " + (error as Error).message);
+    } finally {
+      setState((prev) => ({ ...prev, isExporting: false, exportProgress: 0 }));
+    }
   };
   const loadCutlistIntoEditor = async () => {
-    console.debug("loadCutlistIntoEditor - stub");
-    return [] as any[];
+    try {
+      const cutlistContent = await readTextFile("cache/cutlist.json");
+      const cutlist = JSON.parse(cutlistContent);
+      const timelineItems = cutlistToItems(cutlist);
+
+      editor.updateTimeline(timelineItems);
+      if (timelineItems.length > 0) {
+        editor.select(timelineItems[0].id);
+      }
+
+      return timelineItems;
+    } catch (error) {
+      console.error("Failed to load cutlist:", error);
+      return [];
+    }
   };
   const toggleTimelineItemEffect = (id: string) => {
     console.debug("toggleTimelineItemEffect", id);
@@ -422,13 +654,30 @@ export function StaticUnifiedApp() {
         <Sidebar
           selectionCount={editor.timeline.length}
           audioSet={!!state.selectedAudio}
+          stylePreset={state.stylePreset}
+          onStyleChange={(style) =>
+            setState((prev) => ({ ...prev, stylePreset: style }))
+          }
+          intensity={state.intensity}
+          onIntensityChange={(intensity) =>
+            setState((prev) => ({ ...prev, intensity }))
+          }
+          aspectRatio={state.videoFormat}
+          onAspectChange={(aspect) =>
+            setState((prev) => ({ ...prev, videoFormat: aspect }))
+          }
+          cuttingMode={state.cuttingMode}
+          onCuttingModeChange={(mode) =>
+            setState((prev) => ({ ...prev, cuttingMode: mode }))
+          }
         />
       }
       inspector={<Inspector />}
       timeline={<TimelineBar />}
     >
-      <div className="h-screen bg-slate-900 text-white flex overflow-hidden">
-        {/* Left Column - File Browser (FIXED 25% WIDTH, THUMBNAILS ONLY) */}
+      {/* Temporary: Main content area for video player */}
+      <div className="flex h-full">
+        {/* File Browser Column - This should move to sidebar */}
         <div className="w-1/4 border-r border-slate-700 bg-slate-800 flex flex-col">
           {/* Browser Header - Select All & Randomize */}
           <div className="p-2 border-b border-slate-700">
@@ -492,15 +741,7 @@ export function StaticUnifiedApp() {
                         });
 
                         // Update timeline items with sequential start times
-                        const reorderedItems = sorted.map((item, index) => {
-                          const duration = item.out - item.in;
-                          return {
-                            ...item,
-                            start: index * duration,
-                          };
-                        });
-
-                        editor.updateTimelineItems(reorderedItems);
+                        editor.updateTimeline(sorted);
                         return {
                           ...prev,
                           isRandomized: false,
@@ -512,15 +753,7 @@ export function StaticUnifiedApp() {
                         );
 
                         // Update timeline items with sequential start times
-                        const reorderedItems = shuffled.map((item, index) => {
-                          const duration = item.out - item.in;
-                          return {
-                            ...item,
-                            start: index * duration,
-                          };
-                        });
-
-                        editor.updateTimelineItems(reorderedItems);
+                        editor.updateTimeline(shuffled);
                         return {
                           ...prev,
                           isRandomized: true,
@@ -818,8 +1051,8 @@ export function StaticUnifiedApp() {
               onClick={async () => {
                 // Clear editor timeline and UI state explicitly
                 try {
-                  editor.updateTimelineItems([]);
-                  editor.selectTimelineItem("");
+                  editor.updateTimeline([]);
+                  editor.select("");
                 } catch (e) {
                   // ignore selection errors
                 }
@@ -858,448 +1091,471 @@ export function StaticUnifiedApp() {
           {/* Video Player */}
           <div className="flex-1 bg-black relative flex items-center justify-center p-4 min-h-0">
             {/* Video Container with Dynamic Aspect Ratio */}
-            <div
-              className={`relative bg-black/20 border border-white/10 rounded-lg overflow-hidden ${
-                state.videoFormat === "landscape"
-                  ? "aspect-video w-full max-h-full"
-                  : state.videoFormat === "portrait"
-                  ? "aspect-[9/16] max-h-full max-w-full"
-                  : "aspect-square w-full max-h-full"
-              }`}
-              style={{
-                maxWidth:
-                  state.videoFormat === "portrait" ? "min(60vh, 80vw)" : "100%",
-                maxHeight: "calc(100vh - 120px)", // Reserve space for bottom controls
-              }}
-            >
-              {state.currentVideo && state.currentVideoUrl ? (
-                <video
-                  ref={videoRef}
-                  className="w-full h-full object-cover"
-                  src={state.currentVideoUrl}
-                  onTimeUpdate={(e) => {
-                    const video = e.target as HTMLVideoElement;
-                    setState((prev) => ({
-                      ...prev,
-                      currentTime: video.currentTime,
-                      duration: video.duration || 0,
-                    }));
-                  }}
-                  onPlay={() =>
-                    setState((prev) => ({ ...prev, isPlaying: true }))
-                  }
-                  onPause={() =>
-                    setState((prev) => ({ ...prev, isPlaying: false }))
-                  }
-                />
-              ) : (
-                // Static placeholder when no video selected
-                <div className="w-full h-full flex items-center justify-center bg-slate-800/50">
-                  <div className="text-center">
-                    <Video className="w-24 h-24 mx-auto mb-4 text-slate-500" />
-                    <p className="text-slate-400 text-lg">
-                      Select videos from file browser
-                    </p>
-                    <p className="text-slate-500 text-sm">
-                      Videos will play here in order
-                    </p>
+            <div className="flex flex-col gap-2">
+              <div
+                className={`relative bg-black/20 border border-white/10 rounded-lg overflow-hidden ${
+                  state.videoFormat === "landscape"
+                    ? "aspect-video w-full max-h-full"
+                    : state.videoFormat === "portrait"
+                    ? "aspect-[9/16] max-h-full max-w-full"
+                    : "aspect-square w-full max-h-full"
+                }`}
+                style={{
+                  maxWidth:
+                    state.videoFormat === "portrait"
+                      ? "min(60vh, 80vw)"
+                      : "100%",
+                  maxHeight: "calc(100vh - 200px)", // Reserve space for beat strip and controls
+                }}
+              >
+                {state.currentVideo && state.currentVideoUrl ? (
+                  <video
+                    ref={videoRef}
+                    className="w-full h-full object-cover"
+                    src={state.currentVideoUrl}
+                    onTimeUpdate={(e) => {
+                      const video = e.target as HTMLVideoElement;
+                      setState((prev) => ({
+                        ...prev,
+                        currentTime: video.currentTime,
+                        duration: video.duration || 0,
+                      }));
+                    }}
+                    onPlay={() =>
+                      setState((prev) => ({ ...prev, isPlaying: true }))
+                    }
+                    onPause={() =>
+                      setState((prev) => ({ ...prev, isPlaying: false }))
+                    }
+                  />
+                ) : (
+                  // Static placeholder when no video selected
+                  <div className="w-full h-full flex items-center justify-center bg-slate-800/50">
+                    <div className="text-center">
+                      <Video className="w-24 h-24 mx-auto mb-4 text-slate-500" />
+                      <p className="text-slate-400 text-lg">
+                        Select videos from file browser
+                      </p>
+                      <p className="text-slate-500 text-sm">
+                        Videos will play here in order
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Video Controls Overlay - Centered */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-black/60 rounded-lg p-4 flex items-center gap-6">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={prevVideo}
+                      disabled={state.currentVideoIndex <= 0}
+                      className="bg-black/40 border-white/20 hover:bg-black/60"
+                    >
+                      <SkipBack className="w-8 h-8 text-white" />
+                    </Button>
+
+                    {/* Play button doubles as Preview when timeline exists */}
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={
+                        state.hasTimeline
+                          ? handlePreview
+                          : state.isPlaying
+                          ? pauseVideo
+                          : playVideo
+                      }
+                      disabled={!state.currentVideo && !state.hasTimeline}
+                      className={`bg-black/40 border-white/20 hover:bg-black/60 w-16 h-16 ${
+                        state.hasTimeline ? "border-purple-400" : ""
+                      }`}
+                    >
+                      {state.isPreviewPlaying ? (
+                        <Square className="w-10 h-10 text-white" />
+                      ) : (
+                        <Play className="w-10 h-10 text-white" />
+                      )}
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={nextVideo}
+                      disabled={
+                        state.currentVideoIndex >=
+                        state.selectedVideos.length - 1
+                      }
+                      className="bg-black/40 border-white/20 hover:bg-black/60"
+                    >
+                      <SkipForward className="w-8 h-8 text-white" />
+                    </Button>
                   </div>
                 </div>
-              )}
 
-              {/* Video Controls Overlay - Centered */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-black/60 rounded-lg p-4 flex items-center gap-6">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={prevVideo}
-                    disabled={state.currentVideoIndex <= 0}
-                    className="bg-black/40 border-white/20 hover:bg-black/60"
-                  >
-                    <SkipBack className="w-8 h-8 text-white" />
-                  </Button>
+                {/* Progress Bar - Bottom Overlay */}
+                {state.currentVideo && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <div className="mb-2">
+                      <Progress
+                        value={(state.currentTime / state.duration) * 100}
+                        className="h-3 bg-slate-600"
+                      />
+                      <div className="flex justify-between text-sm text-slate-300 mt-2">
+                        <span>{Math.floor(state.currentTime)}s</span>
+                        <span>{Math.floor(state.duration)}s</span>
+                      </div>
+                    </div>
 
-                  {/* Play button doubles as Preview when timeline exists */}
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={
-                      state.hasTimeline
-                        ? handlePreview
-                        : state.isPlaying
-                        ? pauseVideo
-                        : playVideo
-                    }
-                    disabled={!state.currentVideo && !state.hasTimeline}
-                    className={`bg-black/40 border-white/20 hover:bg-black/60 w-16 h-16 ${
-                      state.hasTimeline ? "border-purple-400" : ""
-                    }`}
-                  >
-                    {state.isPreviewPlaying ? (
-                      <Square className="w-10 h-10 text-white" />
-                    ) : (
-                      <Play className="w-10 h-10 text-white" />
-                    )}
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={nextVideo}
-                    disabled={
-                      state.currentVideoIndex >= state.selectedVideos.length - 1
-                    }
-                    className="bg-black/40 border-white/20 hover:bg-black/60"
-                  >
-                    <SkipForward className="w-8 h-8 text-white" />
-                  </Button>
-                </div>
+                    {/* Current video info */}
+                    <div className="text-center">
+                      <div className="text-sm font-medium text-white">
+                        {state.currentVideo.name}
+                      </div>
+                      <div className="text-xs text-slate-400">
+                        {state.currentVideoIndex + 1} of{" "}
+                        {state.selectedVideos.length}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Progress Bar - Bottom Overlay */}
-              {state.currentVideo && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                  <div className="mb-2">
-                    <Progress
-                      value={(state.currentTime / state.duration) * 100}
-                      className="h-3 bg-slate-600"
-                    />
-                    <div className="flex justify-between text-sm text-slate-300 mt-2">
-                      <span>{Math.floor(state.currentTime)}s</span>
-                      <span>{Math.floor(state.duration)}s</span>
-                    </div>
-                  </div>
-
-                  {/* Current video info */}
-                  <div className="text-center">
-                    <div className="text-sm font-medium text-white">
-                      {state.currentVideo.name}
-                    </div>
-                    <div className="text-xs text-slate-400">
-                      {state.currentVideoIndex + 1} of{" "}
-                      {state.selectedVideos.length}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* New Effects Toolbar - prominent, below the video */}
-          <div className="w-full flex items-center justify-center py-3 bg-slate-900 border-t border-slate-800">
-            <div className="flex items-center gap-3">
-              {AVAILABLE_EFFECTS.map((effect) => {
-                const Icon = effect.icon;
-                const selectedItemEffects = editor.selectedTimelineItemId
-                  ? editor.getTimelineItemEffects(editor.selectedTimelineItemId)
-                  : [];
-                const isActive = selectedItemEffects.some(
-                  (e) =>
-                    !!e && typeof e.id === "string" && e.id.includes(effect.id)
-                );
-
-                return (
-                  <button
-                    key={effect.id}
-                    onClick={() => toggleTimelineItemEffect(effect.id)}
-                    disabled={!editor.selectedTimelineItemId}
-                    title={effect.label}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center transition-transform transform ${
-                      isActive
-                        ? "scale-110 bg-[var(--brand-fuchsia)] text-black shadow-neon-fuchsia ring-2 ring-[var(--neon-amber)]"
-                        : "bg-[var(--brand-fuchsia)]/90 hover:scale-105"
-                    }`}
-                  >
-                    <Icon className="w-6 h-6 text-white" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Timeline - Always Visible */}
-          <div className="bg-slate-800 border-t border-slate-700 p-3">
-            {/* Timeline Header */}
-            <div className="text-xs text-slate-400 mb-2 text-center">
-              {state.hasTimeline && editor.timeline.length > 0 ? (
-                <>
-                  Timeline ({editor.timeline.length} cuts)
-                  {state.isRandomized && (
-                    <span className="ml-2 text-purple-400">• Randomized</span>
-                  )}
-                </>
-              ) : state.hasBeatData && state.beatData.length > 0 ? (
-                <>
-                  Timeline ({state.beatData.length} beats detected)
-                  <span className="ml-2 text-green-400">
-                    • Ready for preview generation
-                  </span>
-                </>
-              ) : state.selectedAudio ? (
-                "Timeline (analyzing audio beats...)"
-              ) : (
-                "Timeline (select audio to load beats)"
-              )}
+              {/* Beat Strip */}
+              <BeatStrip
+                beats={state.beatData || []}
+                duration={state.duration || 0}
+                currentTime={state.currentTime}
+                onSeek={(time) => {
+                  if (videoRef.current) {
+                    videoRef.current.currentTime = time;
+                  }
+                }}
+              />
             </div>
 
-            {/* Timeline Content - Dot visualization for beats/cuts */}
-            <div className="flex gap-1 overflow-x-auto pb-2 min-h-[60px] items-center">
-              {state.hasTimeline && editor.timeline.length > 0 ? (
-                // Show cuts after preview generation
-                // Render timeline as dots (cuts)
-                editor.timeline.map((item, index) => {
-                  const duration = item.out - item.in;
-                  const isSelected = editor.selectedTimelineItemId === item.id;
+            {/* New Effects Toolbar - prominent, below the video */}
+            <div className="w-full flex items-center justify-center py-3 bg-slate-900 border-t border-slate-800">
+              <div className="flex items-center gap-3">
+                {AVAILABLE_EFFECTS.map((effect) => {
+                  const Icon = effect.icon;
+                  // TODO: Implement effects system
+                  const isActive = false;
+
                   return (
                     <button
-                      key={item.id}
-                      onClick={() => editor.selectTimelineItem(item.id)}
-                      title={`Cut ${index + 1} — ${duration.toFixed(2)}s`}
-                      className={`w-6 h-6 rounded-full mx-1 flex-shrink-0 transition-transform transform ${
-                        isSelected
-                          ? "scale-125 bg-[var(--brand-fuchsia)] ring-2 ring-[var(--neon-amber)]"
-                          : "bg-[var(--brand-fuchsia)]/80 hover:scale-110"
+                      key={effect.id}
+                      onClick={() => toggleTimelineItemEffect(effect.id)}
+                      disabled={!editor.selectedId}
+                      title={effect.label}
+                      className={`w-14 h-14 rounded-full flex items-center justify-center transition-transform transform ${
+                        isActive
+                          ? "scale-110 btn-neon text-black ring-2 ring-yellow-400"
+                          : "btn-neon opacity-90 hover:scale-105"
                       }`}
-                    />
+                    >
+                      <Icon className="w-6 h-6 text-white" />
+                    </button>
                   );
-                })
-              ) : state.hasBeatData && state.beatData.length > 0 ? (
-                // Show beats as dots
-                <div className="flex items-center gap-2 px-2">
-                  {state.beatData.slice(0, 200).map((beat, index) => {
-                    const intensity = Math.min(1, beat.confidence || 0.5);
-                    const size = 6 + intensity * 10;
+                })}
+              </div>
+            </div>
+
+            {/* Timeline - Always Visible */}
+            <div className="bg-slate-800 border-t border-slate-700 p-3">
+              {/* Timeline Header */}
+              <div className="text-xs text-slate-400 mb-2 text-center">
+                {state.hasTimeline && editor.timeline.length > 0 ? (
+                  <>
+                    Timeline ({editor.timeline.length} cuts)
+                    {state.isRandomized && (
+                      <span className="ml-2 text-purple-400">• Randomized</span>
+                    )}
+                  </>
+                ) : state.hasBeatData && state.beatData.length > 0 ? (
+                  <>
+                    Timeline ({state.beatData.length} beats detected)
+                    <span className="ml-2 text-green-400">
+                      • Ready for preview generation
+                    </span>
+                  </>
+                ) : state.selectedAudio ? (
+                  "Timeline (analyzing audio beats...)"
+                ) : (
+                  "Timeline (select audio to load beats)"
+                )}
+              </div>
+
+              {/* Timeline Content - Dot visualization for beats/cuts */}
+              <div className="flex gap-1 overflow-x-auto pb-2 min-h-[60px] items-center">
+                {state.hasTimeline && editor.timeline.length > 0 ? (
+                  // Show cuts after preview generation
+                  // Render timeline as dots (cuts)
+                  editor.timeline.map((item, index) => {
+                    const duration = item.out - item.in;
+                    const isSelected = editor.selectedId === item.id;
                     return (
-                      <div
-                        key={index}
-                        title={`Beat ${index + 1} — ${beat.time.toFixed(2)}s`}
-                        className={`rounded-full flex-shrink-0 ${
-                          intensity > 0.9
-                            ? "bg-[var(--neon-green)]"
-                            : intensity > 0.75
-                            ? "bg-[var(--neon-amber)]"
-                            : "bg-slate-500"
+                      <button
+                        key={item.id}
+                        onClick={() => editor.select(item.id)}
+                        title={`Cut ${index + 1} — ${duration.toFixed(2)}s`}
+                        className={`w-6 h-6 rounded-full mx-1 flex-shrink-0 transition-transform transform ${
+                          isSelected
+                            ? "scale-125 btn-neon ring-2 ring-yellow-400"
+                            : "btn-neon opacity-80 hover:scale-110"
                         }`}
-                        style={{ width: `${size}px`, height: `${size}px` }}
                       />
                     );
-                  })}
-                  {state.beatData.length > 200 && (
-                    <div className="text-xs text-slate-400 ml-2">
-                      +{state.beatData.length - 200} more
-                    </div>
-                  )}
-                </div>
-              ) : state.selectedAudio ? (
-                // Show loading state for beats
-                <div className="flex-1 flex items-center justify-center text-slate-500">
-                  <div className="text-center">
-                    <div className="text-sm">🎵 Loading beat analysis...</div>
-                    <div className="text-xs mt-1">
-                      Audio selected: {state.selectedAudio.name}
+                  })
+                ) : state.hasBeatData && state.beatData.length > 0 ? (
+                  // Show beats as dots
+                  <div className="flex items-center gap-2 px-2">
+                    {state.beatData.slice(0, 200).map((beat, index) => {
+                      const intensity = Math.min(1, beat.confidence || 0.5);
+                      const size = 6 + intensity * 10;
+                      return (
+                        <div
+                          key={index}
+                          title={`Beat ${index + 1} — ${beat.time.toFixed(2)}s`}
+                          className={`rounded-full flex-shrink-0 ${
+                            intensity > 0.9
+                              ? "bg-green-400"
+                              : intensity > 0.75
+                              ? "bg-yellow-400"
+                              : "bg-slate-500"
+                          }`}
+                          style={{ width: `${size}px`, height: `${size}px` }}
+                        />
+                      );
+                    })}
+                    {state.beatData.length > 200 && (
+                      <div className="text-xs text-slate-400 ml-2">
+                        +{state.beatData.length - 200} more
+                      </div>
+                    )}
+                  </div>
+                ) : state.selectedAudio ? (
+                  // Show loading state for beats
+                  <div className="flex-1 flex items-center justify-center text-slate-500">
+                    <div className="text-center">
+                      <div className="text-sm">🎵 Loading beat analysis...</div>
+                      <div className="text-xs mt-1">
+                        Audio selected: {state.selectedAudio.name}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                // Show empty state
-                <div className="flex-1 flex items-center justify-center text-slate-500">
-                  <div className="text-center">
-                    <div className="text-sm">📱 Select audio file</div>
-                    <div className="text-xs mt-1">
-                      Audio beats will appear here
+                ) : (
+                  // Show empty state
+                  <div className="flex-1 flex items-center justify-center text-slate-500">
+                    <div className="text-center">
+                      <div className="text-sm">📱 Select audio file</div>
+                      <div className="text-xs mt-1">
+                        Audio beats will appear here
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Bottom Effects Bar */}
-          <div className="bg-slate-800 border-t border-slate-700 p-3">
-            <div className="flex items-center justify-center gap-4">
-              {/* Cutting Mode */}
-              <div className="flex gap-1">
-                <span className="text-xs text-slate-400 mr-2">Mode:</span>
-                {CUTTING_MODES.map((mode) => (
-                  <Button
-                    key={mode.value}
-                    variant={
-                      state.cuttingMode === mode.value ? "default" : "outline"
-                    }
-                    size="sm"
-                    onClick={() =>
-                      setState((prev) => ({ ...prev, cuttingMode: mode.value }))
-                    }
-                    className="text-xs px-2"
-                  >
-                    {mode.label}
-                  </Button>
-                ))}
-              </div>
-
-              {/* Cut Settings Panel */}
-              <div className="flex items-center gap-3">
-                <div className="text-xs text-slate-400">Cut Settings:</div>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs text-slate-300">Min cut (s)</label>
-                  <input
-                    type="number"
-                    step="0.05"
-                    min="0"
-                    className="w-20 bg-slate-700 text-white text-xs px-2 py-1 rounded"
-                    value={state.minCutLength}
-                    onChange={(e) =>
-                      setState((prev) => ({
-                        ...prev,
-                        minCutLength: Number(e.target.value || 0),
-                      }))
-                    }
-                    title="Override minimum cut duration (0 = use mode default)"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <label className="text-xs text-slate-300">Beat stride</label>
-                  <select
-                    className="bg-slate-700 text-white text-xs px-2 py-1 rounded"
-                    value={state.beatStride}
-                    onChange={(e) =>
-                      setState((prev) => ({
-                        ...prev,
-                        beatStride: Number(e.target.value || 1),
-                      }))
-                    }
-                  >
-                    <option value={1}>1</option>
-                    <option value={2}>2</option>
-                    <option value={3}>3</option>
-                    <option value={4}>4</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <label className="text-xs text-slate-300">
-                    Snap to shots
-                  </label>
-                  <input
-                    type="checkbox"
-                    checked={state.snapToShots}
-                    onChange={(e) =>
-                      setState((prev) => ({
-                        ...prev,
-                        snapToShots: e.target.checked,
-                      }))
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <label className="text-xs text-slate-300">Snap tol (s)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    className="w-20 bg-slate-700 text-white text-xs px-2 py-1 rounded"
-                    value={state.snapTolerance}
-                    onChange={(e) =>
-                      setState((prev) => ({
-                        ...prev,
-                        snapTolerance: Number(e.target.value || 0.08),
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="w-px h-6 bg-slate-600"></div>
-
-              {/* Effects placeholder removed from bottom bar - rendered below video */}
-
-              {/* Timeline Item Effects (EditorStore Test) */}
-              {editor.selectedTimelineItemId && (
-                <>
-                  <div className="w-px h-6 bg-slate-600"></div>
-                  <div className="flex gap-1">
-                    <span className="text-xs text-yellow-400 mr-2">
-                      Item Effects:
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toggleTimelineItemEffect("speed_up")}
-                      className="text-xs px-2"
-                      title="Toggle Speed Up effect on selected timeline item"
-                      disabled={!editor.selectedTimelineItemId}
-                    >
-                      ⚡
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toggleTimelineItemEffect("blur")}
-                      className="text-xs px-2"
-                      title="Toggle Blur effect on selected timeline item"
-                      disabled={!editor.selectedTimelineItemId}
-                    >
-                      🌫️
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toggleTimelineItemEffect("grayscale")}
-                      className="text-xs px-2"
-                      title="Toggle Grayscale effect on selected timeline item"
-                      disabled={!editor.selectedTimelineItemId}
-                    >
-                      ⚫
-                    </Button>
-                  </div>
-                </>
-              )}
-
-              {/* Divider */}
-              <div className="w-px h-6 bg-slate-600"></div>
-
-              {/* Tempo */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400">Tempo:</span>
-                <span className="text-xs text-white w-12">{state.tempo}%</span>
+            {/* Bottom Effects Bar */}
+            <div className="bg-slate-800 border-t border-slate-700 p-3">
+              <div className="flex items-center justify-center gap-4">
+                {/* Cutting Mode */}
                 <div className="flex gap-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setState((prev) => ({
-                        ...prev,
-                        tempo: Math.max(50, prev.tempo - 10),
-                      }))
-                    }
-                    className="text-xs px-1"
-                  >
-                    -
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setState((prev) => ({
-                        ...prev,
-                        tempo: Math.min(200, prev.tempo + 10),
-                      }))
-                    }
-                    className="text-xs px-1"
-                  >
-                    +
-                  </Button>
+                  <span className="text-xs text-slate-400 mr-2">Mode:</span>
+                  {CUTTING_MODES.map((mode) => (
+                    <Button
+                      key={mode.value}
+                      variant={
+                        state.cuttingMode === mode.value ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() =>
+                        setState((prev) => ({
+                          ...prev,
+                          cuttingMode: mode.value,
+                        }))
+                      }
+                      className="text-xs px-2"
+                    >
+                      {mode.label}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Cut Settings Panel */}
+                <div className="flex items-center gap-3">
+                  <div className="text-xs text-slate-400">Cut Settings:</div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs text-slate-300">
+                      Min cut (s)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.05"
+                      min="0"
+                      className="w-20 bg-slate-700 text-white text-xs px-2 py-1 rounded"
+                      value={state.minCutLength}
+                      onChange={(e) =>
+                        setState((prev) => ({
+                          ...prev,
+                          minCutLength: Number(e.target.value || 0),
+                        }))
+                      }
+                      title="Override minimum cut duration (0 = use mode default)"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs text-slate-300">
+                      Beat stride
+                    </label>
+                    <select
+                      className="bg-slate-700 text-white text-xs px-2 py-1 rounded"
+                      value={state.beatStride}
+                      onChange={(e) =>
+                        setState((prev) => ({
+                          ...prev,
+                          beatStride: Number(e.target.value || 1),
+                        }))
+                      }
+                    >
+                      <option value={1}>1</option>
+                      <option value={2}>2</option>
+                      <option value={3}>3</option>
+                      <option value={4}>4</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs text-slate-300">
+                      Snap to shots
+                    </label>
+                    <input
+                      type="checkbox"
+                      checked={state.snapToShots}
+                      onChange={(e) =>
+                        setState((prev) => ({
+                          ...prev,
+                          snapToShots: e.target.checked,
+                        }))
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs text-slate-300">
+                      Snap tol (s)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      className="w-20 bg-slate-700 text-white text-xs px-2 py-1 rounded"
+                      value={state.snapTolerance}
+                      onChange={(e) =>
+                        setState((prev) => ({
+                          ...prev,
+                          snapTolerance: Number(e.target.value || 0.08),
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="w-px h-6 bg-slate-600"></div>
+
+                {/* Effects placeholder removed from bottom bar - rendered below video */}
+
+                {/* Timeline Item Effects (EditorStore Test) */}
+                {editor.selectedId && (
+                  <>
+                    <div className="w-px h-6 bg-slate-600"></div>
+                    <div className="flex gap-1">
+                      <span className="text-xs text-yellow-400 mr-2">
+                        Item Effects:
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleTimelineItemEffect("speed_up")}
+                        className="text-xs px-2"
+                        title="Toggle Speed Up effect on selected timeline item"
+                        disabled={!editor.selectedId}
+                      >
+                        ⚡
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleTimelineItemEffect("blur")}
+                        className="text-xs px-2"
+                        title="Toggle Blur effect on selected timeline item"
+                        disabled={!editor.selectedId}
+                      >
+                        🌫️
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleTimelineItemEffect("grayscale")}
+                        className="text-xs px-2"
+                        title="Toggle Grayscale effect on selected timeline item"
+                        disabled={!editor.selectedId}
+                      >
+                        ⚫
+                      </Button>
+                    </div>
+                  </>
+                )}
+
+                {/* Divider */}
+                <div className="w-px h-6 bg-slate-600"></div>
+
+                {/* Tempo */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-slate-400">Tempo:</span>
+                  <span className="text-xs text-white w-12">
+                    {state.tempo}%
+                  </span>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setState((prev) => ({
+                          ...prev,
+                          tempo: Math.max(50, prev.tempo - 10),
+                        }))
+                      }
+                      className="text-xs px-1"
+                    >
+                      -
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setState((prev) => ({
+                          ...prev,
+                          tempo: Math.min(200, prev.tempo + 10),
+                        }))
+                      }
+                      className="text-xs px-1"
+                    >
+                      +
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <Toaster />
+          <Toaster />
+        </div>
       </div>
     </AppShell>
   );

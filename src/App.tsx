@@ -1,12 +1,16 @@
-// src/App.tsx
-import { StaticUnifiedApp } from "./components/StaticUnifiedApp";
+// src/App.tsx - COMPLETELY NEW UI
+import BeatLeapApp from "./components/BeatLeapApp";
 import { EditorProvider } from "./state/editorStore";
+import { Toaster } from "@/components/ui/sonner";
 import "./App.css";
+
+console.log("App.tsx: Loading BeatLeapApp component");
 
 export default function App() {
   return (
     <EditorProvider>
-      <StaticUnifiedApp />
+      <BeatLeapApp />
+      <Toaster />
     </EditorProvider>
   );
 }

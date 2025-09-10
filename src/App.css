@@ -1,24 +1,110 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Neutral base: keep it boring; themes do the color */
-:root {
-  --bg: #0b1220;
-  --fg: #e6e8ef;
-  --border: #252b43;
-}
+@import "tailwindcss";
 
 @layer base {
-  html,
-  body,
-  #root {
-    height: 100%;
-  }
-  body {
-    background: var(--bg);
-    color: var(--fg);
+  * {
+    border-color: hsl(var(--border));
   }
 }
 
-/* Do NOT style tags like button/a/svg globally here. */
+:root {
+  /* BeatLeap Dark Theme with Neon Fuchsia Accents */
+  --background: 210 40% 8%; /* Deep Black */
+  --foreground: 210 6% 93%; /* Pure White */
+
+  --card: 210 40% 12%; /* Dark Charcoal */
+  --card-foreground: 210 6% 88%; /* Light Gray */
+  --popover: 210 40% 12%;
+  --popover-foreground: 210 6% 88%;
+
+  /* Primary - Electric Fuchsia for main actions */
+  --primary: 330 100% 54%; /* Electric Fuchsia */
+  --primary-foreground: 210 40% 8%; /* Black text */
+
+  /* Secondary - Medium grays for supporting elements */
+  --secondary: 210 6% 30%; /* Medium Gray */
+  --secondary-foreground: 210 6% 88%; /* Light Gray text */
+
+  /* Muted - Subtle backgrounds */
+  --muted: 210 40% 18%; /* Darker Gray */
+  --muted-foreground: 210 6% 65%; /* Medium Gray text */
+
+  /* Accent - Bright Pink for highlights */
+  --accent: 340 100% 68%; /* Bright Pink */
+  --accent-foreground: 210 40% 8%; /* Black text */
+
+  /* Destructive - Red for dangerous actions */
+  --destructive: 0 84% 60%; /* Bright Red */
+  --destructive-foreground: 210 6% 93%; /* White text */
+
+  /* UI Elements */
+  --border: 210 40% 20%; /* Subtle border */
+  --input: 210 40% 20%; /* Input border */
+  --ring: 330 100% 54%; /* Focus ring - matches primary */
+
+  /* Custom BeatLeap colors */
+  --beat-active: 340 100% 68%; /* Active beat marker */
+  --beat-inactive: 340 50% 40%; /* Inactive beat marker */
+  --timeline-bg: 210 40% 10%; /* Timeline background */
+  --panel-border: 210 40% 18%; /* Panel separators */
+
+  /* Border radius for sleek, modern feel */
+  --radius: 0.5rem;
+}
+
+/* Global styles */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Custom scrollbars for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(210 40% 12%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(210 6% 30%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(210 6% 40%);
+}
+
+/* Beat pulse animation */
+@keyframes beat-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+.beat-pulse {
+  animation: beat-pulse 0.3s ease-in-out;
+}
+
+/* Glow effects for neon accents */
+.glow-primary {
+  box-shadow: 0 0 20px hsl(330 100% 54% / 0.3);
+}
+
+.glow-accent {
+  box-shadow: 0 0 15px hsl(340 100% 68% / 0.4);
+}
