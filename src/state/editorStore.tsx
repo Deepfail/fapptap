@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
+import { Transition } from "../types/transitions";
 
 export interface ClipInfo {
   id: string;
@@ -44,6 +45,7 @@ export interface TimelineItem {
   in: number; // seconds into clip
   out: number; // seconds into clip
   effects?: Effect[]; // effects applied to this timeline item
+  transitionOut?: Transition; // transition to next clip
 }
 
 export interface EditorState {
@@ -73,6 +75,8 @@ export interface EditorState {
   // Bulk timeline operations
   updateTimelineItems: (items: TimelineItem[]) => void;
   replaceTimelineItem: (id: string, newItems: TimelineItem[]) => void;
+  // Transition management
+  updateTransitionOut: (id: string, transition?: Transition) => void;
 }
 
 const EditorContext = createContext<EditorState | null>(null);
@@ -307,6 +311,15 @@ export const EditorProvider = ({
     );
   };
 
+  const updateTransitionOut = (id: string, transition?: Transition) => {
+    saveSnapshot();
+    setTimeline((t) =>
+      t.map((item) =>
+        item.id === id ? { ...item, transitionOut: transition } : item
+      )
+    );
+  };
+
   // Load mock clips in browser dev from public/mock/clips.json
   React.useEffect(() => {
     if (clips.length === 0) {
@@ -349,6 +362,7 @@ export const EditorProvider = ({
         getTimelineItemEffects,
         updateTimelineItems,
         replaceTimelineItem,
+        updateTransitionOut,
       }}
     >
       {children}
