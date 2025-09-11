@@ -485,10 +485,25 @@ export default function BeatLeapApp() {
       console.log("Cutlist completed");
       setGenerationProgress(80);
 
-      setGenerationStage("Generating preview...");
-      console.log("Stage: Generating preview");
+      // 4. Show immediate preview placeholder
+      setGenerationStage("Preparing preview...");
+      console.log("Stage: Preparing preview");
+      
+      if (videoRef.current) {
+        // Load the original video immediately as a placeholder
+        console.log("Loading original video as preview placeholder");
+        const firstVideo = videos.find(v => v.selected);
+        if (firstVideo) {
+          videoRef.current.src = firstVideo.url;
+          videoRef.current.load();
+          console.log("Placeholder video loaded:", firstVideo.name);
+        }
+      }
 
-      // 4. Generate proxy render and load into player
+      setGenerationStage("Rendering final preview...");
+      console.log("Stage: Rendering final preview");
+
+      // 5. Generate proxy render and load into player
       if (videoRef.current) {
         console.log("=== STARTING PROXY RENDER AND LOAD ===");
         console.log("Session root:", session.root);
@@ -951,19 +966,21 @@ export default function BeatLeapApp() {
               <div className="h-full flex flex-col">
                 <Card className="flex-1 bg-timeline-bg border-panel-border overflow-hidden">
                   <div className="h-full flex items-center justify-center relative p-4">
+                    {/* Always render video element for proxy playback */}
+                    <video
+                      ref={videoRef}
+                      className={`w-full h-full object-contain ${!currentVideo ? 'opacity-0' : ''}`}
+                      style={{ maxWidth: "100%", maxHeight: "100%" }}
+                      controls={true}
+                      onLoadedData={() =>
+                        console.log("Video loaded successfully")
+                      }
+                      onError={(e) => console.error("Video error:", e)}
+                      onCanPlay={() => console.log("Video can play")}
+                    />
+
                     {currentVideo ? (
                       <>
-                        <video
-                          ref={videoRef}
-                          className="w-full h-full object-contain"
-                          style={{ maxWidth: "100%", maxHeight: "100%" }}
-                          controls={true}
-                          onLoadedData={() =>
-                            console.log("Video loaded successfully")
-                          }
-                          onError={(e) => console.error("Video error:", e)}
-                          onCanPlay={() => console.log("Video can play")}
-                        />
 
                         {/* AI Analysis Status */}
                         {(isAnalyzing || isDetectingCuts) && (

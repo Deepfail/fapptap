@@ -1,10 +1,31 @@
 import { join } from "@tauri-apps/api/path";
 import { exists } from "@tauri-apps/plugin-fs";
-import { convertFileSrc } from "@tauri-apps/api/core";
 import { runStage } from "./stages";
 
 export async function getProxyPath(sessionRoot: string): Promise<string> {
   return await join(sessionRoot, "render", "fapptap_proxy.mp4");
+}
+
+export async function createQuickPreview(
+  sessionRoot: string,
+  videoEl: HTMLVideoElement,
+  originalVideos: any[]
+): Promise<void> {
+  console.log(`[preview] Creating quick preview placeholder`);
+  
+  // Show the first selected video immediately as a placeholder
+  const firstVideo = originalVideos.find(v => v.selected);
+  if (firstVideo && videoEl) {
+    console.log(`[preview] Loading placeholder video: ${firstVideo.name}`);
+    videoEl.src = firstVideo.url;
+    videoEl.load();
+    
+    // Add visual indicator that this is a preview
+    videoEl.style.filter = "brightness(0.7) contrast(1.2)";
+    videoEl.style.border = "2px solid #3b82f6";
+    
+    console.log(`[preview] Quick preview loaded`);
+  }
 }
 
 async function waitForFile(
@@ -112,23 +133,34 @@ export async function renderProxyAndLoad(
 
   await waitForFile(proxyPath);
 
-  // Load the proxy with cache-buster
-  let url = convertFileSrc(proxyPath) + `?t=${Date.now()}`;
-  console.log(`[preview] Original URL from convertFileSrc: ${url}`);
+  // Instead of using asset URLs, read the file and create a blob URL (which we know works)
+  console.log(`[preview] Reading proxy file to create blob URL: ${proxyPath}`);
+  
+  try {
+    const { readFile } = await import("@tauri-apps/plugin-fs");
+    const fileData = await readFile(proxyPath);
+    console.log(`[preview] Read file data, size: ${fileData.length} bytes`);
+    
+    // Create blob URL from file data
+    const blob = new Blob([fileData], { type: 'video/mp4' });
+    const url = URL.createObjectURL(blob);
+    console.log(`[preview] Created blob URL: ${url}`);
 
-  // Fix asset protocol URL if it's using http://asset.localhost instead of asset://localhost
-  if (url.startsWith("http://asset.localhost/")) {
-    url = url.replace("http://asset.localhost/", "asset://localhost/");
-    console.log(`[preview] Fixed URL to asset protocol: ${url}`);
+    videoEl.pause();
+    console.log(`[preview] Setting video src to blob URL: ${url}`);
+    
+    // Clear any placeholder styling
+    videoEl.style.filter = "";
+    videoEl.style.border = "";
+    
+    videoEl.src = url;
+    console.log(`[preview] Video src set, calling load()`);
+    videoEl.load();
+    
+  } catch (error) {
+    console.error(`[preview] Error reading file or creating blob:`, error);
+    throw error;
   }
-
-  console.log(`[preview] Final URL for video element: ${url}`);
-
-  videoEl.pause();
-  console.log(`[preview] Setting video src to: ${url}`);
-  videoEl.src = url;
-  console.log(`[preview] Video src set, calling load()`);
-  videoEl.load();
 
   // Add event listeners to debug what happens
   const onLoadedData = () => {
@@ -155,14 +187,16 @@ export async function loadExistingProxy(
     const proxyPath = await getProxyPath(sessionRoot);
 
     if (await exists(proxyPath)) {
-      let url = convertFileSrc(proxyPath) + `?t=${Date.now()}`;
-
-      // Fix asset protocol URL if it's using http://asset.localhost instead of asset://localhost
-      if (url.startsWith("http://asset.localhost/")) {
-        url = url.replace("http://asset.localhost/", "asset://localhost/");
-      }
-
-      console.log(`[preview] Loading existing proxy: ${url}`);
+      console.log(`[preview] Loading existing proxy via blob URL: ${proxyPath}`);
+      
+      // Use blob URL instead of asset URL (which we know works)
+      const { readFile } = await import("@tauri-apps/plugin-fs");
+      const fileData = await readFile(proxyPath);
+      console.log(`[preview] Read existing proxy data, size: ${fileData.length} bytes`);
+      
+      const blob = new Blob([fileData], { type: 'video/mp4' });
+      const url = URL.createObjectURL(blob);
+      console.log(`[preview] Created blob URL for existing proxy: ${url}`);
 
       videoEl.pause();
       videoEl.src = url;
