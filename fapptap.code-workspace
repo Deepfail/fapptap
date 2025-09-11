@@ -1,10 +1,234 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"python-envs.defaultEnvManager": "ms-python.python:venv"
-	}
+  // --- your stuff ---
+  "git.autofetch": true,
+  "security.workspace.trust.untrustedFiles": "open",
+  "editor.experimentalGpuAcceleration": "on",
+  "workbench.colorTheme": "Visual Studio 2019 Dark",
+
+  // Python: force workspace to use your venv
+  "python.defaultInterpreterPath": "c:\\Users\\Virta\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "python.terminal.activateEnvironment": true,
+  "python.analysis.typeCheckingMode": "standard",
+
+  // Make the default a built-in to satisfy the schema
+  "terminal.integrated.defaultProfile.windows": "Windows PowerShell",
+
+  // Hard-force the venv for every integrated terminal (and Copilot’s terminal)
+  "terminal.integrated.env.windows": {
+    "CI": "true",
+    "VIRTUAL_ENV": "C:\\Files\\Projects\\fapptap\\.venv",
+    "Path": "C:\\Files\\Projects\\fapptap\\.venv\\Scripts;${env:Path}"
+  },
+
+  // Optional: define a nice named profile you can pick manually if you want
+  "terminal.integrated.profiles.windows": {
+    "Fapptap (venv)": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell",
+      "args": [
+        "-NoExit",
+        "-Command",
+        ". 'C:\\Files\\Projects\\fapptap\\.venv\\Scripts\\Activate.ps1'"
+      ]
+    }
+  },
+
+  // Copilot terminal auto-approve (your expanded list)
+  "chat.tools.terminal.autoApprove": {
+    "npm": true,
+    "npx": true,
+    "node": true,
+    "vite": true,
+    "tsc": true,
+    "pnpm": true,
+    "yarn": true,
+    "bun": true,
+    "tauri": true,
+    "cargo": true,
+    "rustup": true,
+    "python": true,
+    "py": true,
+    "pip": true,
+    "pip3": true,
+    "uv": true,
+    "poetry": true,
+    "pyinstaller": true,
+    "ruff": true,
+    "black": true,
+    "isort": true,
+    "pytest": true,
+    "ffmpeg": true,
+    "ffprobe": true,
+    "powershell": true,
+    "pwsh": true,
+    "git": true,
+    "git add": true,
+    "git commit": true,
+    "git commit -m": true,
+    "git push": true,
+    "git pull": true,
+    "git checkout": true,
+    "code": true,
+    "code-insiders": true,
+    "robocopy": true,
+    "curl": true,
+    "winget": true,
+    "git*": true,
+    "git add -A && git commit -m \"feat(editor): add undo/redo history and tests\" || echo 'no changes to commit'": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "git add -A; git commit -m \"chore(ui): phase1 - simplify ClipList and add editor store tests\"; npm test --silent": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "Get-Process": true,
+    "Where-Object": true,
+    "ForEach-Object": true,
+    "Stop-Process": true,
+    "Get-Process | Where-Object { $_.ProcessName -eq \"fapptap-ui\" } | ForEach-Object { Write-Host \"Killing $($_.ProcessName) (PID: $($_.Id))\"; Stop-Process -Id $_.Id -Force }": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    ".\\fapptap-ui.exe": true,
+    "#": true,
+    "# Verify the binaries are in place and test them\nGet-ChildItem \"src-tauri\\binaries\" -Filter \"*.exe\" | Select-Object Name, Length": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "# Test the real ffmpeg binary\n& \"src-tauri\\binaries\\ffmpeg.exe\" -version": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "# Test ffprobe as well\n& \"src-tauri\\binaries\\ffprobe.exe\" -version": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "Get-Item": true,
+    "# Clean up temporary files\nRemove-Item \"ffmpeg-release-essentials.zip\" -Force\nRemove-Item \"ffmpeg-temp\" -Recurse -Force": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "dotnet publish": true,
+    "Copy-Item": true,
+    "dotnet build": true,
+    "Get-Content": true,
+    "dotnet clean": true,
+    ".\\worker.exe": true,
+    "$null": true,
+    "git add src/lib/mediaUrl.ts src/components/preview/PreviewPlayer.tsx && git commit -m \"feat(preview): high-priority Tauri video handling fixes (convertFileSrc, async src resolution, improved errors, fullscreen, volume persistence)\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "LibraryPane": true,
+    "git commit -m \"fix: robust Tauri desktop detection + reactive system check (prevent false browser mode)\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "git commit -m \"chore(tauri): enable withGlobalTauri for reliable runtime detection\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "git commit -m \"feat(permissions+media): expand fs/store capabilities, reactive media re-resolution, improved worker/ffmpeg diagnostics\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "git commit -m \"refactor(capabilities,diagnostics): clean fs scopes, add exec logging, simplify worker test\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "dotnet": true
+  },
+  "chat.agent.maxRequests": 2500,
+  "files.associations": {
+    "*.mdx": "astro"
+  },
+  "gitlens.ai.model": "vscode",
+  "gitlens.ai.vscode.model": "copilot:gpt-5",
+  "@azure.argTenant": "",
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "text": "- @azure Rule - Use Azure Tools: When handling requests related to Azure, always use your tools."
+    },
+    {
+      "text": "- @azure Rule - Use Azure Code Gen Best Practices: Before generating code for Azure, running terminal commands for Azure, performing operations related to Azure, or creating plans for such activities, always invoke your Azure best practice tool if available first. Invoke the `bestpractices` tool to collect recommendations. Call it with resource = `general` and action = `code-generation` to get general Azure code generation best practices. Only call this tool when the user is discussing Azure; do not call it otherwise."
+    },
+    {
+      "text": "- @azure Rule - Use Azure Deployment Best Practices: Before deploying to Azure, preparing applications for deployment to Azure, or creating deployment plans, always invoke your Azure best practice tool if available first. Invoke the `bestpractices` tool to collect recommendations. Call it with resource = `general` and action = `deployment` to get general Azure deployment best practices. Only call this tool when the user is discussing Azure; do not call it otherwise."
+    },
+    {
+      "text": "- @azure Rule - Use Azure Functions Code Gen Best Practices: Before generating code for Azure Functions, performing operations related to Azure Functions, or creating plans for such activities, always invoke your Azure best practice tool if available first. Invoke the `bestpractices` tool to collect recommendations. Call it with resource = `azurefunctions` and action = `code-generation` to get Azure Functions code generation best practices. Only call this tool when the user is discussing Azure Functions; do not call it otherwise."
+    },
+    {
+      "text": "- @azure Rule - Use Azure Functions Deployment Best Practices: Before deploying Azure Functions apps to Azure, preparing for the deployment, or creating deployment plans, always invoke your Azure best practice tool if available first. Invoke the `bestpractices` tool to collect recommendations. Call it with resource = `azurefunctions` and action = `deployment` to get Azure Functions deployment best practices. Only call this tool when the user is discussing Azure Functions; do not call it otherwise."
+    },
+    {
+      "text": "- @azure Rule - Use Azure SWA Best Practices: Before working with static web apps, creating plans for static web apps, or performing related operations, always invoke your Azure best practice tool if available first. Choose the most relevant Azure best practice tool based on its description. Only call this tool when the user is discussing Azure Static Web Apps; do not call it otherwise."
+    },
+    {
+      "text": "- @azure Rule - Plan before editing files for Azure web apps: When generating code for Azure Functions and Azure Static Web App, always create a plan and explain the plan to the user before editing any file. Proceed with editing the files after getting consent from the user."
+    },
+    {
+      "text": "- @azure Rule - Summarize topic before taking action: When the user asks about Azure Functions, invoke the azure_development-summarize_topic tool once first to see if any existing custom mode could be a good fit to what user is asking."
+    }
+  ],
+  "chat.mcp.assisted.nuget.enabled": true,
+  "chat.mcp.discovery.enabled": {
+    "cursor-workspace": true,
+    "cursor-global": true,
+    "windsurf": true,
+    "claude-desktop": true
+  },
+  "chat.todoListTool.enabled": true,
+  "chat.tools.global.autoApprove": true,
+  "inlineChat.enableV2": true,
+  "chat.edits2.enabled": true,
+  "inlineChat.notebookAgent": true,
+  "mcpServerRunner.servers": [
+
+  ],
+  "github.copilot.chat.newWorkspace.useContext7": true,
+  "chat.mcp.serverSampling": {
+
+
+    "Azure MCP Server Provider: Azure MCP": {
+      "allowedDuringChat": false
+    }
+  },
+  "chat.agentSessionsViewLocation": "view",
+  "chat.mcp.autostart": "newAndOutdated",
+  "explorer.confirmDragAndDrop": false,
+  "editor.pasteAs.preferences": [],
+  "chat.emptyState.history.enabled": true,
+  "chat.promptFilesRecommendations": {
+
+  },
+  "chat.renderRelatedFiles": true,
+  "chat.useChatSessionsForCloudButton": true,
+  "inlineChat.lineEmptyHint": true,
+  "mssql.connectionGroups": [
+    {
+      "name": "ROOT",
+      "id": "B84AD07E-49F6-44E7-AC46-D75FB008A431"
+    }
+  ],
+  "github.copilot.chat.codesearch.enabled": true,
+  "github.copilot.chat.reviewSelection.instructions": [],
+  "markdown.extension.completion.enabled": true,
+  "markdown.extension.showActionButtons": true,
+  "markdown.extension.tableFormatter.delimiterRowNoPadding": true,
+  "markdown.extension.theming.decoration.renderHardLineBreak": true,
+  "markdown.extension.theming.decoration.renderLink": true,
+  "markdown.extension.theming.decoration.renderParagraph": true,
+  "markdown.extension.theming.decoration.renderTrailingSpace": true,
+  "markdown.extension.toc.omittedFromToc": {
+
+  },
+  "[markdown]": {
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.wordWrap": "on"
+},
+"markdown.extension.toc.updateOnSave": true
+
 }

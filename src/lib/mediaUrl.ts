@@ -49,8 +49,13 @@ export async function toMediaSrc(pathOrUrl: string): Promise<string> {
   if (shouldConvert) {
     const convert = await ensureConvertFileSrc();
     try {
-      const out = convert(raw);
+      let out = convert(raw);
       if (out !== raw) {
+        // Fix asset protocol URL if it's using http://asset.localhost instead of asset://localhost
+        if (out.startsWith("http://asset.localhost/")) {
+          out = out.replace("http://asset.localhost/", "asset://localhost/");
+        }
+
         // Quick heuristic: if it is an asset: URL, keep it; otherwise return.
         if (out.startsWith("asset:")) {
           return out;

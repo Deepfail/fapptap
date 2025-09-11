@@ -472,9 +472,13 @@ def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ra
         if not skip_shots:
             shots = shots_map.get(src, [])
             if not shots:
-                # Try alternative path matching strategies
-                rel_path = str(Path(src).relative_to(Path.cwd())).replace("\\", "/")
-                shots = shots_map.get(rel_path, [])
+                # Try alternative path matching strategies - handle session directories gracefully
+                try:
+                    rel_path = str(Path(src).relative_to(Path.cwd())).replace("\\", "/")
+                    shots = shots_map.get(rel_path, [])
+                except ValueError:
+                    # If relative path fails (e.g., session directory), try other strategies
+                    pass
             if not shots:
                 # Try filename-only matching
                 filename = Path(src).name
@@ -526,9 +530,12 @@ def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ra
         "total_duration": round(total_duration, 3),
         "events": events
     }
-    os.makedirs(Path(out_json).parent, exist_ok=True)
-    with open(out_json, "w", encoding="utf-8") as f:
-        json.dump(out, f, indent=2)
+    # Use atomic write to prevent corruption/stacking
+    output_path = Path(out_json)
+    os.makedirs(output_path.parent, exist_ok=True)
+    tmp = output_path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(out, indent=2), encoding='utf-8')
+    tmp.replace(output_path)
     print(f"Wrote {out_json} with {len(events)} events.")
 
 if __name__ == "__main__":

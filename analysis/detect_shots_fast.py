@@ -74,12 +74,14 @@ for vid in list_videos(media_dir):
     except Exception as e:
         print(f"[ERROR] Failed {vid}: {e}")
 
-# Write output
-out_dir = os.path.dirname(out_json)
-if out_dir:  # Only create directory if there's a directory component
-    os.makedirs(out_dir, exist_ok=True)
-with open(out_json, "w", encoding="utf-8") as f:
-    json.dump(out, f, indent=2)
+# Write output using atomic write to prevent corruption/stacking
+from pathlib import Path
+output_path = Path(out_json)
+if output_path.parent != Path('.'):  # Only create directory if there's a directory component
+    os.makedirs(output_path.parent, exist_ok=True)
+tmp = output_path.with_suffix(".json.tmp")
+tmp.write_text(json.dumps(out, indent=2), encoding='utf-8')
+tmp.replace(output_path)
 
 print(f"Fast shot detection complete!")
 print(f"Processed {total_videos} videos")

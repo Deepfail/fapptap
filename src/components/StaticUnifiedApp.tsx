@@ -50,6 +50,19 @@ import { useEditorStore } from "@/store/timeline";
 import { getStyleTransitions, type StylePreset } from "@/services/styles";
 import { BeatStrip } from "@/components/BeatStrip";
 
+// Utility function to validate beats sanity
+function assertBeatsSane(beatsSec: number[], audioDurSec?: number) {
+  if (!audioDurSec) return;
+  const bpmGuess = (beatsSec.length / audioDurSec) * 60;
+  if (beatsSec.length > audioDurSec * 6 || bpmGuess > 220) {
+    throw new Error(
+      `Beats look wrong: ${
+        beatsSec.length
+      } beats over ${audioDurSec}s (~${bpmGuess.toFixed(1)} BPM)`
+    );
+  }
+}
+
 // File browser item
 interface FileItem {
   path: string;
@@ -616,6 +629,12 @@ export function StaticUnifiedApp() {
         times = beatJson.beats.map((b: any) =>
           typeof b === "number" ? Number(b) : Number(b.time)
         );
+      }
+
+      // Sanity check beats against audio duration if available
+      const audioDuration = state.selectedAudio?.duration;
+      if (times.length > 0 && audioDuration) {
+        assertBeatsSane(times, audioDuration);
       }
 
       const beats = times.map((t) => ({ time: t, confidence: 1.0 }));

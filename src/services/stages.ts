@@ -22,22 +22,31 @@ export async function runStage(
     switch (stage) {
       case "beats":
         await invokeWorker("beats", {
-          song: args.audio, // worker expects --song, not --audio
-          // No --out needed - beats writes to cache/beats.json internally
+          song: args.song || args.audio, // worker expects --song, not --audio
+          base_dir: args.base_dir || args.sessionRoot, // Route to session directory
         });
         break;
       case "cutlist":
         await invokeWorker("cutlist", {
           song: args.song,
-          clips: args.clips,
+          clips: args.clips || args.clipsDir,
           preset: args.preset || "landscape",
           cutting_mode: args.cutting_mode || "medium",
           enable_shot_detection: args.enable_shot_detection,
-          // No --out needed - cutlist writes to cache/cutlist.json internally
+          base_dir: args.base_dir || args.sessionRoot, // Route to session directory
         });
         break;
       case "render":
-        await invokeWorker("render", { proxy: !!args.proxy });
+        console.log(`[stages] Render stage args:`, {
+          proxy: !!args.proxy,
+          base_dir: args.base_dir || args.sessionRoot,
+          preset: args.preset,
+        });
+        await invokeWorker("render", {
+          proxy: !!args.proxy,
+          base_dir: args.base_dir || args.sessionRoot, // Route to session directory
+          preset: args.preset,
+        });
         break;
     }
 
@@ -68,6 +77,9 @@ async function invokeWorker(
       if (args.song) {
         workerArgs.push("--song", normalizePath(args.song));
       }
+      if (args.base_dir) {
+        workerArgs.push("--base_dir", normalizePath(args.base_dir));
+      }
       break;
 
     case "cutlist":
@@ -95,11 +107,15 @@ async function invokeWorker(
         workerArgs.push("--respect_shot_boundaries");
       if (args.energy_threshold)
         workerArgs.push("--energy_threshold", String(args.energy_threshold));
+      if (args.base_dir)
+        workerArgs.push("--base_dir", normalizePath(args.base_dir));
       // DO NOT pass --style or --out - main.py doesn't accept them
       break;
 
     case "render":
       if (args.proxy) workerArgs.push("--proxy");
+      if (args.base_dir)
+        workerArgs.push("--base_dir", normalizePath(args.base_dir));
       if (args.preset) workerArgs.push("--preset", args.preset);
       break;
 

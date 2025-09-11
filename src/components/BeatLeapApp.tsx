@@ -4,11 +4,26 @@ import { toast } from "sonner";
 // Generate Workflow Services
 import { createSession } from "@/services/session";
 import { runStage } from "@/services/stages";
+import { hydrateEditorFromSessionCutlist } from "@/services/cutlist";
+
+// Tauri APIs
+import { join } from "@tauri-apps/api/path";
+import { exists } from "@tauri-apps/plugin-fs";
+
+// Editor Store
+import { useEditor } from "@/state/editorStore";
 
 // UI Components
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -62,8 +77,24 @@ interface SmartCut {
   description: string;
 }
 
+// Beats sanity check function
+function assertBeatsSane(beatsSec: number[], audioDurSec?: number) {
+  if (!audioDurSec) return;
+  const bpmGuess = (beatsSec.length / audioDurSec) * 60;
+  if (beatsSec.length > audioDurSec * 6 || bpmGuess > 220) {
+    throw new Error(
+      `Beats look wrong: ${
+        beatsSec.length
+      } beats over ${audioDurSec}s (~${bpmGuess.toFixed(1)} BPM)`
+    );
+  }
+}
+
 export default function BeatLeapApp() {
   console.log("BeatLeapApp: Rendering new modern UI component");
+
+  // Get editor from EditorProvider
+  const editor = useEditor();
 
   // Add startup logging
   useEffect(() => {
@@ -95,10 +126,22 @@ export default function BeatLeapApp() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [generationStage, setGenerationStage] = useState("");
+  const [selectedPreset, setSelectedPreset] = useState<
+    "landscape" | "portrait" | "square"
+  >("landscape");
+  const [timeoutOccurred, setTimeoutOccurred] = useState(false);
 
   // Analysis State
   const [beats, setBeats] = useState<Beat[]>([]);
   const [smartCuts, setSmartCuts] = useState<SmartCut[]>([]);
+
+  // Session State
+  const [sessionRoot, setSessionRoot] = useState<string | null>(null);
+  const [clipsDir, setClipsDir] = useState<string | null>(null);
+  const [audioFsPath, setAudioFsPath] = useState<string | null>(null);
+  const [audioDurationSec, setAudioDurationSec] = useState<number | undefined>(
+    undefined
+  );
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isDetectingCuts, setIsDetectingCuts] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -401,11 +444,14 @@ export default function BeatLeapApp() {
       console.log("Stage: Analyzing beats");
 
       // 2. Run beats analysis with timeout
-      const beatsPromise = runStage("beats", { audio: session.audio });
+      const beatsPromise = runStage("beats", {
+        audio: session.audio,
+        base_dir: session.root,
+      });
       await Promise.race([
         beatsPromise,
         new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Beats analysis timeout")), 60000)
+          setTimeout(() => reject(new Error("Beats analysis timeout")), 300000)
         ),
       ]);
 
@@ -419,10 +465,11 @@ export default function BeatLeapApp() {
       const cutlistPromise = runStage("cutlist", {
         song: session.audio,
         clips: session.clipsDir,
-        preset: "landscape",
+        preset: selectedPreset,
         cutting_mode: "medium",
         engine: "advanced",
         enable_shot_detection: true,
+        base_dir: session.root,
       });
 
       await Promise.race([
@@ -430,7 +477,7 @@ export default function BeatLeapApp() {
         new Promise((_, reject) =>
           setTimeout(
             () => reject(new Error("Cutlist generation timeout")),
-            120000
+            600000
           )
         ),
       ]);
@@ -441,14 +488,31 @@ export default function BeatLeapApp() {
       setGenerationStage("Generating preview...");
       console.log("Stage: Generating preview");
 
-      // 4. Generate proxy render with timeout
-      const renderPromise = runStage("render", { proxy: true });
-      await Promise.race([
-        renderPromise,
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Render timeout")), 120000)
-        ),
-      ]);
+      // 4. Generate proxy render and load into player
+      if (videoRef.current) {
+        console.log("=== STARTING PROXY RENDER AND LOAD ===");
+        console.log("Session root:", session.root);
+        console.log("Selected preset:", selectedPreset);
+        console.log("Video element:", videoRef.current);
+
+        const { renderProxyAndLoad } = await import("@/services/preview");
+        const renderPromise = renderProxyAndLoad(
+          session.root,
+          videoRef.current,
+          selectedPreset
+        );
+        await Promise.race([
+          renderPromise,
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Render timeout")), 600000)
+          ),
+        ]);
+
+        console.log("=== PROXY RENDER AND LOAD COMPLETED ===");
+      } else {
+        console.error("No video element available for proxy loading");
+        throw new Error("Video element not available");
+      }
 
       console.log("Render completed");
       setGenerationProgress(100);
@@ -470,7 +534,9 @@ export default function BeatLeapApp() {
       // More specific error messages
       let errorMessage = "Generation failed";
       if (err?.message?.includes("timeout")) {
-        errorMessage = `Generation timed out during: ${err.message}`;
+        errorMessage = `Generation timed out during: ${err.message}. The process might still be running. Check if the proxy video was generated.`;
+        // Set a flag to show "Check Result" button
+        setTimeoutOccurred(true);
       } else if (err?.message?.includes("Worker binary not available")) {
         errorMessage =
           "Worker binary is not available or not properly configured";
@@ -487,37 +553,126 @@ export default function BeatLeapApp() {
       setTimeout(() => {
         setGenerationProgress(0);
         setGenerationStage("");
+        if (!timeoutOccurred) {
+          setTimeoutOccurred(false);
+        }
       }, 2000);
     }
   };
 
-  // AI-powered beat detection (simplified)
-  const analyzeAudio = useCallback(async () => {
-    if (!currentVideo) return;
+  const onCreateSession = useCallback(
+    async (videoPaths: string[], audioPath: string) => {
+      try {
+        const session = await createSession(videoPaths, audioPath);
+        setSessionRoot(session.root);
+        setClipsDir(session.clipsDir);
+        setAudioFsPath(session.audio);
 
+        // Set audio duration if available (would come from probe in real implementation)
+        setAudioDurationSec(duration > 0 ? duration : undefined);
+
+        toast.success(`Created session with ${videoPaths.length} videos`);
+      } catch (error) {
+        console.error("Failed to create session:", error);
+        toast.error("Failed to create session");
+      }
+    },
+    [duration]
+  );
+
+  // Generate workflow: beats -> cutlist -> hydrate -> render -> load
+  const onGenerate = useCallback(async () => {
+    if (!sessionRoot || !clipsDir || !audioFsPath) {
+      toast.error(
+        "No session created yet. Please select videos and audio first."
+      );
+      return;
+    }
+
+    setIsGenerating(true);
+    setGenerationProgress(0);
+
+    try {
+      // Step 1: Generate beats
+      setGenerationStage("Analyzing beats...");
+      setGenerationProgress(20);
+      await runStage("beats", { sessionRoot, audio: audioFsPath });
+
+      // Step 2: Generate cutlist
+      setGenerationStage("Building cutlist...");
+      setGenerationProgress(50);
+      await runStage("cutlist", {
+        sessionRoot,
+        song: audioFsPath,
+        clipsDir,
+        preset: "landscape",
+        cutting_mode: "fast",
+      });
+
+      // Step 3: Hydrate editor timeline (REPLACE, don't append)
+      setGenerationStage("Loading timeline...");
+      setGenerationProgress(70);
+      await hydrateEditorFromSessionCutlist(sessionRoot, {
+        updateTimelineItems: (items) => editor.updateTimelineItems(items),
+        selectTimelineItem: (id) => editor.selectTimelineItem(id),
+      });
+
+      // Note: Proxy rendering and loading is handled above in the main workflow
+
+      setGenerationProgress(100);
+      toast.success("Generation completed successfully!");
+    } catch (error) {
+      console.error("Generation failed:", error);
+      toast.error(`Generation failed: ${error}`);
+    } finally {
+      setIsGenerating(false);
+      setTimeout(() => {
+        setGenerationProgress(0);
+        setGenerationStage("");
+      }, 2000);
+    }
+  }, [sessionRoot, clipsDir, audioFsPath, editor]);
+
+  // Load beats from session (replace existing analyzeAudio)
+  const analyzeAudio = useCallback(async () => {
+    if (!sessionRoot) return;
     setIsAnalyzing(true);
 
     try {
-      // Generate sample beats for demo (in real implementation, would use audio analysis)
-      const sampleBeats: Beat[] = [];
-      const beatInterval = 0.6; // ~100 BPM
-      for (let time = 0; time < duration; time += beatInterval) {
-        sampleBeats.push({
-          time,
-          confidence: 0.7 + Math.random() * 0.3,
-          energy: 0.5 + Math.random() * 0.5,
-        });
+      const beatsPath = await join(sessionRoot, "cache", "beats.json");
+      if (!(await exists(beatsPath))) {
+        throw new Error(`beats.json not found at ${beatsPath}`);
       }
 
-      setBeats(sampleBeats);
-      toast.success(`Detected ${sampleBeats.length} beats`);
+      const { readTextFile } = await import("@tauri-apps/plugin-fs");
+      const raw = await readTextFile(beatsPath);
+      const json = JSON.parse(raw);
+
+      // Accept both shapes
+      let times: number[] = [];
+      if (Array.isArray(json.beats_sec)) {
+        times = json.beats_sec.map(Number);
+      } else if (Array.isArray(json.beats)) {
+        times = json.beats.map((b: any) =>
+          typeof b === "number" ? Number(b) : Number(b.time)
+        );
+      }
+
+      if (times.length === 0) throw new Error("No beats found in beats.json");
+      if (audioDurationSec) assertBeatsSane(times, audioDurationSec);
+
+      // REPLACE beats state (don't append)
+      setBeats(times.map((time) => ({ time, confidence: 0.9, energy: 0.7 })));
+
+      toast.success(`Loaded ${times.length} beats from session`);
     } catch (error) {
-      console.error("Error analyzing audio:", error);
-      toast.error("Failed to analyze audio");
+      console.error("Failed to load beats:", error);
+      setBeats([]); // Replace with empty (don't leave stale data)
+      toast.error(`Failed to load beats: ${error}`);
     } finally {
       setIsAnalyzing(false);
     }
-  }, [currentVideo, duration]);
+  }, [sessionRoot, audioDurationSec]);
 
   // Smart cut detection
   const detectSmartCuts = useCallback(async () => {
@@ -596,7 +751,7 @@ export default function BeatLeapApp() {
   }, [currentVideo, volume, analyzeAudio, detectSmartCuts]);
 
   return (
-    <div className="h-screen flex flex-col bg-background text-foreground">
+    <div className="h-screen w-screen flex flex-col bg-background text-foreground overflow-hidden">
       {/* Header */}
       <header className="h-14 border-b border-panel-border bg-card px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -618,7 +773,7 @@ export default function BeatLeapApp() {
       </header>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         <ResizablePanelGroup direction="horizontal" className="flex-1">
           {/* Left Panel - Video Library */}
           <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
@@ -667,7 +822,7 @@ export default function BeatLeapApp() {
                 {/* File input removed - using Tauri dialog instead */}
               </div>
 
-              <ScrollArea className="flex-1">
+              <ScrollArea className="flex-1 min-h-0">
                 <div className="p-3 grid grid-cols-2 gap-1">
                   {videos.map((video) => (
                     <div
@@ -792,16 +947,22 @@ export default function BeatLeapApp() {
 
           {/* Center Panel - Video Player */}
           <ResizablePanel defaultSize={60} minSize={40}>
-            <div className="h-full p-4">
+            <div className="h-full p-4 min-h-0">
               <div className="h-full flex flex-col">
-                <Card className="flex-1 bg-timeline-bg border-panel-border">
-                  <div className="h-full flex items-center justify-center relative">
+                <Card className="flex-1 bg-timeline-bg border-panel-border overflow-hidden">
+                  <div className="h-full flex items-center justify-center relative p-4">
                     {currentVideo ? (
                       <>
                         <video
                           ref={videoRef}
-                          className="max-w-full max-h-full object-contain"
-                          controls={false}
+                          className="w-full h-full object-contain"
+                          style={{ maxWidth: "100%", maxHeight: "100%" }}
+                          controls={true}
+                          onLoadedData={() =>
+                            console.log("Video loaded successfully")
+                          }
+                          onError={(e) => console.error("Video error:", e)}
+                          onCanPlay={() => console.log("Video can play")}
                         />
 
                         {/* AI Analysis Status */}
@@ -828,7 +989,7 @@ export default function BeatLeapApp() {
                         )}
 
                         {/* Video Controls Overlay */}
-                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 backdrop-blur-sm rounded-lg p-3">
+                        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/70 backdrop-blur-sm rounded-lg p-3 z-10">
                           <div className="flex items-center gap-3">
                             <Button
                               size="sm"
@@ -1044,6 +1205,30 @@ export default function BeatLeapApp() {
                   </div>
                 </div>
               )}
+
+              {/* Preset Selector */}
+              <div className="mb-4">
+                <div className="text-sm font-medium mb-2">Video Format</div>
+                <Select
+                  value={selectedPreset}
+                  onValueChange={(value) =>
+                    setSelectedPreset(
+                      value as "landscape" | "portrait" | "square"
+                    )
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select format" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="landscape">
+                      📺 Landscape (16:9)
+                    </SelectItem>
+                    <SelectItem value="portrait">📱 Portrait (9:16)</SelectItem>
+                    <SelectItem value="square">⬜ Square (1:1)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Generate Button */}
               <Button
