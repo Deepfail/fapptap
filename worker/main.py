@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
 import sys, json, time, argparse, subprocess, shlex
 import numpy as np
 from pathlib import Path
+import hashlib
+import os
 
 # Set default encoding for Python 3 and force UTF-8 handling
 import os
@@ -22,6 +23,74 @@ def assert_beats_sane(beats_sec, audio_dur_sec=None):
     if len(beats_sec) > audio_dur_sec * 6 or bpm_guess > 220:
         raise ValueError(f"Beats look wrong: {len(beats_sec)} beats over {audio_dur_sec}s (~{bpm_guess:.1f} BPM)")
     print(f"Beats sanity check passed: {len(beats_sec)} beats over {audio_dur_sec}s (~{bpm_guess:.1f} BPM)")
+
+def get_file_hash(filepath):
+    """Generate MD5 hash of a file for cache validation"""
+    hash_md5 = hashlib.md5()
+    try:
+        with open(filepath, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    except Exception:
+        return None
+
+def get_cache_key(stage, **params):
+    """Generate cache key for a pipeline stage based on parameters"""
+    # Sort parameters to ensure consistent key generation
+    param_str = json.dumps(params, sort_keys=True)
+    cache_hash = hashlib.md5((stage + param_str).encode()).hexdigest()
+    return cache_hash
+
+def is_cache_valid(cache_key, dependencies, base_dir='.'):
+    """Check if cached result is still valid based on file dependencies"""
+    try:
+        base = stage_base_dir(base_dir)
+        cache_info_file = base / "cache" / f".cache_info_{cache_key}.json"
+        if not cache_info_file.exists():
+            return False
+        
+        with open(cache_info_file, 'r') as f:
+            cache_info = json.load(f)
+        
+        # Check if all dependencies exist and haven't changed
+        for dep_path in dependencies:
+            if not Path(dep_path).exists():
+                return False
+            
+            current_hash = get_file_hash(dep_path)
+            stored_hash = cache_info.get("file_hashes", {}).get(dep_path)
+            if current_hash != stored_hash:
+                return False
+        
+        return True
+    except Exception:
+        return False
+
+def save_cache_info(cache_key, dependencies, base_dir='.'):
+    """Save cache validation info for future checks"""
+    try:
+        base = stage_base_dir(base_dir)
+        cache_dir = base / "cache"
+        cache_dir.mkdir(exist_ok=True)
+        
+        file_hashes = {}
+        for dep_path in dependencies:
+            if Path(dep_path).exists():
+                file_hashes[dep_path] = get_file_hash(dep_path)
+        
+        cache_info = {
+            "cache_key": cache_key,
+            "timestamp": time.time(),
+            "file_hashes": file_hashes,
+            "dependencies": dependencies
+        }
+        
+        cache_info_file = cache_dir / f".cache_info_{cache_key}.json"
+        with open(cache_info_file, 'w') as f:
+            json.dump(cache_info, f, indent=2)
+    except Exception:
+        pass  # Non-critical if we can't save cache info
 
 # Force UTF-8 encoding for all I/O operations
 os.environ.setdefault('PYTHONIOENCODING', 'utf-8:replace')
@@ -131,7 +200,7 @@ def run_probe(clips_dir):
     except Exception as e:
         emit("probe", progress=0.0, error=f"Probe error: {safe_str(e)}")
 
-def run_beats(song, engine="advanced", base_dir='.'):
+def run_beats(song, engine="basic", base_dir='.', transition_effects=None):
     emit("beats", progress=0.0, message=f"Loading audio and analyzing beats (engine: {engine})...")
     
     # Ensure song path is properly decoded as UTF-8
@@ -163,6 +232,22 @@ def run_beats(song, engine="advanced", base_dir='.'):
     if not song_path.is_file():
         emit("beats", progress=0.0, error=f"Path is not a file: {song}")
         return
+    
+    # Check cache before proceeding with expensive analysis
+    cache_key = get_cache_key("beats", engine=engine, song=str(song_path))
+    if is_cache_valid(cache_key, [str(song_path)], base_dir):
+        emit("beats", progress=0.1, message="Found valid cache, loading from cache...")
+        try:
+            base = stage_base_dir(base_dir)
+            beats_file = base / "cache" / "beats.json"
+            if beats_file.exists():
+                beats_data = json.loads(beats_file.read_text(encoding='utf-8'))
+                emit("beats", progress=1.0, message=f"Loaded {engine} beat detection from cache",
+                     beats_count=len(beats_data.get("beats", [])),
+                     tempo=beats_data.get("tempo_global", 0))
+                return
+        except Exception as e:
+            emit("beats", progress=0.0, message=f"Cache load failed, proceeding with fresh analysis: {safe_str(e)}")
     
     try:
         if engine == "basic":
@@ -221,6 +306,9 @@ def run_beats(song, engine="advanced", base_dir='.'):
             tmp = beats_out.with_suffix(".json.tmp")
             tmp.write_text(json.dumps(beats_data, indent=2), encoding='utf-8')
             tmp.replace(beats_out)
+            
+            # Save cache info for future validation
+            save_cache_info(cache_key, [str(song_path)], base_dir)
         except Exception as e:
             emit("beats", progress=0.0, error=f"Failed to save beats: {safe_str(e)}")
         
@@ -234,6 +322,33 @@ def run_beats(song, engine="advanced", base_dir='.'):
 
 def run_shots(clips_dir, base_dir='.'):
     emit("shots", progress=0.0)
+    
+    # Validate clips directory exists
+    from pathlib import Path
+    clips_path = Path(clips_dir)
+    if not clips_path.exists() or not clips_path.is_dir():
+        emit("shots", progress=0.0, error=f"Clips directory not found: {clips_dir}")
+        return
+    
+    # Get list of video files for cache validation
+    video_files = []
+    for ext in ['.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm']:
+        video_files.extend(str(f) for f in clips_path.glob(f'*{ext}'))
+        video_files.extend(str(f) for f in clips_path.glob(f'*{ext.upper()}'))
+    
+    # Check cache before proceeding with expensive shot detection
+    cache_key = get_cache_key("shots", clips_dir=clips_dir)
+    if is_cache_valid(cache_key, video_files, base_dir):
+        emit("shots", progress=0.1, message="Found valid cache, loading shots from cache...")
+        try:
+            base = stage_base_dir(base_dir)
+            shots_file = base / "cache" / "shots.json"
+            if shots_file.exists():
+                emit("shots", progress=1.0, message="Loaded shot detection from cache")
+                return
+        except Exception as e:
+            emit("shots", progress=0.0, message=f"Cache load failed, proceeding with fresh shot detection: {safe_str(e)}")
+    
     try:
         # Use fast shot detection instead of slow PySceneDetect
         base = stage_base_dir(base_dir)
@@ -246,6 +361,10 @@ def run_shots(clips_dir, base_dir='.'):
         # Decode output manually with error handling
         stdout = result.stdout.decode('utf-8', errors='replace') if result.stdout else ""
         stderr = result.stderr.decode('utf-8', errors='replace') if result.stderr else ""
+        
+        # Save cache info for future validation
+        save_cache_info(cache_key, video_files, base_dir)
+        
         emit("shots", progress=1.0, message="Fast shot detection completed")
     except subprocess.CalledProcessError as e:
         # Decode stderr with error handling
@@ -254,11 +373,56 @@ def run_shots(clips_dir, base_dir='.'):
     except Exception as e:
         emit("shots", progress=0.0, error=f"Shot detection error: {safe_str(e)}")
 
-def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium", enable_shot_detection=True, base_dir='.'):
+def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium", enable_shot_detection=True, transition_effects=None, base_dir='.'):
     emit("cutlist", progress=0.0)
+    
+    # Validate dependencies
+    from pathlib import Path
+    song_path = Path(song)
+    clips_path = Path(clips_dir)
+    
+    if not song_path.exists():
+        emit("cutlist", progress=0.0, error=f"Audio file not found: {song}")
+        return
+    
+    if not clips_path.exists() or not clips_path.is_dir():
+        emit("cutlist", progress=0.0, error=f"Clips directory not found: {clips_dir}")
+        return
+    
+    # Get video files for cache validation
+    video_files = []
+    for ext in ['.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm']:
+        video_files.extend(str(f) for f in clips_path.glob(f'*{ext}'))
+        video_files.extend(str(f) for f in clips_path.glob(f'*{ext.upper()}'))
+    
+    # Check cache before proceeding with cutlist generation
+    cache_key = get_cache_key("cutlist", song=str(song_path), clips_dir=clips_dir, 
+                             preset=preset, cutting_mode=cutting_mode, 
+                             enable_shot_detection=enable_shot_detection, 
+                             transition_effects=transition_effects)
+    
+    # Dependencies include song, all video files, and intermediate results (beats.json, shots.json)
+    base = stage_base_dir(base_dir)
+    beats_json = base / "cache" / "beats.json"
+    shots_json = base / "cache" / "shots.json"
+    dependencies = [str(song_path)] + video_files
+    if beats_json.exists():
+        dependencies.append(str(beats_json))
+    if shots_json.exists():
+        dependencies.append(str(shots_json))
+    
+    if is_cache_valid(cache_key, dependencies, base_dir):
+        emit("cutlist", progress=0.1, message="Found valid cache, loading cutlist from cache...")
+        try:
+            cutlist_file = base / "cache" / "cutlist.json"
+            if cutlist_file.exists():
+                emit("cutlist", progress=1.0, message="Loaded cutlist generation from cache")
+                return
+        except Exception as e:
+            emit("cutlist", progress=0.0, message=f"Cache load failed, proceeding with fresh cutlist generation: {safe_str(e)}")
+    
     try:
         # Call the existing build_cutlist.py script with correct arguments
-        base = stage_base_dir(base_dir)
         beats_json = str(base / "cache" / "beats.json")
         shots_json = str(base / "cache" / "shots.json")
         output_path = str(base / "cache" / "cutlist.json")
@@ -275,12 +439,21 @@ def run_cutlist(song, clips_dir, preset="landscape", cutting_mode="medium", enab
         # Add the skip-shots flag if shot detection is disabled
         if not enable_shot_detection:
             args.append("--skip-shots")
+        
+        # Add the effects flag if enabled
+        if transition_effects:
+            args.append("--effects")
+            args.append(transition_effects)
 
         result = subprocess.run(args, capture_output=True, text=False, check=True)
 
         # Decode output manually with error handling
         stdout = result.stdout.decode('utf-8', errors='replace') if result.stdout else ""
         stderr = result.stderr.decode('utf-8', errors='replace') if result.stderr else ""
+        
+        # Save cache info for future validation
+        save_cache_info(cache_key, dependencies, base_dir)
+        
         emit("cutlist", progress=1.0, message="Cutlist generation completed")
     except subprocess.CalledProcessError as e:
         # Decode stderr with error handling
@@ -301,7 +474,7 @@ def parse_progress_line(line):
         return {k: v}
     return {}
 
-def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape", base_dir='.'):
+def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape", base_dir='.', global_effects=None):
     """Render final video using cutlist and settings with direct FFmpeg filter_complex"""
     import json
     import subprocess
@@ -323,7 +496,7 @@ def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape"
     
     # All presets use the same cutlist file generated by the workflow
     base = stage_base_dir(base_dir)
-    cutlist_path = str(base / "cache" / "cutlist.json")
+    cutlist_path = str(base / "cache" / "cutlist_small.json")  # Test with small cutlist
     out_path = str(base / "render" / f"fapptap_{render_type}.mp4")
     
     # Delete existing output file to ensure clean render
@@ -352,6 +525,35 @@ def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape"
         return
     
     audio_path = cutlist.get("audio", "")
+    flashes = cutlist.get("flashes", [])  # Load flash windows from cutlist
+    
+    # Check cache before proceeding with expensive render
+    cache_key = get_cache_key("render", proxy=proxy, duration_s=duration_s, preset=preset, 
+                             cutlist_path=cutlist_path)
+    
+    # Dependencies include cutlist file, audio file, and all video source files
+    dependencies = [cutlist_path]
+    if audio_path and Path(audio_path).exists():
+        dependencies.append(audio_path)
+    for event in events:
+        src_path = event.get("src", "")
+        if Path(src_path).exists():
+            dependencies.append(src_path)
+    
+    render_type = "proxy" if proxy else "final"
+    out_path = str(base / "render" / f"fapptap_{render_type}.mp4")
+    
+    # Ensure render directory exists
+    render_dir = base / "render"
+    render_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Debug: Created render directory: {render_dir}", file=sys.stderr, flush=True)
+    
+    if is_cache_valid(cache_key, dependencies, base_dir) and Path(out_path).exists():
+        emit("render", progress=0.1, msg="Found valid cache, skipping render...")
+        emit("render", progress=1.0, msg=f"Loaded {render_type} render from cache", 
+             output_path=out_path)
+        return
+    
     target_width = cutlist.get("width", 1920)
     target_height = cutlist.get("height", 1080)
     target_fps = cutlist.get("fps", 60)
@@ -370,17 +572,42 @@ def run_render(proxy=True, ffmpeg_path=None, duration_s=None, preset="landscape"
         return
     
     # Use direct rendering approach - no batching, single FFmpeg command
-    success = render_direct_filter_complex(events, audio_path, target_width, target_height, target_fps, proxy, render_type, out_path, ffmpeg_path)
+    print(f"Debug: About to render to output path: {out_path}", file=sys.stderr, flush=True)
+    success = render_direct_filter_complex(events, audio_path, target_width, target_height, target_fps, proxy, render_type, out_path, ffmpeg_path, flashes, global_effects)
+    
+    print(f"Debug: Render function returned success={success}", file=sys.stderr, flush=True)
+    print(f"Debug: Output file exists after render: {Path(out_path).exists()}", file=sys.stderr, flush=True)
+    if Path(out_path).exists():
+        print(f"Debug: Output file size: {Path(out_path).stat().st_size} bytes", file=sys.stderr, flush=True)
+    
+    if success:
+        # Save cache info for future validation
+        save_cache_info(cache_key, dependencies, base_dir)
     
     if not success:
         return  # Error already emitted
 
 
-def render_direct_filter_complex(events, audio_path, target_width, target_height, target_fps, proxy, render_type, out_path, ffmpeg_path):
+def build_enable_expr(flashes):
+    """Build FFmpeg enable expression from flash windows"""
+    if not flashes:
+        return ""
+    # Sum of between(...) terms, e.g. between(t,1.23,1.28)+between(t,3.45,3.50)
+    return "+".join(
+        f"between(t,{f['start']:.3f},{f['end']:.3f})" 
+        for f in flashes
+    )
+
+def render_direct_filter_complex(events, audio_path, target_width, target_height, target_fps, proxy, render_type, out_path, ffmpeg_path, flashes=None, global_effects=None):
     """Render using a single FFmpeg filter_complex command - no intermediate files"""
     import subprocess
     import time
     from pathlib import Path
+    
+    if global_effects is None:
+        global_effects = []
+    
+    print(f"DEBUG: Global effects: {global_effects}", file=sys.stderr, flush=True)
     
     try:
         # Calculate total expected duration for progress tracking
@@ -399,7 +626,7 @@ def render_direct_filter_complex(events, audio_path, target_width, target_height
         
         # For too many clips, we might hit command line limits, so batch if needed
         if len(events) > 200:  # Increased limit - most systems can handle 200+ clips
-            return render_with_smart_batching(events, audio_path, target_width, target_height, target_fps, proxy, render_type, out_path, ffmpeg_path)
+            return render_with_smart_batching(events, audio_path, target_width, target_height, target_fps, proxy, render_type, out_path, ffmpeg_path, global_effects)
         
         # Build FFmpeg command with filter_complex
         input_args = []
@@ -431,13 +658,91 @@ def render_direct_filter_complex(events, audio_path, target_width, target_height
             
             input_idx = input_map[src_path]
             
+            # Parse per-clip effects
+            clip_effects = {}
+            if "effects" in event:
+                print(f"DEBUG: Event {i} has effects: {event['effects']}", file=sys.stderr, flush=True)
+                # Convert effects list to dictionary
+                for effect in event["effects"]:
+                    if ":" in effect:
+                        key, value = effect.split(":", 1)
+                        clip_effects[key] = value
+                    else:
+                        clip_effects[effect] = True
+                print(f"DEBUG: Parsed clip_effects for event {i}: {clip_effects}", file=sys.stderr, flush=True)
+            
             # Create video filter for this clip: seek, trim, scale to fill and crop
             video_filter = (f"[{input_idx}:v]trim=start={in_time}:end={out_time},setpts=PTS-STARTPTS,"
                            f"scale={target_width}:{target_height}:force_original_aspect_ratio=increase,"
                            f"crop={target_width}:{target_height},"
-                           f"fps={target_fps},format=yuv420p,setsar=1[v{i}]")
+                           f"fps={target_fps},format=yuv420p,setsar=1")
+            
+            # Apply per-clip effects
+            filter_chain = [f"[{input_idx}:v]trim=start={in_time}:end={out_time},setpts=PTS-STARTPTS"]
+            intermediate_label = f"trimmed{i}"
+            
+            # Apply punch_in zoom effect if present
+            if "punch_in" in clip_effects:
+                zoom_factor = float(clip_effects["punch_in"])
+                zoom_filter = f"scale=iw*{zoom_factor}:ih*{zoom_factor},crop={target_width}:{target_height}"
+                filter_chain.append(f"[{intermediate_label}]{zoom_filter}[zoomed{i}]")
+                intermediate_label = f"zoomed{i}"
+            else:
+                # Standard scale and crop
+                filter_chain.append(f"[{intermediate_label}]scale={target_width}:{target_height}:force_original_aspect_ratio=increase,crop={target_width}:{target_height}[scaled{i}]")
+                intermediate_label = f"scaled{i}"
+            
+            # Apply flash effect if enabled globally or per-clip
+            flash_enabled = "flash" in global_effects if global_effects else False
+            if "flash_transition" in clip_effects or flash_enabled:
+                # Add 50ms brightness flash at start of clip
+                flash_filter = f"eq=brightness=0.4:enable='between(t,0,0.05)'"
+                filter_chain.append(f"[{intermediate_label}]{flash_filter}[flashed{i}]")
+                intermediate_label = f"flashed{i}"
+            
+            # Apply fade_in effect if present
+            if "fade_in" in clip_effects:
+                fade_duration = float(clip_effects["fade_in"])
+                fade_filter = f"fade=in:0:{int(fade_duration * target_fps)}"
+                filter_chain.append(f"[{intermediate_label}]{fade_filter}[faded{i}]")
+                intermediate_label = f"faded{i}"
+            
+            # Apply zoom_in effect if present
+            if "zoom_in" in clip_effects:
+                zoom_duration = float(clip_effects["zoom_in"])
+                # Gradual zoom from 1.0 to 1.2 over specified duration
+                zoom_filter = f"scale=iw*'1+0.2*min(t/{zoom_duration},1)':ih*'1+0.2*min(t/{zoom_duration},1)',crop={target_width}:{target_height}"
+                filter_chain.append(f"[{intermediate_label}]{zoom_filter}[zoomed_in{i}]")
+                intermediate_label = f"zoomed_in{i}"
+            
+            # Apply slide effects if present
+            if "slide_left" in clip_effects:
+                slide_duration = float(clip_effects["slide_left"])
+                # Slide in from right edge over specified duration
+                slide_filter = f"crop={target_width}:{target_height}:'w*min(t/{slide_duration},1)':0"
+                filter_chain.append(f"[{intermediate_label}]{slide_filter}[slid_left{i}]")
+                intermediate_label = f"slid_left{i}"
+            
+            if "slide_right" in clip_effects:
+                slide_duration = float(clip_effects["slide_right"])
+                # Slide in from left edge over specified duration  
+                slide_filter = f"crop={target_width}:{target_height}:'w*(1-min(t/{slide_duration},1))':0"
+                filter_chain.append(f"[{intermediate_label}]{slide_filter}[slid_right{i}]")
+                intermediate_label = f"slid_right{i}"
+            
+            # Finalize with fps and format
+            filter_chain.append(f"[{intermediate_label}]fps={target_fps},format=yuv420p,setsar=1[v{i}]")
+            
+            # Combine the full filter chain for this clip
+            video_filter = ",".join([part.split(']', 1)[-1] if ']' in part else part for part in filter_chain])
+            video_filter = f"[{input_idx}:v]{video_filter}"
+            
             filter_parts.append(video_filter)
             clip_outputs.append(f"[v{i}]")
+            
+            # Debug: Print the first few filters to see what's being generated
+            if i < 2:
+                print(f"DEBUG direct: Clip {i} filter: {video_filter}", file=sys.stderr, flush=True)
         
         if not clip_outputs:
             emit("render", progress=0.0, error="No valid video clips found")
@@ -448,6 +753,17 @@ def render_direct_filter_complex(events, audio_path, target_width, target_height
         # Concatenate all video streams
         video_concat = "".join(clip_outputs) + f"concat=n={len(clip_outputs)}:v=1:a=0[outv]"
         filter_parts.append(video_concat)
+        
+        # Add flash effect if we have flash windows
+        last_label = "outv"
+        if flashes:
+            enable_expr = build_enable_expr(flashes)
+            if enable_expr:
+                # Use brightness pop for reliable, fast flash effect
+                flash_filter = f"[{last_label}]eq=brightness=0.35:contrast=1.1:enable='{enable_expr}'[vf_flash]"
+                filter_parts.append(flash_filter)
+                last_label = "vf_flash"
+                print(f"DEBUG: Applied flash effect with {len(flashes)} windows", file=sys.stderr, flush=True)
         
         # Combine all filters
         filter_complex = ";".join(filter_parts)
@@ -461,8 +777,8 @@ def render_direct_filter_complex(events, audio_path, target_width, target_height
         # Add filter complex
         cmd_args.extend(["-filter_complex", filter_complex])
         
-        # Map video output
-        cmd_args.extend(["-map", "[outv]"])
+        # Map video output using the final label
+        cmd_args.extend(["-map", f"[{last_label}]"])
         
         # Add audio if available - loop to match video duration
         if audio_input_index >= 0:
@@ -547,7 +863,7 @@ def render_direct_filter_complex(events, audio_path, target_width, target_height
         return False
 
 
-def render_with_smart_batching(events, audio_path, target_width, target_height, target_fps, proxy, render_type, out_path, ffmpeg_path):
+def render_with_smart_batching(events, audio_path, target_width, target_height, target_fps, proxy, render_type, out_path, ffmpeg_path, global_effects=None):
     """Handle very large numbers of clips by batching smartly"""
     import tempfile
     import subprocess
@@ -572,7 +888,7 @@ def render_with_smart_batching(events, audio_path, target_width, target_height, 
                      msg=f"Rendering batch {batch_idx//max_clips_per_batch + 1} with {len(batch_events)} clips...")
                 
                 # Use direct rendering for this batch (no audio at batch level)
-                if not render_batch_no_audio(batch_events, target_width, target_height, target_fps, proxy, batch_output, ffmpeg_path):
+                if not render_batch_no_audio(batch_events, target_width, target_height, target_fps, proxy, batch_output, ffmpeg_path, global_effects):
                     return False
                 
                 batch_files.append(batch_output)
@@ -589,7 +905,7 @@ def render_with_smart_batching(events, audio_path, target_width, target_height, 
         return False
 
 
-def render_batch_no_audio(events, target_width, target_height, target_fps, proxy, output_path, ffmpeg_path):
+def render_batch_no_audio(events, target_width, target_height, target_fps, proxy, output_path, ffmpeg_path, global_effects=None):
     """Render a batch of clips without audio"""
     # Implementation similar to render_direct_filter_complex but without audio
     # This is a simplified version for batching
@@ -628,12 +944,51 @@ def render_batch_no_audio(events, target_width, target_height, target_fps, proxy
         
         input_idx = input_map[src_path]
         
-        video_filter = (f"[{input_idx}:v]trim=start={in_time}:end={out_time},setpts=PTS-STARTPTS,"
-                       f"scale={target_width}:{target_height}:force_original_aspect_ratio=increase,"
-                       f"crop={target_width}:{target_height},"
-                       f"fps={target_fps},format=yuv420p,setsar=1[v{i}]")
+        # Parse per-clip effects
+        clip_effects = {}
+        if "effects" in event:
+            # Convert effects list to dictionary
+            for effect in event["effects"]:
+                if ":" in effect:
+                    key, value = effect.split(":", 1)
+                    clip_effects[key] = value
+                else:
+                    clip_effects[effect] = True
+        
+        # Apply effects-aware filter chain (same logic as direct render)
+        filter_chain = []
+        intermediate_label = f"trimmed{i}"
+        
+        # Start with trim and setpts
+        filter_chain.append(f"trim=start={in_time}:end={out_time},setpts=PTS-STARTPTS")
+        
+        # Apply punch_in zoom effect if present
+        if "punch_in" in clip_effects:
+            zoom_factor = float(clip_effects["punch_in"])
+            zoom_filter = f"scale=iw*{zoom_factor}:ih*{zoom_factor},crop={target_width}:{target_height}"
+            filter_chain.append(zoom_filter)
+        else:
+            # Standard scale and crop
+            filter_chain.append(f"scale={target_width}:{target_height}:force_original_aspect_ratio=increase,crop={target_width}:{target_height}")
+        
+        # Apply flash effect if enabled globally or per-clip
+        flash_enabled = "flash" in global_effects if global_effects else False
+        if "flash_transition" in clip_effects or flash_enabled:
+            # Add 50ms brightness flash at start of clip
+            flash_filter = f"eq=brightness=0.4:enable='between(t,0,0.05)'"
+            filter_chain.append(flash_filter)
+        
+        # Finalize with fps and format
+        filter_chain.append(f"fps={target_fps},format=yuv420p,setsar=1")
+        
+        # Combine the full filter chain for this clip
+        video_filter = f"[{input_idx}:v]{','.join(filter_chain)}[v{i}]"
         filter_parts.append(video_filter)
         clip_outputs.append(f"[v{i}]")
+        
+        # Debug: Print the first few filters to see what's being generated
+        if i < 2:
+            print(f"DEBUG batch: Clip {i} filter: {video_filter}", file=sys.stderr, flush=True)
     
     if not clip_outputs:
         return False
@@ -773,6 +1128,7 @@ if __name__ == "__main__":
     ap.add_argument("--cutting_mode", default="medium", choices=["slow", "medium", "fast", "ultra_fast", "random", "auto"])
     ap.add_argument("--engine", default="advanced", choices=["basic", "advanced"])
     ap.add_argument("--enable_shot_detection", action="store_true", help="Enable shot detection for cutlist generation")
+    # Remove old flash_transition argument - now using effects
     
     # Cut settings arguments (from UI)
     ap.add_argument("--min_clip_length", type=float, default=0.5, help="Minimum clip length in seconds")
@@ -782,6 +1138,7 @@ if __name__ == "__main__":
     ap.add_argument("--prefer_downbeats", action="store_true", help="Prefer cutting on downbeats")
     ap.add_argument("--respect_shot_boundaries", action="store_true", help="Respect shot boundaries when cutting")
     ap.add_argument("--energy_threshold", type=float, default=0.5, help="Energy threshold for clip selection")
+    ap.add_argument("--effects", default="", help="Comma-separated global effects (e.g., flash,zoom)")
     
     args = ap.parse_args()
 
@@ -813,5 +1170,8 @@ if __name__ == "__main__":
             emit("shots", progress=0.0, error="No clips directory provided. Please select a clips directory first.")
         else:
             run_shots(args.clips, base_dir=getattr(args, 'base_dir', '.'))
-    if args.stage == "cutlist": run_cutlist(args.song, args.clips, args.preset, args.cutting_mode, args.enable_shot_detection, base_dir=getattr(args, 'base_dir', '.'))
-    if args.stage == "render":  run_render(proxy=args.proxy, preset=args.preset, base_dir=getattr(args, 'base_dir', '.'))
+    if args.stage == "cutlist": run_cutlist(args.song, args.clips, args.preset, args.cutting_mode, args.enable_shot_detection, args.effects, base_dir=getattr(args, 'base_dir', '.'))
+    if args.stage == "render":  
+        # Parse global effects from comma-separated string
+        global_effects = [effect.strip() for effect in args.effects.split(',') if effect.strip()] if args.effects else []
+        run_render(proxy=args.proxy, preset=args.preset, base_dir=getattr(args, 'base_dir', '.'), global_effects=global_effects)

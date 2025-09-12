@@ -274,7 +274,39 @@ def apply_cutting_mode(beat_times, cutting_mode="medium", audio_path=None):
         
         return new_beat_times
 
-def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ratio=None, cutting_mode=None, skip_shots=False, min_duration_override=None, beat_stride_override=None, snap_tol_override=None):
+def attach_flashes(events, default_dur=0.05, every_n=1):
+    """Compute flash windows based on events timeline"""
+    flashes = []
+    t = 0.0
+    for i, ev in enumerate(events):
+        dur = max(0.0, ev['out'] - ev['in'])
+        # Apply flash to every clip (every_n=1) or specific intervals
+        if (i % every_n) == 0:
+            # Clamp duration between 20-120ms as suggested
+            flash_dur = max(0.02, min(default_dur, 0.12))
+            flashes.append({"start": round(t, 3), "end": round(t + flash_dur, 3)})
+        t += dur
+    return flashes
+
+def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ratio=None, cutting_mode=None, skip_shots=False, transition_effects=None, min_duration_override=None, beat_stride_override=None, snap_tol_override=None):
+    # Available transition effects
+    AVAILABLE_EFFECTS = {
+        "flash": "flash_transition:0.05",
+        "punch_in": "punch_in:0.15", 
+        "fade_in": "fade_in:0.3",
+        "zoom_in": "zoom_in:0.2",
+        "slide_left": "slide_left:0.25",
+        "slide_right": "slide_right:0.25"
+    }
+    
+    # Parse selected effects
+    selected_effects = []
+    if transition_effects:
+        effect_names = [e.strip() for e in transition_effects.split(',') if e.strip()]
+        for name in effect_names:
+            if name in AVAILABLE_EFFECTS:
+                selected_effects.append(AVAILABLE_EFFECTS[name])
+    
     beats = load_json(beats_json)
     
     # Handle different beats.json formats
@@ -426,6 +458,16 @@ def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ra
     cursor = defaultdict(float)
 
     events = []
+    
+    # Pre-shuffle effect pool for random distribution
+    effect_pool = []
+    if selected_effects:
+        # Estimate number of events (conservative)
+        estimated_events = len(beat_times) - 1
+        while len(effect_pool) < estimated_events:
+            effect_pool.extend(selected_effects)
+        random.shuffle(effect_pool)
+    
     vid_i = 0
     print(f"Processing {len(beat_times)} beat intervals...")
     
@@ -504,6 +546,12 @@ def main(beats_json, shots_json, audio_path, out_json, clips_dir=None, aspect_ra
         effects = []
         if len(events) % 4 == 0:
             effects = ["punch_in:0.10"]  # 10% zoom on every 4th event
+        
+        # Add random transition effect if any are selected
+        if selected_effects and effect_pool:
+            event_index = len(events)  # Current event index
+            if event_index < len(effect_pool):
+                effects.append(effect_pool[event_index])
 
         events.append({
             "src": src,
@@ -548,6 +596,7 @@ if __name__ == "__main__":
     parser.add_argument("aspect_ratio", nargs="?", default="wide", help="Aspect ratio preset")
     parser.add_argument("cutting_mode", nargs="?", default="medium", help="Cutting mode")
     parser.add_argument("--skip-shots", action="store_true", help="Skip shot detection and use time-based cutting only")
+    parser.add_argument("--effects", type=str, help="Comma-separated list of transition effects: flash,punch_in,fade_in,zoom_in,slide_left,slide_right")
     parser.add_argument("--min-duration", type=float, default=None, help="Override minimum cut duration (seconds)")
     parser.add_argument("--beat-stride", type=int, default=None, help="Extra beat stride (1 = every beat, 2 = every other)")
     parser.add_argument("--snap-tol", type=float, default=None, help="Shot snap tolerance in seconds")
@@ -566,7 +615,7 @@ if __name__ == "__main__":
         cutting_mode = sys.argv[7] if len(sys.argv) > 7 else None
         skip_shots = "--skip-shots" in sys.argv
         
-        main(beats_json, shots_json, audio_path, out_json, clips_dir, aspect_ratio, cutting_mode, skip_shots, min_duration_override=None, beat_stride_override=None, snap_tol_override=None)
+        main(beats_json, shots_json, audio_path, out_json, clips_dir, aspect_ratio, cutting_mode, skip_shots, transition_effects=None, min_duration_override=None, beat_stride_override=None, snap_tol_override=None)
     else:
         # New argparse style
         main(
@@ -578,6 +627,7 @@ if __name__ == "__main__":
             args.aspect_ratio,
             args.cutting_mode,
             args.skip_shots,
+            getattr(args, 'effects', None),
             min_duration_override=args.min_duration,
             beat_stride_override=args.beat_stride,
             snap_tol_override=args.snap_tol,
